@@ -2,7 +2,7 @@
 
 ## tldr
 
-Within extender include decoder-improved.jar. 
+Within extender load Decoder-Improved.jar. 
 
 ## Summary
 

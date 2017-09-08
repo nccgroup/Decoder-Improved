@@ -1,0 +1,57 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:+'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    // maven {
+    //     url "https://repo1.maven.org/maven2"
+    // }
+}
+
+dependencies {
+    compile group: 'org.exbin.deltahex', name: 'deltahex-core', version: '0.1.1'
+    compile group: 'org.exbin.deltahex', name: 'deltahex-swing', version: '0.1.1'
+    compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.54'
+    compile group: 'com.google.guava', name: 'guava', version: '+'
+    //compile group: 'org.brotli', name: 'dec', version: '0.1.2'
+    //compile group: 'org.brotli', name: 'parent', version: '0.1.2'
+    compile 'net.portswigger.burp.extender:burp-extender-api:1.7.13'
+}
+
+//noinspection GroovyAssignabilityCheck
+sourceSets {
+    main {
+        java {
+            srcDirs = ["src"]
+        }
+
+        resources {
+            srcDirs = ['res']
+        }
+    }
+}
+
+defaultTasks 'shadowJar'
+
+
+//noinspection GroovyAssignabilityCheck
+jar {
+    manifest {
+        attributes (
+                "Manifest-Version": "1.0",
+        )
+    }
+}

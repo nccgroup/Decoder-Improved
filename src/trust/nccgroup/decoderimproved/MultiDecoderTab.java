@@ -71,8 +71,8 @@ public class MultiDecoderTab extends JPanel implements ITab {
                 }
             }
             for (int i = 0; i < main.getTabCount()-1; i++) {
-                //DecoderTab.DecoderTabHandle dth = (DecoderTab.DecoderTabHandle) main.getTabComponentAt(i);
-                //dth.tabName.setEditable(false);
+                DecoderTab.DecoderTabHandle dth = (DecoderTab.DecoderTabHandle) main.getTabComponentAt(i);
+                dth.tabName.setEditable(false);
             }
 
         });
@@ -126,17 +126,6 @@ public class MultiDecoderTab extends JPanel implements ITab {
             for (DecoderSegment ds : dt.getDecoderSegments()) {
                 ds.updateEditors(dt.getDecoderSegments().get(0).dsState);
             }
-            //overallCount += 1;
-            //DecoderTab mt2 = new DecoderTab(Integer.toString(overallCount, 10), this);
-            //mt2.decoderSegments.get(0).dsState.setByteArrayList(selectedTextBytes);
-            //mt2.decoderSegments.get(0).updateEditors(mt2.decoderSegments.get(0).dsState);
-            //callbacks.customizeUiComponent(mt2);
-            //main.add(mt2);
-            //main.setTabComponentAt(main.indexOfComponent(mt2), mt2.getTabHandleElement());
-            //main.setSelectedComponent(mt2);
-            //// This moves the '...' tab to the end of the tab list
-            //main.remove(newTabButton);
-            //main.add(newTabButton);
         } else {
             DecoderTab dt = (DecoderTab) main.getComponentAt(firstEmptyDecoder());
             dt.getDecoderSegments().get(0).dsState.setByteArrayList(selectedTextBytes);
@@ -215,7 +204,7 @@ public class MultiDecoderTab extends JPanel implements ITab {
                     public void mouseClicked(MouseEvent e) {
                         if (!parentTabbedPane.getSelectedComponent().equals(decoderTab)) {
                             parentTabbedPane.setSelectedComponent(decoderTab);
-                            for (int i = 0; i < parentTabbedPane.getTabCount(); i++) {
+                            for (int i = 0; i < parentTabbedPane.getTabCount()-1; i++) {
                                 if (!parentTabbedPane.getComponentAt(i).equals(decoderTab)) {
                                     DecoderTabHandle dth = (DecoderTabHandle) parentTabbedPane.getTabComponentAt(i);
                                     dth.tabName.setEditable(false);

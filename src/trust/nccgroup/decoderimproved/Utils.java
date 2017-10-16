@@ -139,4 +139,22 @@ public class Utils {
         }
         return output;
     }
+    
+    // Converts Url byte[] to normal byte[] by replacing the chars
+    // "-" (0x2D) -> "+" (0x2B)
+    // "_" (0x5F) -> "/" (0x2F)
+    // Because we just want to two simple replaces we can just iterate over the byte array
+    public static byte[] convertUrlBase64ToStandard(byte[] input) {
+        for (int i = 0; i < input.length ; i ++) {
+            if (input[i] == 0x2D) {
+                // this just looks cooler than a simple replacement
+                // input[i] = input[i] - 0x02 
+                input[i] = 0x2B;
+            } else if (input[i] == 0x5F) {
+                // input[i] = input[i] - 0x30
+                input[i] = 0x2F;
+            }
+        }
+        return input;
+    }
 }

@@ -29,6 +29,8 @@ public class EncodeMode extends ModificationMode {
         encoders.add(new HTMLEncoder());
         encoders.add(new HTMLSpecialCharEncoder());
         encoders.add(new Base64Encoder());
+        // Add base64 URL safe encoding
+        encoders.add(new Base64UrlEncoder());
         encoders.add(new ASCIIHexEncoder());
         encoders.add(new GZIPEncoder());
         //encoders.add(new FooBarEncoder());
@@ -44,9 +46,13 @@ public class EncodeMode extends ModificationMode {
             encoderComboBox.addItem(modifier.getName());
         }
 
+        // Show all items
+        encoderComboBox.setMaximumRowCount(encoders.size());
+
 		// Create a JPanel to contain the JComboBox with all the encode names.
         comboBoxPanel = new JPanel();
         comboBoxPanel.setLayout(new BoxLayout(comboBoxPanel, BoxLayout.PAGE_AXIS));
+        // JPanel does not honor these settings, works based on combobox dimensions
         comboBoxPanel.setMaximumSize(new Dimension(180, 40));
         comboBoxPanel.setMinimumSize(new Dimension(180, 40));
         comboBoxPanel.setPreferredSize(new Dimension(180, 40));

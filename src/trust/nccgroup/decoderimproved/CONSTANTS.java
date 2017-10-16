@@ -5,5 +5,5 @@ package trust.nccgroup.decoderimproved;
  */
 public class CONSTANTS {
     public static final int COMBO_BOX_WIDTH = 140;
-    public static final int COMBO_BOX_HEIGHT = 20;
+    public static final int COMBO_BOX_HEIGHT = 25;
 }

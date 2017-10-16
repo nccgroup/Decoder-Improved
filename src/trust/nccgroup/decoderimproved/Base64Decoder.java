@@ -13,6 +13,10 @@ public class Base64Decoder extends ByteModifier {
 
     // Base64 Encode the bytes
     public byte[] modifyBytes(byte[] input) throws ModificationException{
+
+        // Convert from Url safe
+        input = Utils.convertUrlBase64ToStandard(input);
+        
         try {
             Base64.Decoder decoder = Base64.getDecoder();
             return decoder.decode(input);

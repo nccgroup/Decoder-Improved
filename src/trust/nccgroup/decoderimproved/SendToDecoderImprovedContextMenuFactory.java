@@ -36,11 +36,12 @@ class SendToDecoderImprovedContextMenuFactory implements IContextMenuFactory {
                 //tab.receiveTextFromMenu(new String(requestResponses[0].getRequest(), "UTF-8").substring(start, end));
                 if (start == end) {
                     tab.receiveTextFromMenu(UTF8StringEncoder.newUTF8String(requestResponses[0].getRequest()));
+                    Utils.highlightParentTab((JTabbedPane) tab.getUiComponent().getParent(), tab.getUiComponent());
                 } else {
                     tab.receiveTextFromMenu(UTF8StringEncoder.newUTF8String(requestResponses[0].getRequest()).substring(start, end));
+                    Utils.highlightParentTab((JTabbedPane) tab.getUiComponent().getParent(), tab.getUiComponent());
                 }
             };
-            Utils.highlightParentTab((JTabbedPane) tab.getUiComponent().getParent(), tab.getUiComponent());
             //System.out.println("1");
         } else if (ctx == IContextMenuInvocation.CONTEXT_MESSAGE_EDITOR_RESPONSE ||
             ctx == IContextMenuInvocation.CONTEXT_MESSAGE_VIEWER_RESPONSE) {
@@ -50,12 +51,13 @@ class SendToDecoderImprovedContextMenuFactory implements IContextMenuFactory {
                 int end = invocation.getSelectionBounds()[1];
                 if (start == end) {
                     tab.receiveTextFromMenu(UTF8StringEncoder.newUTF8String(requestResponses[0].getResponse()));
+                    Utils.highlightParentTab((JTabbedPane) tab.getUiComponent().getParent(), tab.getUiComponent());
                 } else {
                     tab.receiveTextFromMenu(UTF8StringEncoder.newUTF8String(requestResponses[0].getResponse()).substring(start, end));
+                    Utils.highlightParentTab((JTabbedPane) tab.getUiComponent().getParent(), tab.getUiComponent());
                 }
             };
 
-            Utils.highlightParentTab((JTabbedPane) tab.getUiComponent().getParent(), tab.getUiComponent());
         } else {
             listener = e -> { };
         }

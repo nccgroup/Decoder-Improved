@@ -98,10 +98,10 @@ public class MultiDecoderTab extends JPanel implements ITab {
     }
 
     public int firstEmptyDecoder() {
-        for (int i = main.getTabCount() - 1; i >= 0; i--) {
-            JPanel currentTabPanel = (JPanel)main.getComponentAt(i);
-            for (Component c : currentTabPanel.getComponents()) {
-                JScrollPane d = (JScrollPane)c;
+        if (main.getComponentAt(main.getTabCount()-2) instanceof DecoderTab) {
+            DecoderTab dt = (DecoderTab) main.getComponentAt(main.getTabCount()-2);
+            if (dt.getDecoderSegments().get(0).dsState.getDisplayString().equals("")) {
+                return main.getTabCount() - 2;
             }
         }
         return -1;
@@ -118,21 +118,32 @@ public class MultiDecoderTab extends JPanel implements ITab {
         }
         if (firstEmptyDecoder() == -1) {
             // Add a new tab
-            overallCount += 1;
-            DecoderTab mt2 = new DecoderTab(Integer.toString(overallCount, 10), this);
-            mt2.decoderSegments.get(0).dsState.setByteArrayList(selectedTextBytes);
-            mt2.decoderSegments.get(0).updateEditors(mt2.decoderSegments.get(0).dsState);
-            callbacks.customizeUiComponent(mt2);
-            main.add(mt2);
-            main.setTabComponentAt(main.indexOfComponent(mt2), mt2.getTabHandleElement());
-            main.setSelectedComponent(mt2);
-            // This moves the '...' tab to the end of the tab list
-            main.remove(newTabButton);
-            main.add(newTabButton);
+
+            addTab();
+            DecoderTab dt = (DecoderTab) main.getComponentAt(main.getTabCount()-2);
+            dt.getDecoderSegments().get(0).dsState.setByteArrayList(selectedTextBytes);
+            dt.updateDecoderSegments(0);
+            for (DecoderSegment ds : dt.getDecoderSegments()) {
+                ds.updateEditors(dt.getDecoderSegments().get(0).dsState);
+            }
+            //overallCount += 1;
+            //DecoderTab mt2 = new DecoderTab(Integer.toString(overallCount, 10), this);
+            //mt2.decoderSegments.get(0).dsState.setByteArrayList(selectedTextBytes);
+            //mt2.decoderSegments.get(0).updateEditors(mt2.decoderSegments.get(0).dsState);
+            //callbacks.customizeUiComponent(mt2);
+            //main.add(mt2);
+            //main.setTabComponentAt(main.indexOfComponent(mt2), mt2.getTabHandleElement());
+            //main.setSelectedComponent(mt2);
+            //// This moves the '...' tab to the end of the tab list
+            //main.remove(newTabButton);
+            //main.add(newTabButton);
         } else {
-            //int firstEmptyIndex = firstEmptyDecoder();
-            //DecoderTab firstEmptyTab = (DecoderTab)main.getTabComponentAt(firstEmptyIndex);
-            //firstEmptyTab.decoderSegments.get(0).dsState.setByteArrayList(selectedTextBytes);
+            DecoderTab dt = (DecoderTab) main.getComponentAt(firstEmptyDecoder());
+            dt.getDecoderSegments().get(0).dsState.setByteArrayList(selectedTextBytes);
+            dt.updateDecoderSegments(0);
+            for (DecoderSegment ds : dt.getDecoderSegments()) {
+                ds.updateEditors(dt.getDecoderSegments().get(0).dsState);
+            }
         }
     }
 

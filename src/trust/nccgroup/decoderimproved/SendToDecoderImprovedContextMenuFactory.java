@@ -40,6 +40,7 @@ class SendToDecoderImprovedContextMenuFactory implements IContextMenuFactory {
                     tab.receiveTextFromMenu(UTF8StringEncoder.newUTF8String(requestResponses[0].getRequest()).substring(start, end));
                 }
             };
+            Utils.highlightParentTab((JTabbedPane) tab.getUiComponent().getParent(), tab.getUiComponent());
             //System.out.println("1");
         } else if (ctx == IContextMenuInvocation.CONTEXT_MESSAGE_EDITOR_RESPONSE ||
             ctx == IContextMenuInvocation.CONTEXT_MESSAGE_VIEWER_RESPONSE) {
@@ -53,7 +54,8 @@ class SendToDecoderImprovedContextMenuFactory implements IContextMenuFactory {
                     tab.receiveTextFromMenu(UTF8StringEncoder.newUTF8String(requestResponses[0].getResponse()).substring(start, end));
                 }
             };
-            //System.out.println("1");
+
+            Utils.highlightParentTab((JTabbedPane) tab.getUiComponent().getParent(), tab.getUiComponent());
         } else {
             listener = e -> { };
         }

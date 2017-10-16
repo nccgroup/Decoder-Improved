@@ -28,8 +28,18 @@ public class MultiDecoderTab extends JPanel implements ITab {
     private JTabbedPane main;
     private JPanel newTabButton;
 
+    boolean tabChangeListenerLock = false;
+
     //Plugin starts with one decoder tab open and the "new tab" tab
     private int overallCount = 0;
+
+    public boolean isTabChangeListenerLock() {
+        return tabChangeListenerLock;
+    }
+
+    public void setTabChangeListenerLock(boolean tabChangeListenerLock) {
+        this.tabChangeListenerLock = tabChangeListenerLock;
+    }
 
     public MultiDecoderTab(IBurpExtenderCallbacks _callbacks) {
         // Set main tab layout
@@ -51,30 +61,27 @@ public class MultiDecoderTab extends JPanel implements ITab {
 
         main.addChangeListener((ChangeEvent e) -> {
             // If the '...' button is pressed, add a new tab
-            if (main.getSelectedComponent().getName() == "...") {
-                this.addTab();
+
+            if(!tabChangeListenerLock) {
+                if (main.getSelectedIndex() == main.getTabCount()-1) {
+                    addTab();
+                } else {
+                    DecoderTab dt = (DecoderTab) main.getSelectedComponent();
+                    dt.getDecoderSegments().get(0).getTextEditor().requestFocus();
+                }
             }
+            for (int i = 0; i < main.getTabCount()-1; i++) {
+                //DecoderTab.DecoderTabHandle dth = (DecoderTab.DecoderTabHandle) main.getTabComponentAt(i);
+                //dth.tabName.setEditable(false);
+            }
+
         });
         add(main, BorderLayout.CENTER);
     }
 
-    // _child is the tab that is going to get deleted
-    public void removeTab(DecoderTab _child) {
-        if (main.getTabCount() == 2) {
-            // If you're deleting the last tab that isn't '...', add another
-            this.addTab();
-        }
-        if (_child == main.getComponentAt(main.getTabCount() - 2)) {
-
-            // If the deleted child is the last in the list, next to the '...'
-            // Set the focused tab to the one on the left of that
-            main.setSelectedIndex(main.getTabCount() - 3);
-        }
-        main.remove(_child);
-    }
-
     // Logic for adding new tabs
     public void addTab() {
+        tabChangeListenerLock = true;
         // Add a new tab
         overallCount += 1;
         DecoderTab mt2 = new DecoderTab(Integer.toString(overallCount, 10), this);
@@ -82,10 +89,12 @@ public class MultiDecoderTab extends JPanel implements ITab {
         main.add(mt2);
         main.setTabComponentAt(main.indexOfComponent(mt2), mt2.getTabHandleElement());
         main.setSelectedComponent(mt2);
+        mt2.getDecoderSegments().get(0).getTextEditor().requestFocus();
 
         // This moves the '...' tab to the end of the tab list
         main.remove(newTabButton);
         main.add(newTabButton);
+        tabChangeListenerLock = false;
     }
 
     public int firstEmptyDecoder() {
@@ -94,10 +103,6 @@ public class MultiDecoderTab extends JPanel implements ITab {
             for (Component c : currentTabPanel.getComponents()) {
                 JScrollPane d = (JScrollPane)c;
             }
-            // if (dt.getDecoderSegments().get(0).dsState.getByteArray().length == 0 &&
-            //     dt.getDecoderSegments().size() == 1) {
-            //     return i;
-            // }
         }
         return -1;
     }
@@ -141,6 +146,8 @@ public class MultiDecoderTab extends JPanel implements ITab {
         return this;
     }
 
+    public JTabbedPane getMain() { return main; }
+
     private static class DecoderTab extends JPanel {
         private DecoderTabHandle decoderTabHandle;
         private JScrollPane scrollingBodyHolder;
@@ -164,14 +171,25 @@ public class MultiDecoderTab extends JPanel implements ITab {
         private static class DecoderTabHandle extends JPanel {
 
             private MultiDecoderTab parent;
+            private JTabbedPane parentTabbedPane;
+            private DecoderTab decoderTab;
+            private JTextField tabName;
 
-            public DecoderTabHandle(String _title, MultiDecoderTab _parent, DecoderTab _child) {
-                parent = _parent;
+            private DecoderTabHandle(String title, MultiDecoderTab multiDecoderTab, DecoderTab decoderTab) {
+                this.decoderTab = decoderTab;
+                this.parentTabbedPane = multiDecoderTab.getMain();
                 this.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
                 this.setOpaque(false);
-                JLabel label = new JLabel(_title);
+                JLabel label = new JLabel(title);
                 label.setBorder(BorderFactory.createEmptyBorder(1, 2, 1, 2));
-                this.add(label);
+                tabName = new JTextField(title);
+                tabName.setOpaque(false);
+                tabName.setBorder(null);
+                tabName.setBackground(new Color(0, 0, 0, 0));
+                tabName.setEditable(false);
+                tabName.setCaretColor(Color.BLACK);
+
+                this.add(tabName);
                 JButton closeButton = new JButton("✕");
                 closeButton.setFont(new Font("monospaced", Font.PLAIN, 10));
                 closeButton.setBorder(BorderFactory.createEmptyBorder(1, 2, 1, 2));
@@ -179,11 +197,44 @@ public class MultiDecoderTab extends JPanel implements ITab {
 
                 closeButton.setBorderPainted(false);
                 closeButton.setContentAreaFilled(false);
-                closeButton.setFocusPainted(false);
                 closeButton.setOpaque(false);
 
-                closeButton.addActionListener((ActionEvent e) -> {
-                    parent.removeTab(_child);
+                tabName.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if (!parentTabbedPane.getSelectedComponent().equals(decoderTab)) {
+                            parentTabbedPane.setSelectedComponent(decoderTab);
+                            for (int i = 0; i < parentTabbedPane.getTabCount(); i++) {
+                                if (!parentTabbedPane.getComponentAt(i).equals(decoderTab)) {
+                                    DecoderTabHandle dth = (DecoderTabHandle) parentTabbedPane.getTabComponentAt(i);
+                                    dth.tabName.setEditable(false);
+                                }
+                            }
+                        } else {
+                            tabName.setEditable(true);
+                        }
+                    }
+                });
+
+                closeButton.addActionListener(e -> {
+                    multiDecoderTab.setTabChangeListenerLock(true);
+                    if (parentTabbedPane.getSelectedComponent().equals(decoderTab)) {
+                        if (parentTabbedPane.getTabCount() == 2) {
+                            parentTabbedPane.remove(decoderTab);
+                            //autoRepeaters.remove(autoRepeater);
+                            multiDecoderTab.addTab();
+                            multiDecoderTab.setTabChangeListenerLock(true);
+                        } else if (parentTabbedPane.getTabCount() > 2) {
+                            parentTabbedPane.remove(decoderTab);
+                            //autoRepeaters.remove(autoRepeater);
+                        }
+                        if (parentTabbedPane.getSelectedIndex() == parentTabbedPane.getTabCount() - 1) {
+                            parentTabbedPane.setSelectedIndex(parentTabbedPane.getTabCount() - 2);
+                        }
+                    } else {
+                        parentTabbedPane.setSelectedComponent(decoderTab);
+                    }
+                    multiDecoderTab.setTabChangeListenerLock(false);
                 });
 
                 this.add(closeButton);
@@ -292,13 +343,12 @@ public class MultiDecoderTab extends JPanel implements ITab {
         private JPanel controlPanel;
         private JScrollPane editorPanel;
         private JScrollPane hexPanel;
+
         private JTextPane textEditor;
 
 
         // This handles all the modes
         private ModificationModeManager modes;
-
-        // TODO: REMOVE EVERYTHING BELOW THIS LINE
 
         // These are the different types of tex box MODEs
         private JComboBox<String> modeSelector;
@@ -325,6 +375,10 @@ public class MultiDecoderTab extends JPanel implements ITab {
                 int thisIndex = parent.decoderSegments.indexOf(this);
                 parent.updateDecoderSegment(thisIndex);
             }
+        }
+
+        public JTextPane getTextEditor() {
+            return textEditor;
         }
 
         // This function locks the text editor documentevents, calls textEditor.setText(), then unlocks the textEditor

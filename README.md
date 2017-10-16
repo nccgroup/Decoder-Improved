@@ -1,8 +1,11 @@
 # Decoder Improved
 
-## tldr
+## tl;dr
 
 Within extender load Decoder-Improved.jar. 
+
+For a walkthrough on how to extender Decoder Improved visit 
+https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2017/october/decoder-improved-burp-suite-plugin-release-part-2/.
 
 ## Summary
 

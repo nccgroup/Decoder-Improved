@@ -484,6 +484,7 @@ public class MultiDecoderTab extends JPanel implements ITab {
 
                         hexEditor.setMinimumSize(new Dimension(50, 150));
                         hexEditor.setSize(new Dimension(100, 80));
+                        hexEditor.setComponentPopupMenu(MenuHandler.createHexEditorPopupMenu(hexEditor));
                     }
                     hexPanel.setViewportView(hexEditor);
                     editorPanel.setViewportView(textEditor);
@@ -596,6 +597,82 @@ public class MultiDecoderTab extends JPanel implements ITab {
                 @Override
                 public void changedUpdate(DocumentEvent e) { }
             });
+        }
+    }
+    
+    private static class MenuHandler {
+
+        private static JPopupMenu createHexEditorPopupMenu(final CodeArea codeArea) {
+            JPopupMenu popupMenu = new JPopupMenu();
+            JMenuItem editCutPopupMenuItem = new JMenuItem();
+            editCutPopupMenuItem.setAction(new AbstractAction("Cut") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    codeArea.cut();
+                }
+            });
+            popupMenu.add(editCutPopupMenuItem);
+
+            JMenuItem editCopyPopupMenuItem = new JMenuItem();
+            editCopyPopupMenuItem.setAction(new AbstractAction("Copy") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    codeArea.copy();
+                }
+            });
+            popupMenu.add(editCopyPopupMenuItem);
+
+            JMenuItem editPastePopupMenuItem = new JMenuItem();
+            editPastePopupMenuItem.setAction(new AbstractAction("Paste") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    codeArea.paste();
+                }
+            });
+            popupMenu.add(editPastePopupMenuItem);
+
+            JMenuItem editDeletePopupMenuItem = new JMenuItem();
+            editDeletePopupMenuItem.setAction(new AbstractAction("Delete") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    codeArea.delete();
+                }
+            });
+            popupMenu.add(editDeletePopupMenuItem);
+
+            JMenuItem selectAllPopupMenuItem = new JMenuItem();
+            selectAllPopupMenuItem.setAction(new AbstractAction("Select All") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    codeArea.selectAll();
+                }
+            });
+            popupMenu.add(selectAllPopupMenuItem);
+            popupMenu.add(new JSeparator());
+            
+            JMenuItem changeEncoding = new JMenuItem();
+            changeEncoding.setAction(new AbstractAction("Change Encoding...") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    Window windowAncestor = SwingUtilities.getWindowAncestor(codeArea);
+                    JFrame frame = windowAncestor instanceof JFrame ? (JFrame) windowAncestor : null;
+                    EncodingSelectionDialog encodingSelectionDialog = new EncodingSelectionDialog(frame, true);
+                    encodingSelectionDialog.setEncoding(codeArea.getCharset().name());
+                    encodingSelectionDialog.setVisible(true);
+                    if (encodingSelectionDialog.getReturnStatus() == EncodingSelectionDialog.RET_OK) {
+                        codeArea.setCharset(Charset.forName(encodingSelectionDialog.getEncoding()));
+                    }
+                }
+            });
+            popupMenu.add(changeEncoding);
+            
+            return popupMenu;
+        }
+        
+        private static JPopupMenu createTextEditorPopupMenu() {
+            JPopupMenu popupMenu = new JPopupMenu();
+            
+            return popupMenu;
         }
     }
 }

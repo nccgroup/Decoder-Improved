@@ -18,6 +18,8 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.*;
 import java.util.ArrayList;
+import javax.swing.text.DefaultEditorKit;
+import org.exbin.deltahex.CodeType;
 
 public class MultiDecoderTab extends JPanel implements ITab {
 
@@ -481,9 +483,11 @@ public class MultiDecoderTab extends JPanel implements ITab {
                         textEditor.setMinimumSize(new Dimension(50, 150));
                         textEditor.setSize(new Dimension(100, 80));
                         textEditor.setContentType("text/plain");
+                        textEditor.setComponentPopupMenu(MenuHandler.createTextEditorPopupMenu(textEditor));
 
                         hexEditor.setMinimumSize(new Dimension(50, 150));
                         hexEditor.setSize(new Dimension(100, 80));
+                        hexEditor.setComponentPopupMenu(MenuHandler.createHexEditorPopupMenu(hexEditor));
                     }
                     hexPanel.setViewportView(hexEditor);
                     editorPanel.setViewportView(textEditor);
@@ -596,6 +600,263 @@ public class MultiDecoderTab extends JPanel implements ITab {
                 @Override
                 public void changedUpdate(DocumentEvent e) { }
             });
+        }
+    }
+    
+    private static class MenuHandler {
+        
+        private static final int META_MASK = java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+
+        private static final String CUT_ACTION_NAME = "Cut";
+        private static final String COPY_ACTION_NAME = "Copy";
+        private static final String PASTE_ACTION_NAME = "Paste";
+        private static final String DELETE_ACTION_NAME = "Delete";
+        private static final String SELECT_ALL_ACTION_NAME = "Select All";
+        
+        private static JPopupMenu createHexEditorPopupMenu(final CodeArea codeArea) {
+            JPopupMenu popupMenu = new JPopupMenu();
+
+            final ButtonGroup codeTypeButtonGroup = new ButtonGroup();
+
+            JMenu viewMenu = new JMenu("View");
+
+            final JCheckBoxMenuItem showUnprintableMenuItem = new JCheckBoxMenuItem("Unprintable Characters");
+            showUnprintableMenuItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    codeArea.setShowUnprintableCharacters(!codeArea.isShowUnprintableCharacters());
+                }
+            });
+            viewMenu.add(showUnprintableMenuItem);
+
+            final JCheckBoxMenuItem wrappingModeMenuItem = new JCheckBoxMenuItem("Wrapping mode");
+            wrappingModeMenuItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    codeArea.setWrapMode(!codeArea.isWrapMode());
+                }
+            });
+            viewMenu.add(wrappingModeMenuItem);
+
+            popupMenu.add(viewMenu);
+            
+            JMenu codeTypeMenu = new JMenu("Code Type");
+            final JRadioButtonMenuItem binaryCodeTypeMenuItem = new JRadioButtonMenuItem("Binary");
+            binaryCodeTypeMenuItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    codeArea.setCodeType(CodeType.BINARY);
+                }
+            });
+            codeTypeButtonGroup.add(binaryCodeTypeMenuItem);
+            codeTypeMenu.add(binaryCodeTypeMenuItem);
+
+            final JRadioButtonMenuItem octalCodeTypeMenuItem = new JRadioButtonMenuItem("Octal");
+            octalCodeTypeMenuItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    codeArea.setCodeType(CodeType.OCTAL);
+                }
+            });
+            codeTypeButtonGroup.add(octalCodeTypeMenuItem);
+            codeTypeMenu.add(octalCodeTypeMenuItem);
+
+            final JRadioButtonMenuItem decimalCodeTypeMenuItem = new JRadioButtonMenuItem("Decimal");
+            decimalCodeTypeMenuItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    codeArea.setCodeType(CodeType.DECIMAL);
+                }
+            });
+            codeTypeButtonGroup.add(decimalCodeTypeMenuItem);
+            codeTypeMenu.add(decimalCodeTypeMenuItem);
+
+            final JRadioButtonMenuItem hexaCodeTypeMenuItem = new JRadioButtonMenuItem("Hexadecimal");
+            hexaCodeTypeMenuItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    codeArea.setCodeType(CodeType.HEXADECIMAL);
+                }
+            });
+            codeTypeButtonGroup.add(hexaCodeTypeMenuItem);
+            codeTypeMenu.add(hexaCodeTypeMenuItem);
+            
+            popupMenu.add(codeTypeMenu);
+            popupMenu.addSeparator();
+            
+            final JMenuItem editCutPopupMenuItem = new JMenuItem();
+            AbstractAction cutAction = new AbstractAction(CUT_ACTION_NAME) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    codeArea.cut();
+                }
+            };
+            cutAction.putValue(Action.ACCELERATOR_KEY, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, META_MASK));
+            editCutPopupMenuItem.setAction(cutAction);
+            popupMenu.add(editCutPopupMenuItem);
+
+            final JMenuItem editCopyPopupMenuItem = new JMenuItem();
+            AbstractAction copyAction = new AbstractAction(COPY_ACTION_NAME) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    codeArea.copy();
+                }
+            };
+            copyAction.putValue(Action.ACCELERATOR_KEY, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, META_MASK));
+            editCopyPopupMenuItem.setAction(copyAction);
+            popupMenu.add(editCopyPopupMenuItem);
+
+            final JMenuItem editPastePopupMenuItem = new JMenuItem();
+            AbstractAction pasteAction = new AbstractAction(PASTE_ACTION_NAME) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    codeArea.paste();
+                }
+            };
+            pasteAction.putValue(Action.ACCELERATOR_KEY, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_V, META_MASK));
+            editPastePopupMenuItem.setAction(pasteAction);
+            popupMenu.add(editPastePopupMenuItem);
+
+            final JMenuItem editDeletePopupMenuItem = new JMenuItem();
+            AbstractAction deleteAction = new AbstractAction(DELETE_ACTION_NAME) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    codeArea.delete();
+                }
+            };
+            deleteAction.putValue(Action.ACCELERATOR_KEY, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_DELETE, 0));
+            editDeletePopupMenuItem.setAction(deleteAction);
+            popupMenu.add(editDeletePopupMenuItem);
+
+            final JMenuItem selectAllPopupMenuItem = new JMenuItem();
+            AbstractAction selectAllAction = new AbstractAction(SELECT_ALL_ACTION_NAME) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    codeArea.selectAll();
+                }
+            };
+            selectAllAction.putValue(Action.ACCELERATOR_KEY, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, META_MASK));
+            selectAllPopupMenuItem.setAction(selectAllAction);
+            popupMenu.add(selectAllPopupMenuItem);
+            popupMenu.addSeparator();
+            
+            JMenuItem changeEncoding = new JMenuItem();
+            changeEncoding.setAction(new AbstractAction("Change Encoding...") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    Window windowAncestor = SwingUtilities.getWindowAncestor(codeArea);
+                    JFrame frame = windowAncestor instanceof JFrame ? (JFrame) windowAncestor : null;
+                    EncodingSelectionDialog encodingSelectionDialog = new EncodingSelectionDialog(frame, true);
+                    encodingSelectionDialog.setEncoding(codeArea.getCharset().name());
+                    encodingSelectionDialog.setVisible(true);
+                    if (encodingSelectionDialog.getReturnStatus() == EncodingSelectionDialog.RET_OK) {
+                        codeArea.setCharset(Charset.forName(encodingSelectionDialog.getEncoding()));
+                    }
+                }
+            });
+            popupMenu.add(changeEncoding);
+            
+            popupMenu.addPopupMenuListener(new PopupMenuListener() {
+                @Override
+                public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                    editCutPopupMenuItem.setEnabled(codeArea.hasSelection());
+                    editCopyPopupMenuItem.setEnabled(codeArea.hasSelection());
+                    editDeletePopupMenuItem.setEnabled(codeArea.hasSelection());
+                    editPastePopupMenuItem.setEnabled(codeArea.canPaste());
+                    
+                    CodeType codeType = codeArea.getCodeType();
+                    switch (codeType) {
+                        case BINARY: {
+                            binaryCodeTypeMenuItem.setSelected(true);
+                            break;
+                        }
+                        case OCTAL: {
+                            octalCodeTypeMenuItem.setSelected(true);
+                            break;
+                        }
+                        case DECIMAL: {
+                            decimalCodeTypeMenuItem.setSelected(true);
+                            break;
+                        }
+                        case HEXADECIMAL: {
+                            hexaCodeTypeMenuItem.setSelected(true);
+                            break;
+                        }
+                    }
+                    
+                    showUnprintableMenuItem.setSelected(codeArea.isShowUnprintableCharacters());
+                    wrappingModeMenuItem.setSelected(codeArea.isWrapMode());
+                }
+
+                @Override
+                public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+                }
+
+                @Override
+                public void popupMenuCanceled(PopupMenuEvent e) {
+                }
+            });
+            
+            return popupMenu;
+        }
+        
+        private static JPopupMenu createTextEditorPopupMenu(final JTextPane textEditor) {
+            JPopupMenu popupMenu = new JPopupMenu();
+
+            final JMenuItem editCutPopupMenuItem = new JMenuItem();
+            AbstractAction cutAction = new AbstractAction(CUT_ACTION_NAME) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    textEditor.cut();
+                }
+            };
+            cutAction.putValue(Action.ACCELERATOR_KEY, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, META_MASK));
+            editCutPopupMenuItem.setAction(cutAction);
+            popupMenu.add(editCutPopupMenuItem);
+
+            final JMenuItem editCopyPopupMenuItem = new JMenuItem();
+            AbstractAction copyAction = new AbstractAction(COPY_ACTION_NAME) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    textEditor.copy();
+                }
+            };
+            copyAction.putValue(Action.ACCELERATOR_KEY, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, META_MASK));
+            editCopyPopupMenuItem.setAction(copyAction);
+            popupMenu.add(editCopyPopupMenuItem);
+
+            final JMenuItem editPastePopupMenuItem = new JMenuItem();
+            AbstractAction pasteAction = new AbstractAction(PASTE_ACTION_NAME) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    textEditor.paste();
+                }
+            };
+            pasteAction.putValue(Action.ACCELERATOR_KEY, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_V, META_MASK));
+            editPastePopupMenuItem.setAction(pasteAction);
+            popupMenu.add(editPastePopupMenuItem);
+
+            popupMenu.addPopupMenuListener(new PopupMenuListener() {
+                @Override
+                public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                    boolean hasSelection = textEditor.getSelectionEnd() > textEditor.getSelectionStart();
+                    // TODO detect
+                    boolean pasteAvailable = true;
+                    editCutPopupMenuItem.setEnabled(hasSelection);
+                    editCopyPopupMenuItem.setEnabled(hasSelection);
+                    editPastePopupMenuItem.setEnabled(pasteAvailable);
+                }
+
+                @Override
+                public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+                }
+
+                @Override
+                public void popupMenuCanceled(PopupMenuEvent e) {
+                }
+            });
+            
+            return popupMenu;
         }
     }
 }

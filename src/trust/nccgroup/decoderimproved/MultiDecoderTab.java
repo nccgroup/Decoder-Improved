@@ -72,11 +72,10 @@ public class MultiDecoderTab extends JPanel implements ITab {
                     dt.getDecoderSegments().get(0).getTextEditor().requestFocus();
                 }
             }
-            for (int i = 0; i < main.getTabCount()-1; i++) {
+            for (int i = 0; i < main.getTabCount()-2; i++) {
                 DecoderTab.DecoderTabHandle dth = (DecoderTab.DecoderTabHandle) main.getTabComponentAt(i);
                 dth.tabName.setEditable(false);
             }
-
         });
         add(main, BorderLayout.CENTER);
     }
@@ -91,11 +90,12 @@ public class MultiDecoderTab extends JPanel implements ITab {
         main.add(mt2);
         main.setTabComponentAt(main.indexOfComponent(mt2), mt2.getTabHandleElement());
         main.setSelectedComponent(mt2);
-        mt2.getDecoderSegments().get(0).getTextEditor().requestFocus();
+        //mt2.getDecoderSegments().get(0).getTextEditor().requestFocus();
 
         // This moves the '...' tab to the end of the tab list
         main.remove(newTabButton);
         main.add(newTabButton);
+
         tabChangeListenerLock = false;
     }
 
@@ -202,6 +202,22 @@ public class MultiDecoderTab extends JPanel implements ITab {
                 closeButton.setOpaque(false);
 
                 tabName.addMouseListener(new MouseAdapter() {
+
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        if (!parentTabbedPane.getSelectedComponent().equals(decoderTab)) {
+                            parentTabbedPane.setSelectedComponent(decoderTab);
+                            for (int i = 0; i < parentTabbedPane.getTabCount()-1; i++) {
+                                if (!parentTabbedPane.getComponentAt(i).equals(decoderTab)) {
+                                    DecoderTabHandle dth = (DecoderTabHandle) parentTabbedPane.getTabComponentAt(i);
+                                    dth.tabName.setEditable(false);
+                                }
+                            }
+                        } else {
+                            tabName.setEditable(true);
+                        }
+                    }
+
                     @Override
                     public void mouseClicked(MouseEvent e) {
                         if (!parentTabbedPane.getSelectedComponent().equals(decoderTab)) {

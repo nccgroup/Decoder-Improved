@@ -1,5 +1,6 @@
 package trust.nccgroup.decoderimproved;
 
+import java.awt.*;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,6 +8,8 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.exbin.utils.binary_data.BinaryData;
+
+import javax.swing.*;
 
 /**
  * Created by j on 10/26/16.
@@ -138,5 +141,44 @@ public class Utils {
             output [i] = input[i];
         }
         return output;
+    }
+    
+    // Converts Url byte[] to normal byte[] by replacing the chars
+    // "-" (0x2D) -> "+" (0x2B)
+    // "_" (0x5F) -> "/" (0x2F)
+    // Because we just want to two simple replaces we can just iterate over the byte array
+    public static byte[] convertUrlBase64ToStandard(byte[] input) {
+        for (int i = 0; i < input.length ; i ++) {
+            if (input[i] == 0x2D) {
+                // this just looks cooler than a simple replacement
+                // input[i] = input[i] - 0x02 
+                input[i] = 0x2B;
+            } else if (input[i] == 0x5F) {
+                // input[i] = input[i] - 0x30
+                input[i] = 0x2F;
+            }
+        }
+        return input;
+    }
+
+    public static void highlightParentTab(JTabbedPane parentTabbedPane, Component childComponent) {
+        if (parentTabbedPane != null) {
+            for (int i = 0; i < parentTabbedPane.getTabCount(); i++) {
+                if (parentTabbedPane.getComponentAt(i).equals(childComponent)) {
+                    parentTabbedPane.setBackgroundAt(i, new Color(0xE58900));
+                    Timer timer = new Timer(3000, e -> {
+                        for (int j = 0; j < parentTabbedPane.getTabCount(); j++) {
+                            if (parentTabbedPane.getComponentAt(j).equals(childComponent)) {
+                                parentTabbedPane.setBackgroundAt(j, Color.BLACK);
+                                break;
+                            }
+                        }
+                    });
+                    timer.setRepeats(false);
+                    timer.start();
+                    break;
+                }
+            }
+        }
     }
 }

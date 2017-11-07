@@ -19,6 +19,10 @@ public class FuzzyBase64Decoder extends ByteModifier {
     // This function uses a regex to extract base64 encoded strings out of the input and decode them.
     // Useful for jwts
     public byte[] modifyBytes(byte[] input) throws ModificationException {
+
+        // Convert from Url safe
+        input = Utils.convertUrlBase64ToStandard(input);
+
         String inputString;
         try {
             inputString = new String(input, "UTF-8");

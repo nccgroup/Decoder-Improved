@@ -12,7 +12,7 @@ public class ExtensionRoot implements IBurpExtender {
     callbacks = _callbacks;
     helpers = callbacks.getHelpers();
 
-    callbacks.setExtensionName("Improved Decoder");
+    callbacks.setExtensionName("Decoder Improved");
 
     MultiDecoderTab multiDecoderTab = new MultiDecoderTab(callbacks);
     callbacks.customizeUiComponent(multiDecoderTab);

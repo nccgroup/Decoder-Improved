@@ -18,6 +18,8 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.*;
 import java.util.ArrayList;
+import javax.swing.text.DefaultEditorKit;
+import org.exbin.deltahex.CodeType;
 
 public class MultiDecoderTab extends JPanel implements ITab {
 
@@ -28,8 +30,18 @@ public class MultiDecoderTab extends JPanel implements ITab {
     private JTabbedPane main;
     private JPanel newTabButton;
 
+    boolean tabChangeListenerLock = false;
+
     //Plugin starts with one decoder tab open and the "new tab" tab
     private int overallCount = 0;
+
+    public boolean isTabChangeListenerLock() {
+        return tabChangeListenerLock;
+    }
+
+    public void setTabChangeListenerLock(boolean tabChangeListenerLock) {
+        this.tabChangeListenerLock = tabChangeListenerLock;
+    }
 
     public MultiDecoderTab(IBurpExtenderCallbacks _callbacks) {
         // Set main tab layout
@@ -51,30 +63,26 @@ public class MultiDecoderTab extends JPanel implements ITab {
 
         main.addChangeListener((ChangeEvent e) -> {
             // If the '...' button is pressed, add a new tab
-            if (main.getSelectedComponent().getName() == "...") {
-                this.addTab();
+
+            if(!tabChangeListenerLock) {
+                if (main.getSelectedIndex() == main.getTabCount()-1) {
+                    addTab();
+                } else {
+                    DecoderTab dt = (DecoderTab) main.getSelectedComponent();
+                    dt.getDecoderSegments().get(0).getTextEditor().requestFocus();
+                }
+            }
+            for (int i = 0; i < main.getTabCount()-2; i++) {
+                DecoderTab.DecoderTabHandle dth = (DecoderTab.DecoderTabHandle) main.getTabComponentAt(i);
+                dth.tabName.setEditable(false);
             }
         });
         add(main, BorderLayout.CENTER);
     }
 
-    // _child is the tab that is going to get deleted
-    public void removeTab(DecoderTab _child) {
-        if (main.getTabCount() == 2) {
-            // If you're deleting the last tab that isn't '...', add another
-            this.addTab();
-        }
-        if (_child == main.getComponentAt(main.getTabCount() - 2)) {
-
-            // If the deleted child is the last in the list, next to the '...'
-            // Set the focused tab to the one on the left of that
-            main.setSelectedIndex(main.getTabCount() - 3);
-        }
-        main.remove(_child);
-    }
-
     // Logic for adding new tabs
     public void addTab() {
+        tabChangeListenerLock = true;
         // Add a new tab
         overallCount += 1;
         DecoderTab mt2 = new DecoderTab(Integer.toString(overallCount, 10), this);
@@ -82,22 +90,21 @@ public class MultiDecoderTab extends JPanel implements ITab {
         main.add(mt2);
         main.setTabComponentAt(main.indexOfComponent(mt2), mt2.getTabHandleElement());
         main.setSelectedComponent(mt2);
+        //mt2.getDecoderSegments().get(0).getTextEditor().requestFocus();
 
         // This moves the '...' tab to the end of the tab list
         main.remove(newTabButton);
         main.add(newTabButton);
+
+        tabChangeListenerLock = false;
     }
 
     public int firstEmptyDecoder() {
-        for (int i = main.getTabCount() - 1; i >= 0; i--) {
-            JPanel currentTabPanel = (JPanel)main.getComponentAt(i);
-            for (Component c : currentTabPanel.getComponents()) {
-                JScrollPane d = (JScrollPane)c;
+        if (main.getComponentAt(main.getTabCount()-2) instanceof DecoderTab) {
+            DecoderTab dt = (DecoderTab) main.getComponentAt(main.getTabCount()-2);
+            if (dt.getDecoderSegments().get(0).dsState.getDisplayString().equals("")) {
+                return main.getTabCount() - 2;
             }
-            // if (dt.getDecoderSegments().get(0).dsState.getByteArray().length == 0 &&
-            //     dt.getDecoderSegments().size() == 1) {
-            //     return i;
-            // }
         }
         return -1;
     }
@@ -113,21 +120,21 @@ public class MultiDecoderTab extends JPanel implements ITab {
         }
         if (firstEmptyDecoder() == -1) {
             // Add a new tab
-            overallCount += 1;
-            DecoderTab mt2 = new DecoderTab(Integer.toString(overallCount, 10), this);
-            mt2.decoderSegments.get(0).dsState.setByteArrayList(selectedTextBytes);
-            mt2.decoderSegments.get(0).updateEditors(mt2.decoderSegments.get(0).dsState);
-            callbacks.customizeUiComponent(mt2);
-            main.add(mt2);
-            main.setTabComponentAt(main.indexOfComponent(mt2), mt2.getTabHandleElement());
-            main.setSelectedComponent(mt2);
-            // This moves the '...' tab to the end of the tab list
-            main.remove(newTabButton);
-            main.add(newTabButton);
+
+            addTab();
+            DecoderTab dt = (DecoderTab) main.getComponentAt(main.getTabCount()-2);
+            dt.getDecoderSegments().get(0).dsState.setByteArrayList(selectedTextBytes);
+            dt.updateDecoderSegments(0);
+            for (DecoderSegment ds : dt.getDecoderSegments()) {
+                ds.updateEditors(dt.getDecoderSegments().get(0).dsState);
+            }
         } else {
-            //int firstEmptyIndex = firstEmptyDecoder();
-            //DecoderTab firstEmptyTab = (DecoderTab)main.getTabComponentAt(firstEmptyIndex);
-            //firstEmptyTab.decoderSegments.get(0).dsState.setByteArrayList(selectedTextBytes);
+            DecoderTab dt = (DecoderTab) main.getComponentAt(firstEmptyDecoder());
+            dt.getDecoderSegments().get(0).dsState.setByteArrayList(selectedTextBytes);
+            dt.updateDecoderSegments(0);
+            for (DecoderSegment ds : dt.getDecoderSegments()) {
+                ds.updateEditors(dt.getDecoderSegments().get(0).dsState);
+            }
         }
     }
 
@@ -140,6 +147,8 @@ public class MultiDecoderTab extends JPanel implements ITab {
     public Component getUiComponent() {
         return this;
     }
+
+    public JTabbedPane getMain() { return main; }
 
     private static class DecoderTab extends JPanel {
         private DecoderTabHandle decoderTabHandle;
@@ -164,14 +173,25 @@ public class MultiDecoderTab extends JPanel implements ITab {
         private static class DecoderTabHandle extends JPanel {
 
             private MultiDecoderTab parent;
+            private JTabbedPane parentTabbedPane;
+            private DecoderTab decoderTab;
+            private JTextField tabName;
 
-            public DecoderTabHandle(String _title, MultiDecoderTab _parent, DecoderTab _child) {
-                parent = _parent;
+            private DecoderTabHandle(String title, MultiDecoderTab multiDecoderTab, DecoderTab decoderTab) {
+                this.decoderTab = decoderTab;
+                this.parentTabbedPane = multiDecoderTab.getMain();
                 this.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
                 this.setOpaque(false);
-                JLabel label = new JLabel(_title);
+                JLabel label = new JLabel(title);
                 label.setBorder(BorderFactory.createEmptyBorder(1, 2, 1, 2));
-                this.add(label);
+                tabName = new JTextField(title);
+                tabName.setOpaque(false);
+                tabName.setBorder(null);
+                tabName.setBackground(new Color(0, 0, 0, 0));
+                tabName.setEditable(false);
+                tabName.setCaretColor(Color.BLACK);
+
+                this.add(tabName);
                 JButton closeButton = new JButton("✕");
                 closeButton.setFont(new Font("monospaced", Font.PLAIN, 10));
                 closeButton.setBorder(BorderFactory.createEmptyBorder(1, 2, 1, 2));
@@ -179,11 +199,60 @@ public class MultiDecoderTab extends JPanel implements ITab {
 
                 closeButton.setBorderPainted(false);
                 closeButton.setContentAreaFilled(false);
-                closeButton.setFocusPainted(false);
                 closeButton.setOpaque(false);
 
-                closeButton.addActionListener((ActionEvent e) -> {
-                    parent.removeTab(_child);
+                tabName.addMouseListener(new MouseAdapter() {
+
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        if (!parentTabbedPane.getSelectedComponent().equals(decoderTab)) {
+                            parentTabbedPane.setSelectedComponent(decoderTab);
+                            for (int i = 0; i < parentTabbedPane.getTabCount()-1; i++) {
+                                if (!parentTabbedPane.getComponentAt(i).equals(decoderTab)) {
+                                    DecoderTabHandle dth = (DecoderTabHandle) parentTabbedPane.getTabComponentAt(i);
+                                    dth.tabName.setEditable(false);
+                                }
+                            }
+                        } else {
+                            tabName.setEditable(true);
+                        }
+                    }
+
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if (!parentTabbedPane.getSelectedComponent().equals(decoderTab)) {
+                            parentTabbedPane.setSelectedComponent(decoderTab);
+                            for (int i = 0; i < parentTabbedPane.getTabCount()-1; i++) {
+                                if (!parentTabbedPane.getComponentAt(i).equals(decoderTab)) {
+                                    DecoderTabHandle dth = (DecoderTabHandle) parentTabbedPane.getTabComponentAt(i);
+                                    dth.tabName.setEditable(false);
+                                }
+                            }
+                        } else {
+                            tabName.setEditable(true);
+                        }
+                    }
+                });
+
+                closeButton.addActionListener(e -> {
+                    multiDecoderTab.setTabChangeListenerLock(true);
+                    if (parentTabbedPane.getSelectedComponent().equals(decoderTab)) {
+                        if (parentTabbedPane.getTabCount() == 2) {
+                            parentTabbedPane.remove(decoderTab);
+                            //autoRepeaters.remove(autoRepeater);
+                            multiDecoderTab.addTab();
+                            multiDecoderTab.setTabChangeListenerLock(true);
+                        } else if (parentTabbedPane.getTabCount() > 2) {
+                            parentTabbedPane.remove(decoderTab);
+                            //autoRepeaters.remove(autoRepeater);
+                        }
+                        if (parentTabbedPane.getSelectedIndex() == parentTabbedPane.getTabCount() - 1) {
+                            parentTabbedPane.setSelectedIndex(parentTabbedPane.getTabCount() - 2);
+                        }
+                    } else {
+                        parentTabbedPane.setSelectedComponent(decoderTab);
+                    }
+                    multiDecoderTab.setTabChangeListenerLock(false);
                 });
 
                 this.add(closeButton);
@@ -292,13 +361,12 @@ public class MultiDecoderTab extends JPanel implements ITab {
         private JPanel controlPanel;
         private JScrollPane editorPanel;
         private JScrollPane hexPanel;
+
         private JTextPane textEditor;
 
 
         // This handles all the modes
         private ModificationModeManager modes;
-
-        // TODO: REMOVE EVERYTHING BELOW THIS LINE
 
         // These are the different types of tex box MODEs
         private JComboBox<String> modeSelector;
@@ -325,6 +393,10 @@ public class MultiDecoderTab extends JPanel implements ITab {
                 int thisIndex = parent.decoderSegments.indexOf(this);
                 parent.updateDecoderSegment(thisIndex);
             }
+        }
+
+        public JTextPane getTextEditor() {
+            return textEditor;
         }
 
         // This function locks the text editor documentevents, calls textEditor.setText(), then unlocks the textEditor
@@ -427,9 +499,11 @@ public class MultiDecoderTab extends JPanel implements ITab {
                         textEditor.setMinimumSize(new Dimension(50, 150));
                         textEditor.setSize(new Dimension(100, 80));
                         textEditor.setContentType("text/plain");
+                        textEditor.setComponentPopupMenu(MenuHandler.createTextEditorPopupMenu(textEditor));
 
                         hexEditor.setMinimumSize(new Dimension(50, 150));
                         hexEditor.setSize(new Dimension(100, 80));
+                        hexEditor.setComponentPopupMenu(MenuHandler.createHexEditorPopupMenu(hexEditor));
                     }
                     hexPanel.setViewportView(hexEditor);
                     editorPanel.setViewportView(textEditor);
@@ -542,6 +616,263 @@ public class MultiDecoderTab extends JPanel implements ITab {
                 @Override
                 public void changedUpdate(DocumentEvent e) { }
             });
+        }
+    }
+    
+    private static class MenuHandler {
+        
+        private static final int META_MASK = java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+
+        private static final String CUT_ACTION_NAME = "Cut";
+        private static final String COPY_ACTION_NAME = "Copy";
+        private static final String PASTE_ACTION_NAME = "Paste";
+        private static final String DELETE_ACTION_NAME = "Delete";
+        private static final String SELECT_ALL_ACTION_NAME = "Select All";
+        
+        private static JPopupMenu createHexEditorPopupMenu(final CodeArea codeArea) {
+            JPopupMenu popupMenu = new JPopupMenu();
+
+            final ButtonGroup codeTypeButtonGroup = new ButtonGroup();
+
+            JMenu viewMenu = new JMenu("View");
+
+            final JCheckBoxMenuItem showUnprintableMenuItem = new JCheckBoxMenuItem("Unprintable Characters");
+            showUnprintableMenuItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    codeArea.setShowUnprintableCharacters(!codeArea.isShowUnprintableCharacters());
+                }
+            });
+            viewMenu.add(showUnprintableMenuItem);
+
+            final JCheckBoxMenuItem wrappingModeMenuItem = new JCheckBoxMenuItem("Wrapping mode");
+            wrappingModeMenuItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    codeArea.setWrapMode(!codeArea.isWrapMode());
+                }
+            });
+            viewMenu.add(wrappingModeMenuItem);
+
+            popupMenu.add(viewMenu);
+            
+            JMenu codeTypeMenu = new JMenu("Code Type");
+            final JRadioButtonMenuItem binaryCodeTypeMenuItem = new JRadioButtonMenuItem("Binary");
+            binaryCodeTypeMenuItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    codeArea.setCodeType(CodeType.BINARY);
+                }
+            });
+            codeTypeButtonGroup.add(binaryCodeTypeMenuItem);
+            codeTypeMenu.add(binaryCodeTypeMenuItem);
+
+            final JRadioButtonMenuItem octalCodeTypeMenuItem = new JRadioButtonMenuItem("Octal");
+            octalCodeTypeMenuItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    codeArea.setCodeType(CodeType.OCTAL);
+                }
+            });
+            codeTypeButtonGroup.add(octalCodeTypeMenuItem);
+            codeTypeMenu.add(octalCodeTypeMenuItem);
+
+            final JRadioButtonMenuItem decimalCodeTypeMenuItem = new JRadioButtonMenuItem("Decimal");
+            decimalCodeTypeMenuItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    codeArea.setCodeType(CodeType.DECIMAL);
+                }
+            });
+            codeTypeButtonGroup.add(decimalCodeTypeMenuItem);
+            codeTypeMenu.add(decimalCodeTypeMenuItem);
+
+            final JRadioButtonMenuItem hexaCodeTypeMenuItem = new JRadioButtonMenuItem("Hexadecimal");
+            hexaCodeTypeMenuItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    codeArea.setCodeType(CodeType.HEXADECIMAL);
+                }
+            });
+            codeTypeButtonGroup.add(hexaCodeTypeMenuItem);
+            codeTypeMenu.add(hexaCodeTypeMenuItem);
+            
+            popupMenu.add(codeTypeMenu);
+            popupMenu.addSeparator();
+            
+            final JMenuItem editCutPopupMenuItem = new JMenuItem();
+            AbstractAction cutAction = new AbstractAction(CUT_ACTION_NAME) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    codeArea.cut();
+                }
+            };
+            cutAction.putValue(Action.ACCELERATOR_KEY, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, META_MASK));
+            editCutPopupMenuItem.setAction(cutAction);
+            popupMenu.add(editCutPopupMenuItem);
+
+            final JMenuItem editCopyPopupMenuItem = new JMenuItem();
+            AbstractAction copyAction = new AbstractAction(COPY_ACTION_NAME) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    codeArea.copy();
+                }
+            };
+            copyAction.putValue(Action.ACCELERATOR_KEY, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, META_MASK));
+            editCopyPopupMenuItem.setAction(copyAction);
+            popupMenu.add(editCopyPopupMenuItem);
+
+            final JMenuItem editPastePopupMenuItem = new JMenuItem();
+            AbstractAction pasteAction = new AbstractAction(PASTE_ACTION_NAME) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    codeArea.paste();
+                }
+            };
+            pasteAction.putValue(Action.ACCELERATOR_KEY, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_V, META_MASK));
+            editPastePopupMenuItem.setAction(pasteAction);
+            popupMenu.add(editPastePopupMenuItem);
+
+            final JMenuItem editDeletePopupMenuItem = new JMenuItem();
+            AbstractAction deleteAction = new AbstractAction(DELETE_ACTION_NAME) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    codeArea.delete();
+                }
+            };
+            deleteAction.putValue(Action.ACCELERATOR_KEY, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_DELETE, 0));
+            editDeletePopupMenuItem.setAction(deleteAction);
+            popupMenu.add(editDeletePopupMenuItem);
+
+            final JMenuItem selectAllPopupMenuItem = new JMenuItem();
+            AbstractAction selectAllAction = new AbstractAction(SELECT_ALL_ACTION_NAME) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    codeArea.selectAll();
+                }
+            };
+            selectAllAction.putValue(Action.ACCELERATOR_KEY, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, META_MASK));
+            selectAllPopupMenuItem.setAction(selectAllAction);
+            popupMenu.add(selectAllPopupMenuItem);
+            popupMenu.addSeparator();
+            
+            JMenuItem changeEncoding = new JMenuItem();
+            changeEncoding.setAction(new AbstractAction("Change Encoding...") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    Window windowAncestor = SwingUtilities.getWindowAncestor(codeArea);
+                    JFrame frame = windowAncestor instanceof JFrame ? (JFrame) windowAncestor : null;
+                    EncodingSelectionDialog encodingSelectionDialog = new EncodingSelectionDialog(frame, true);
+                    encodingSelectionDialog.setEncoding(codeArea.getCharset().name());
+                    encodingSelectionDialog.setVisible(true);
+                    if (encodingSelectionDialog.getReturnStatus() == EncodingSelectionDialog.RET_OK) {
+                        codeArea.setCharset(Charset.forName(encodingSelectionDialog.getEncoding()));
+                    }
+                }
+            });
+            popupMenu.add(changeEncoding);
+            
+            popupMenu.addPopupMenuListener(new PopupMenuListener() {
+                @Override
+                public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                    editCutPopupMenuItem.setEnabled(codeArea.hasSelection());
+                    editCopyPopupMenuItem.setEnabled(codeArea.hasSelection());
+                    editDeletePopupMenuItem.setEnabled(codeArea.hasSelection());
+                    editPastePopupMenuItem.setEnabled(codeArea.canPaste());
+                    
+                    CodeType codeType = codeArea.getCodeType();
+                    switch (codeType) {
+                        case BINARY: {
+                            binaryCodeTypeMenuItem.setSelected(true);
+                            break;
+                        }
+                        case OCTAL: {
+                            octalCodeTypeMenuItem.setSelected(true);
+                            break;
+                        }
+                        case DECIMAL: {
+                            decimalCodeTypeMenuItem.setSelected(true);
+                            break;
+                        }
+                        case HEXADECIMAL: {
+                            hexaCodeTypeMenuItem.setSelected(true);
+                            break;
+                        }
+                    }
+                    
+                    showUnprintableMenuItem.setSelected(codeArea.isShowUnprintableCharacters());
+                    wrappingModeMenuItem.setSelected(codeArea.isWrapMode());
+                }
+
+                @Override
+                public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+                }
+
+                @Override
+                public void popupMenuCanceled(PopupMenuEvent e) {
+                }
+            });
+            
+            return popupMenu;
+        }
+        
+        private static JPopupMenu createTextEditorPopupMenu(final JTextPane textEditor) {
+            JPopupMenu popupMenu = new JPopupMenu();
+
+            final JMenuItem editCutPopupMenuItem = new JMenuItem();
+            AbstractAction cutAction = new AbstractAction(CUT_ACTION_NAME) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    textEditor.cut();
+                }
+            };
+            cutAction.putValue(Action.ACCELERATOR_KEY, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, META_MASK));
+            editCutPopupMenuItem.setAction(cutAction);
+            popupMenu.add(editCutPopupMenuItem);
+
+            final JMenuItem editCopyPopupMenuItem = new JMenuItem();
+            AbstractAction copyAction = new AbstractAction(COPY_ACTION_NAME) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    textEditor.copy();
+                }
+            };
+            copyAction.putValue(Action.ACCELERATOR_KEY, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, META_MASK));
+            editCopyPopupMenuItem.setAction(copyAction);
+            popupMenu.add(editCopyPopupMenuItem);
+
+            final JMenuItem editPastePopupMenuItem = new JMenuItem();
+            AbstractAction pasteAction = new AbstractAction(PASTE_ACTION_NAME) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    textEditor.paste();
+                }
+            };
+            pasteAction.putValue(Action.ACCELERATOR_KEY, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_V, META_MASK));
+            editPastePopupMenuItem.setAction(pasteAction);
+            popupMenu.add(editPastePopupMenuItem);
+
+            popupMenu.addPopupMenuListener(new PopupMenuListener() {
+                @Override
+                public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                    boolean hasSelection = textEditor.getSelectionEnd() > textEditor.getSelectionStart();
+                    // TODO detect
+                    boolean pasteAvailable = true;
+                    editCutPopupMenuItem.setEnabled(hasSelection);
+                    editCopyPopupMenuItem.setEnabled(hasSelection);
+                    editPastePopupMenuItem.setEnabled(pasteAvailable);
+                }
+
+                @Override
+                public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+                }
+
+                @Override
+                public void popupMenuCanceled(PopupMenuEvent e) {
+                }
+            });
+            
+            return popupMenu;
         }
     }
 }

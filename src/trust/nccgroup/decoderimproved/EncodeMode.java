@@ -33,6 +33,7 @@ public class EncodeMode extends ModificationMode {
         encoders.add(new Base64UrlEncoder());
         encoders.add(new ASCIIHexEncoder());
         encoders.add(new GZIPEncoder());
+        encoders.add(new ZlibEncoder());
         //encoders.add(new FooBarEncoder());
 
         // Swing Components for displaying encoder names

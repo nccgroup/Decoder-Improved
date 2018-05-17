@@ -27,6 +27,7 @@ public class DecodeMode extends ModificationMode {
         decoders.add(new FuzzyBase64Decoder());
         decoders.add(new ASCIIHexDecoder());
         decoders.add(new GZIPDecoder());
+        decoders.add(new ZlibDecoder());
 
         // Swing Components
         decoderComboBox = new JComboBox<>();

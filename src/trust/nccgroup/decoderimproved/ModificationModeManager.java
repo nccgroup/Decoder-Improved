@@ -46,6 +46,7 @@ public class ModificationModeManager {
         addMode(new HashMode());
         addMode(new BaseConvertMode());
         addMode(new FindAndReplaceMode());
+        addMode(new PrettifyMode());
         //addMode(new TextReplaceMode());
     }
 

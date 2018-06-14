@@ -22,7 +22,7 @@ public class ZlibDecoder extends ByteModifier {
             byte[] buffer = new byte[input.length*2];
             int bytesRead;
             ByteArrayOutputStream output = new ByteArrayOutputStream();
-            while ((bytesRead = inflaterStream.read(buffer, 0, buffer.length)) != -1) {
+            while ((bytesRead = inflaterStream.read(buffer, 0, buffer.length)) > 0) {
                 output.write(buffer, 0, bytesRead);
             }
             return output.toByteArray();

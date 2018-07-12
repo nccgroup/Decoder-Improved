@@ -18,7 +18,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.*;
 import java.util.ArrayList;
-import javax.swing.text.DefaultEditorKit;
 import org.exbin.deltahex.CodeType;
 
 public class MultiDecoderTab extends JPanel implements ITab {

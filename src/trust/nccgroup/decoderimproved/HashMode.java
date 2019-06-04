@@ -39,7 +39,7 @@ public class HashMode extends ModificationMode {
         cardLayout = new CardLayout();
 
         algos = new String[]{"Keccak", "MD2", "MD4", "MD5", "RIPEMD128", "RIPEMD160", "RIPEMD256", "RIPEMD320",
-                "SHA1", "SHA224", "SHA256", "SHA384", "SHA3", "SHAKE", "SM3", "Tiger", "GOST3411"};
+                "SHA1", "SHA224", "SHA256", "SHA384", "SHA512", "SHA3", "SHAKE", "SM3", "Tiger", "GOST3411"};
         algoComboBox = new JComboBox<>(algos);
 
         keccakComboBox = new JComboBox<>(new String[] {"224", "256", "288", "384", "512"});
@@ -131,6 +131,9 @@ public class HashMode extends ModificationMode {
             output = new byte[digest.getDigestSize()];
         } else if (algoComboBox.getSelectedItem().equals("SHA384")) {
             digest = new SHA384Digest();
+            output = new byte[digest.getDigestSize()];
+        } else if (algoComboBox.getSelectedItem().equals("SHA512")) {
+            digest = new SHA512Digest();
             output = new byte[digest.getDigestSize()];
         } else if (algoComboBox.getSelectedItem().equals("SHA3")) {
             digest = new SHA3Digest(Integer.parseInt((String)sha3ComboBox.getSelectedItem()));

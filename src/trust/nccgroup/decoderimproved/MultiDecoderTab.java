@@ -85,7 +85,7 @@ public class MultiDecoderTab extends JPanel implements ITab {
         // Add a new tab
         overallCount += 1;
         DecoderTab mt2 = new DecoderTab(Integer.toString(overallCount, 10), this);
-        callbacks.customizeUiComponent(mt2);
+        //callbacks.customizeUiComponent(mt2);
         main.add(mt2);
         main.setTabComponentAt(main.indexOfComponent(mt2), mt2.getTabHandleElement());
         main.setSelectedComponent(mt2);
@@ -157,7 +157,7 @@ public class MultiDecoderTab extends JPanel implements ITab {
 
         public DecoderTab(String _title, MultiDecoderTab _parent) {
             decoderTabHandle = new DecoderTabHandle(_title, _parent, this);
-            _parent.callbacks.customizeUiComponent(decoderTabHandle);
+            //_parent.callbacks.customizeUiComponent(decoderTabHandle);
             setupComponents();
         }
 

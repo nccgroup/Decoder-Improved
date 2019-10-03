@@ -108,18 +108,10 @@ public class MultiDecoderTab extends JPanel implements ITab {
         return -1;
     }
 
-    public void receiveTextFromMenu(String selectedText) {
+    public void receiveTextFromMenu(byte[] selectedTextBytes) {
         // TODO: Add checks to see if the decoder segment is populated.
-        byte[] selectedTextBytes;
-        try {
-            selectedTextBytes = selectedText.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            // This should never happen
-            selectedTextBytes = new byte[0];
-        }
         if (firstEmptyDecoder() == -1) {
             // Add a new tab
-
             addTab();
             DecoderTab dt = (DecoderTab) main.getComponentAt(main.getTabCount()-2);
             dt.getDecoderSegments().get(0).dsState.setByteArrayList(selectedTextBytes);

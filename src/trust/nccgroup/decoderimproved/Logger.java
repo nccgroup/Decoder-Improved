@@ -1,6 +1,9 @@
 package trust.nccgroup.decoderimproved;
 
 import burp.IBurpExtenderCallbacks;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -21,6 +24,15 @@ public class Logger {
     public static void printError(String errorString){
         if (callbacks != null) {
             callbacks.printError("[" + getCurrentDateString() + "] " + errorString);
+        }
+    }
+
+    public static void printErrorFromException(Exception e) {
+        if (callbacks != null) {
+            StringWriter stringWriter = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(stringWriter);
+            e.printStackTrace(printWriter);
+            callbacks.printError(stringWriter.toString());
         }
     }
 

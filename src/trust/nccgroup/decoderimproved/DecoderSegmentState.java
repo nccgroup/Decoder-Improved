@@ -26,14 +26,14 @@ public class DecoderSegmentState {
 
 
     // Calculate byte offset based on UTF-8 multibyte definition, to support more multibyte characters.
-    // The text editor is still buggy dealing with random non-UTF-8 binary as it doesn't update UTF-8 encoded text in real time.
-    // calculateByteOffset_v1() also works in most cases, but for some weird strings it has different results.
-    // TODO: compare with calculateByteOffset_v1() and find the right way out
+    // The text editor is still buggy on showing the newly updated UTF-8 encoding result as the text won't be updated in real time.
     private int calculateByteOffset(int stringOffset) {
         byte[] bytes = getByteArray();
         int offset = 0;
         for (int i = 0; i < stringOffset; i++) {
             int cur = offset;
+            if (cur >= bytes.length)
+                break;
             byte b = bytes[cur];
             if (b >= 0) { // single-byte char, in 00000000 - 01111111
                 if (b == 13 && cur + 1 < bytes.length && bytes[cur + 1] == 10) { // CRLF \x0d\x0a case
@@ -65,32 +65,6 @@ public class DecoderSegmentState {
             }
         }
         return offset;
-    }
-
-    // Simplified the previous calculateByteOffset() (now calculateByteOffset_v0), removed replacement character logic
-    // because it's not needed due to direct copy of byte array during "Send to Decoder Improved" process.
-    // Added \x0d\x0a support
-    private int calculateByteOffset_v1(int startIndex) {
-        try {
-            String displayString = getDisplayString();
-            byte[] bytes = getByteArray();
-            // This is the total offset
-            int offset = 0;
-            // Iterate over the first 0 -> startIndex chars in displayString
-            for (int i = 0; i < startIndex; i++)  {
-                //  CRLF \x0d\x0a case
-                if (displayString.charAt(i) == 0x0d && i + 1 < displayString.length() && displayString.charAt(i + 1) == 0x0a) {
-                    offset += 2;
-                } else {
-                    byte[] characterBytes = displayString.substring(i, i + 1).getBytes("UTF-8");
-                    offset += characterBytes.length;
-                }
-            }
-            return offset;
-        } catch (UnsupportedEncodingException e) {
-            // this should never happen
-            return -1;
-        }
     }
 
     // This is a miracle that this works. If it causes an exception, sorry.

@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 
+import com.google.gson.JsonObject;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.*;
 
@@ -163,5 +164,49 @@ public class HashMode extends ModificationMode {
         digest.update(input, 0, input.length);
         digest.doFinal(output, 0);
         return output;
+    }
+
+    public JsonObject toJSON(){
+        JsonObject jsonObject = new JsonObject();
+        try {
+            String algoName = (String) algoComboBox.getSelectedItem();
+            // Add algorithm
+            jsonObject.addProperty("a", algoName);
+            // Add additional config for specific algorithms
+            switch (algoName) {
+                case "Keccak":
+                    jsonObject.addProperty("c", (String) keccakComboBox.getSelectedItem());
+                    break;
+                case "SHA3":
+                    jsonObject.addProperty("c", (String) sha3ComboBox.getSelectedItem());
+                    break;
+                case "SHAKE":
+                    jsonObject.addProperty("c", (String) shakeComboBox.getSelectedItem());
+                    break;
+            }
+        } catch (Exception e) {
+            Logger.printErrorFromException(e);
+        }
+        return jsonObject;
+    }
+
+    public void setFromJSON(JsonObject jsonObject){
+        try {
+            String algoName = jsonObject.get("a").getAsString();
+            algoComboBox.setSelectedItem(algoName);
+            switch (algoName) {
+                case "Keccak":
+                    keccakComboBox.setSelectedItem(jsonObject.get("c").getAsString());
+                    break;
+                case "SHA3":
+                    sha3ComboBox.setSelectedItem(jsonObject.get("c").getAsString());
+                    break;
+                case "SHAKE":
+                    shakeComboBox.setSelectedItem(jsonObject.get("c").getAsString());
+                    break;
+            }
+        } catch (Exception e) {
+            Logger.printErrorFromException(e);
+        }
     }
 }

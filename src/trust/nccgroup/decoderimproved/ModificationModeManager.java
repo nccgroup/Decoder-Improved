@@ -70,7 +70,7 @@ public class ModificationModeManager {
         return ui;
     }
 
-    private ModificationMode getSelectedMode() {
+    public ModificationMode getSelectedMode() {
         for (ModificationMode mode : modes) {
             if (mode.getName() == modeComboBox.getSelectedItem()) {
                 return mode;
@@ -78,6 +78,10 @@ public class ModificationModeManager {
         }
         // return the first encoder as a default
         return modes.get(0);
+    }
+
+    public void setSelectedMode(String name) {
+        modeComboBox.setSelectedItem(name);
     }
 
     public byte[] modifyBytes(byte[] input) throws ModificationException{

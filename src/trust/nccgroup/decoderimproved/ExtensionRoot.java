@@ -4,21 +4,28 @@ import burp.*;
 
 public class ExtensionRoot implements IBurpExtender {
 
-  private IBurpExtenderCallbacks callbacks;
-  private IExtensionHelpers helpers;
+    private IBurpExtenderCallbacks callbacks;
+    private IExtensionHelpers helpers;
 
-  public void registerExtenderCallbacks(IBurpExtenderCallbacks _callbacks) {
+    public void registerExtenderCallbacks(IBurpExtenderCallbacks _callbacks) {
 
-    callbacks = _callbacks;
-    helpers = callbacks.getHelpers();
+        callbacks = _callbacks;
+        helpers = callbacks.getHelpers();
 
-    Logger.registerExtenderCallbacks(callbacks);
+        Logger.registerExtenderCallbacks(callbacks);
 
-    callbacks.setExtensionName("Decoder Improved");
+        callbacks.setExtensionName("Decoder Improved");
 
-    MultiDecoderTab multiDecoderTab = new MultiDecoderTab(callbacks);
-    //callbacks.customizeUiComponent(multiDecoderTab);
-    callbacks.addSuiteTab(multiDecoderTab);
-    callbacks.registerContextMenuFactory(new SendToDecoderImprovedContextMenuFactory(callbacks, multiDecoderTab));
-  }
+        MultiDecoderTab multiDecoderTab = new MultiDecoderTab(callbacks);
+        //callbacks.customizeUiComponent(multiDecoderTab);
+        callbacks.addSuiteTab(multiDecoderTab);
+        callbacks.registerContextMenuFactory(new SendToDecoderImprovedContextMenuFactory(callbacks, multiDecoderTab));
+
+        String savedSettings = callbacks.loadExtensionSetting(multiDecoderTab.getTabCaption());
+        if (savedSettings != null) {
+            multiDecoderTab.setState(savedSettings);
+        }
+
+        callbacks.registerExtensionStateListener(() -> callbacks.saveExtensionSetting(multiDecoderTab.getTabCaption(), multiDecoderTab.getState()));
+    }
 }

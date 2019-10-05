@@ -1,5 +1,7 @@
 package trust.nccgroup.decoderimproved;
 
+import com.google.gson.JsonObject;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.UnsupportedEncodingException;
@@ -74,12 +76,12 @@ public class FindAndReplaceMode extends ModificationMode {
     }
 
     // There's a limitation here. Invalid UTF-8 bytes will be replaced by the replacement char in the result.
-    public byte[] modifyBytes(byte[] input) throws ModificationException{
+    public byte[] modifyBytes(byte[] input) throws ModificationException {
         // Do this first to make sure the regex is valid
         try {
             Pattern.compile(regexTextField.getText());
         } catch (PatternSyntaxException e) {
-            throw new ModificationException(regexTextField.getText()+" Is Not A Valid Regular Expression.");
+            throw new ModificationException(regexTextField.getText() + " Is Not A Valid Regular Expression.");
         }
         // Do this to make sure the input is a valid string
         // Find and replace doesn't work correctly on strings containing binary data
@@ -113,5 +115,23 @@ public class FindAndReplaceMode extends ModificationMode {
             }
         }
         return new byte[0];
+    }
+
+    public JsonObject toJSON() {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("c", (String) replaceComboBox.getSelectedItem());
+        jsonObject.addProperty("g", regexTextField.getText());
+        jsonObject.addProperty("p", replaceTextField.getText());
+        return jsonObject;
+    }
+
+    public void setFromJSON(JsonObject jsonObject) {
+        try {
+            replaceComboBox.setSelectedItem(jsonObject.get("c").getAsString());
+            regexTextField.setText(jsonObject.get("g").getAsString());
+            replaceTextField.setText(jsonObject.get("p").getAsString());
+        } catch (Exception e) {
+            Logger.printErrorFromException(e);
+        }
     }
 }

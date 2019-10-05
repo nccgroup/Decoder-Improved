@@ -1,5 +1,7 @@
 package trust.nccgroup.decoderimproved;
 
+import com.google.gson.JsonObject;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -45,5 +47,19 @@ public class PrettifyMode extends ModificationMode {
 
     public byte[] modifyBytes(byte[] input) throws ModificationException {
         return getSelectedMode().modifyBytes(input);
+    }
+
+    public JsonObject toJSON() {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("p", (String) prettifierComboBox.getSelectedItem());
+        return jsonObject;
+    }
+
+    public void setFromJSON(JsonObject jsonObject) {
+        try {
+            prettifierComboBox.setSelectedItem(jsonObject.get("p").getAsString());
+        } catch (Exception e) {
+            Logger.printErrorFromException(e);
+        }
     }
 }

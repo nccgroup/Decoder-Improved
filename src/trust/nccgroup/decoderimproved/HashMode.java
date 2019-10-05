@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 
+import com.google.gson.JsonObject;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.*;
 
@@ -163,5 +164,15 @@ public class HashMode extends ModificationMode {
         digest.update(input, 0, input.length);
         digest.doFinal(output, 0);
         return output;
+    }
+
+    // TODO: Implement this
+    public JsonObject toJSON(){
+        JsonObject jsonObject = new JsonObject();
+        return jsonObject;
+    }
+
+    // TODO: Implement this
+    public void setFromJSON(JsonObject jsonObject){
     }
 }

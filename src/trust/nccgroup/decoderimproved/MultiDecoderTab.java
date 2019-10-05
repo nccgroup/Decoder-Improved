@@ -145,8 +145,27 @@ public class MultiDecoderTab extends JPanel implements ITab {
         for (int i = 0; i < main.getTabCount() - 1; i++) {
             JsonObject tabStateObject = new JsonObject();
             DecoderTab.DecoderTabHandle tabHandle = (DecoderTab.DecoderTabHandle) main.getTabComponentAt(i);
+            // Tab name
             tabStateObject.addProperty("n", tabHandle.tabName.getText());
-            tabStateObject.addProperty("b", Base64.getEncoder().encodeToString(tabHandle.decoderTab.getDecoderSegments().get(0).dsState.getByteArray())); //gson.toJson(tabHandle.decoderTab.getDecoderSegments().get(0).dsState.getByteArray()));
+            // Bytes in first segment of each tab
+            tabStateObject.addProperty("b", Base64.getEncoder().encodeToString(tabHandle.decoderTab.getDecoderSegments().get(0).dsState.getByteArray()));
+            // Save panel states of all segments
+            JsonArray segmentStateArray = new JsonArray();
+            for (DecoderSegment decoderSegment : tabHandle.decoderTab.getDecoderSegments()) {
+                JsonObject segmentStateObject = new JsonObject();
+                // Whether hex editor is selected
+                segmentStateObject.addProperty("h", decoderSegment.hexRadio.isSelected());
+                ModificationMode mode = decoderSegment.modes.getSelectedMode();
+                // Mode name
+                segmentStateObject.addProperty("m", mode.name);
+                // Mode configurations
+                segmentStateObject.add("c", mode.toJSON());
+                // Add each segment state object to the segment state array
+                segmentStateArray.add(segmentStateObject);
+            }
+            // Save the segment state array in tab state object
+            tabStateObject.add("s", segmentStateArray);
+            // Add each tab state object to the tab state array
             tabStateArray.add(tabStateObject);
         }
         extensionStateObject.addProperty("i", main.getSelectedIndex());
@@ -174,11 +193,31 @@ public class MultiDecoderTab extends JPanel implements ITab {
                 // Build a new tab for each tab object
                 addTab();
                 DecoderTab dt = (DecoderTab) main.getComponentAt(i);
-                dt.getDecoderSegments().get(0).dsState.setByteArrayList(Base64.getDecoder().decode(tabStateObject.get("b").getAsString()));
                 dt.decoderTabHandle.tabName.setText(tabStateObject.get("n").getAsString());
+                dt.getDecoderSegments().get(0).dsState.setByteArrayList(Base64.getDecoder().decode(tabStateObject.get("b").getAsString()));
+                JsonArray segmentStateArray = tabStateObject.getAsJsonArray("s");
+                // Create new segments
+                for (int j = 0; j < segmentStateArray.size() - 1; j++) {
+                    dt.decoderSegments.get(dt.decoderSegments.size() - 1).addDecoderSegment();
+                }
                 dt.updateDecoderSegments(0);
+
                 for (DecoderSegment ds : dt.getDecoderSegments()) {
                     ds.updateEditors(dt.getDecoderSegments().get(0).dsState);
+                }
+                for (int j = 0; j < segmentStateArray.size(); j++) {
+                    JsonObject segmentStateObject = segmentStateArray.get(j).getAsJsonObject();
+                    DecoderSegment ds = dt.decoderSegments.get(j);
+                    if (segmentStateObject.get("h").getAsBoolean()) {
+                        ds.displayHexEditor();
+                    }
+                    String mode = segmentStateObject.get("m").getAsString();
+                    JsonObject config = segmentStateObject.get("c").getAsJsonObject();
+                    // If encoded as plain, do not "select" the item as it will create a new segment under the last one
+                    if (!(mode.equals(EncodeMode.NAME) && config.get("e").getAsString().equals(PlaintextEncoder.NAME))) {
+                        ds.modes.setSelectedMode(mode);
+                        ds.modes.getSelectedMode().setFromJSON(config);
+                    }
                 }
             }
             main.setSelectedIndex(extensionStateObject.get("i").getAsInt());

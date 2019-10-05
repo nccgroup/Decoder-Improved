@@ -166,13 +166,47 @@ public class HashMode extends ModificationMode {
         return output;
     }
 
-    // TODO: Implement this
     public JsonObject toJSON(){
         JsonObject jsonObject = new JsonObject();
+        try {
+            String algoName = (String) algoComboBox.getSelectedItem();
+            // Add algorithm
+            jsonObject.addProperty("a", algoName);
+            // Add additional config for specific algorithms
+            switch (algoName) {
+                case "Keccak":
+                    jsonObject.addProperty("c", (String) keccakComboBox.getSelectedItem());
+                    break;
+                case "SHA3":
+                    jsonObject.addProperty("c", (String) sha3ComboBox.getSelectedItem());
+                    break;
+                case "SHAKE":
+                    jsonObject.addProperty("c", (String) shakeComboBox.getSelectedItem());
+                    break;
+            }
+        } catch (Exception e) {
+            Logger.printErrorFromException(e);
+        }
         return jsonObject;
     }
 
-    // TODO: Implement this
     public void setFromJSON(JsonObject jsonObject){
+        try {
+            String algoName = jsonObject.get("a").getAsString();
+            algoComboBox.setSelectedItem(algoName);
+            switch (algoName) {
+                case "Keccak":
+                    keccakComboBox.setSelectedItem(jsonObject.get("c").getAsString());
+                    break;
+                case "SHA3":
+                    sha3ComboBox.setSelectedItem(jsonObject.get("c").getAsString());
+                    break;
+                case "SHAKE":
+                    shakeComboBox.setSelectedItem(jsonObject.get("c").getAsString());
+                    break;
+            }
+        } catch (Exception e) {
+            Logger.printErrorFromException(e);
+        }
     }
 }

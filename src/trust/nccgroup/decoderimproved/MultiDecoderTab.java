@@ -194,29 +194,31 @@ public class MultiDecoderTab extends JPanel implements ITab {
                 addTab();
                 DecoderTab dt = (DecoderTab) main.getComponentAt(i);
                 dt.decoderTabHandle.tabName.setText(tabStateObject.get("n").getAsString());
-                dt.getDecoderSegments().get(0).dsState.setByteArrayList(Base64.getDecoder().decode(tabStateObject.get("b").getAsString()));
+                DecoderSegmentState dsState = dt.getDecoderSegments().get(0).dsState;
+                dsState.setByteArrayList(Base64.getDecoder().decode(tabStateObject.get("b").getAsString()));
+                // Update state for the first segment
+                dt.decoderSegments.get(0).updateEditors(dsState);
                 JsonArray segmentStateArray = tabStateObject.getAsJsonArray("s");
-                // Create new segments
+                // Create (n - 1) new segments and update state for the 1..n-1 segments
                 for (int j = 0; j < segmentStateArray.size() - 1; j++) {
-                    dt.decoderSegments.get(dt.decoderSegments.size() - 1).addDecoderSegment();
-                }
-                dt.updateDecoderSegments(0);
-
-                for (DecoderSegment ds : dt.getDecoderSegments()) {
-                    ds.updateEditors(dt.getDecoderSegments().get(0).dsState);
+                    dt.decoderSegments.get(j).addDecoderSegment();
+                    dt.decoderSegments.get(j + 1).updateEditors(dsState);
                 }
                 for (int j = 0; j < segmentStateArray.size(); j++) {
                     JsonObject segmentStateObject = segmentStateArray.get(j).getAsJsonObject();
                     DecoderSegment ds = dt.decoderSegments.get(j);
-                    if (segmentStateObject.get("h").getAsBoolean()) {
-                        ds.displayHexEditor();
-                    }
                     String mode = segmentStateObject.get("m").getAsString();
                     JsonObject config = segmentStateObject.get("c").getAsJsonObject();
                     // If encoded as plain, do not "select" the item as it will create a new segment under the last one
                     if (!(mode.equals(EncodeMode.NAME) && config.get("e").getAsString().equals(PlaintextEncoder.NAME))) {
                         ds.modes.setSelectedMode(mode);
                         ds.modes.getSelectedMode().setFromJSON(config);
+                    }
+                    // Editor must be set at last to "force" the selection
+                    if (segmentStateObject.get("h").getAsBoolean()) {
+                        ds.displayHexEditor();
+                    } else {
+                        ds.displayTextEditor();
                     }
                 }
             }

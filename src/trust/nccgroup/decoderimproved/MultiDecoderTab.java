@@ -581,7 +581,7 @@ public class MultiDecoderTab extends JPanel implements ITab {
                 public void insertUpdate(DocumentEvent e) {
                     if (! lockDocumentEvents) {
                         // These events trigger when a user is doing regular typing into the text editor
-                        String insertedText = textEditor.getText().substring(e.getOffset(), e.getOffset() + e.getLength());
+                        String insertedText = textEditor.getText().replace("\r\n", "\n").substring(e.getOffset(), e.getOffset() + e.getLength());
                         dsState.insertUpdateIntoByteArrayList(insertedText, e.getOffset());
 
                         // Utils.printByteArray(dsState.getByteArray());

@@ -4,6 +4,7 @@ import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
 import burp.ITab;
 import com.google.common.collect.Lists;
+import com.google.gson.*;
 import util.PDControlScrollPane;
 import org.exbin.utils.binary_data.ByteArrayEditableData;
 import org.exbin.deltahex.swing.CodeArea;
@@ -16,6 +17,8 @@ import java.awt.event.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.*;
 import java.util.ArrayList;
+import java.util.Base64;
+
 import org.exbin.deltahex.CodeType;
 
 public class MultiDecoderTab extends JPanel implements ITab {
@@ -52,11 +55,6 @@ public class MultiDecoderTab extends JPanel implements ITab {
         newTabButton = new JPanel();
         newTabButton.setName("...");
         main.add(newTabButton);
-
-        // Add initial decoder tab
-        this.addTab();
-
-        main.setSelectedIndex(0);
 
         main.addChangeListener((ChangeEvent e) -> {
             // If the '...' button is pressed, add a new tab
@@ -138,6 +136,58 @@ public class MultiDecoderTab extends JPanel implements ITab {
     }
 
     public JTabbedPane getMain() { return main; }
+
+    // Save the current state of extension to a JsonObject string
+    public String getState() {
+        JsonObject extensionStateObject = new JsonObject();
+        JsonArray tabStateArray = new JsonArray();
+        // Save all tabs except the last "..." one
+        for (int i = 0; i < main.getTabCount() - 1; i++) {
+            JsonObject tabStateObject = new JsonObject();
+            DecoderTab.DecoderTabHandle tabHandle = (DecoderTab.DecoderTabHandle) main.getTabComponentAt(i);
+            tabStateObject.addProperty("n", tabHandle.tabName.getText());
+            tabStateObject.addProperty("b", Base64.getEncoder().encodeToString(tabHandle.decoderTab.getDecoderSegments().get(0).dsState.getByteArray())); //gson.toJson(tabHandle.decoderTab.getDecoderSegments().get(0).dsState.getByteArray()));
+            tabStateArray.add(tabStateObject);
+        }
+        extensionStateObject.addProperty("i", main.getSelectedIndex());
+        extensionStateObject.add("t", tabStateArray);
+        return extensionStateObject.toString();
+    }
+
+    // Decode the saved extension setting string and recover all tabs
+    public void setState(String stateString) {
+        if (stateString == null || stateString.isEmpty()) {
+            addTab();
+            main.setSelectedIndex(0);
+            return;
+        }
+        try {
+            JsonObject extensionStateObject = JsonParser.parseString(stateString).getAsJsonObject();
+            JsonArray tabStateArray = extensionStateObject.get("t").getAsJsonArray();
+            if (tabStateArray.size() == 0) {
+                addTab();
+                main.setSelectedIndex(0);
+                return;
+            }
+            for (int i = 0; i < tabStateArray.size(); i++) {
+                JsonObject tabStateObject = tabStateArray.get(i).getAsJsonObject();
+                // Build a new tab for each tab object
+                addTab();
+                DecoderTab dt = (DecoderTab) main.getComponentAt(i);
+                dt.getDecoderSegments().get(0).dsState.setByteArrayList(Base64.getDecoder().decode(tabStateObject.get("b").getAsString()));
+                dt.decoderTabHandle.tabName.setText(tabStateObject.get("n").getAsString());
+                dt.updateDecoderSegments(0);
+                for (DecoderSegment ds : dt.getDecoderSegments()) {
+                    ds.updateEditors(dt.getDecoderSegments().get(0).dsState);
+                }
+            }
+            main.setSelectedIndex(extensionStateObject.get("i").getAsInt());
+        } catch (Exception e) {
+            addTab();
+            main.setSelectedIndex(0);
+            Logger.printErrorFromException(e);
+        }
+    }
 
     private static class DecoderTab extends JPanel {
         private DecoderTabHandle decoderTabHandle;

@@ -38,6 +38,7 @@ dependencies {
     //compile group: 'org.brotli', name: 'dec', version: '0.1.2'
     //compile group: 'org.brotli', name: 'parent', version: '0.1.2'
     compile 'net.portswigger.burp.extender:burp-extender-api:2.1'
+    implementation 'com.google.code.gson:gson:2.8.6'
 }
 
 //noinspection GroovyAssignabilityCheck

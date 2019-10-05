@@ -3,7 +3,6 @@ package trust.nccgroup.decoderimproved;
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
 import burp.ITab;
-
 import com.google.common.collect.Lists;
 import util.PDControlScrollPane;
 import org.exbin.utils.binary_data.ByteArrayEditableData;
@@ -14,7 +13,6 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.*;
 import java.util.ArrayList;

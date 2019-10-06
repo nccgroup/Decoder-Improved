@@ -196,13 +196,14 @@ public class MultiDecoderTab extends JPanel implements ITab {
                 dt.decoderTabHandle.tabName.setText(tabStateObject.get("n").getAsString());
                 DecoderSegmentState dsState = dt.getDecoderSegments().get(0).dsState;
                 dsState.setByteArrayList(Base64.getDecoder().decode(tabStateObject.get("b").getAsString()));
-                // Update state for the first segment
-                dt.decoderSegments.get(0).updateEditors(dsState);
                 JsonArray segmentStateArray = tabStateObject.getAsJsonArray("s");
                 // Create (n - 1) new segments and update state for the 1..n-1 segments
                 for (int j = 0; j < segmentStateArray.size() - 1; j++) {
                     dt.decoderSegments.get(j).addDecoderSegment();
-                    dt.decoderSegments.get(j + 1).updateEditors(dsState);
+                }
+                // Update state for all segments
+                for (int j = 0; j < dt.decoderSegments.size(); j++) {
+                    dt.decoderSegments.get(j).updateEditors(dsState);
                 }
                 for (int j = 0; j < segmentStateArray.size(); j++) {
                     JsonObject segmentStateObject = segmentStateArray.get(j).getAsJsonObject();
@@ -404,7 +405,7 @@ public class MultiDecoderTab extends JPanel implements ITab {
                     decoder.decode(ByteBuffer.wrap(nextDecoderSegment.dsState.getByteArray()));
                     new String(nextDecoderSegment.dsState.getByteArray(), "UTF-8");
                     // new UTF.newUTF8String(nextDecoderSegment.dsState.getByteArray());
-                    nextDecoderSegment.displayTextEditor();
+                    //nextDecoderSegment.displayTextEditor(); // This is commented out as it sometimes got the extension frozen during loading settings, FIXME if anything wrong happens because of this
                 } catch (Exception e) {
                     nextDecoderSegment.displayHexEditor();
                 }

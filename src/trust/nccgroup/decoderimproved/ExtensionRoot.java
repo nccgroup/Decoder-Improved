@@ -22,9 +22,7 @@ public class ExtensionRoot implements IBurpExtender {
         callbacks.registerContextMenuFactory(new SendToDecoderImprovedContextMenuFactory(callbacks, multiDecoderTab));
 
         String savedSettings = callbacks.loadExtensionSetting(multiDecoderTab.getTabCaption());
-        if (savedSettings != null) {
-            multiDecoderTab.setState(savedSettings);
-        }
+        multiDecoderTab.setState(savedSettings);
 
         callbacks.registerExtensionStateListener(() -> callbacks.saveExtensionSetting(multiDecoderTab.getTabCaption(), multiDecoderTab.getState()));
     }

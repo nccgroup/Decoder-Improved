@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 // New modes must inherit from the "ModificationMode" parent class. 
 public class EncodeMode extends ModificationMode {
-    public static String NAME = "Encode as...";
+    public final static String NAME = "Encode as...";
 
     // ArrayList containing all the different encoders
     private ArrayList<ByteModifier> encoders;

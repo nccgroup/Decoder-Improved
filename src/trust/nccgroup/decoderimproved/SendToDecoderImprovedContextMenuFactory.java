@@ -12,13 +12,9 @@ import java.util.List;
  * Created by j on 12/9/16.
  */
 class SendToDecoderImprovedContextMenuFactory implements IContextMenuFactory {
-    private IBurpExtenderCallbacks callbacks;
-    private IExtensionHelpers helpers;
     private MultiDecoderTab tab;
 
-    public SendToDecoderImprovedContextMenuFactory(IBurpExtenderCallbacks _callbacks, MultiDecoderTab _tab) {
-        callbacks = _callbacks;
-        helpers = callbacks.getHelpers();
+    public SendToDecoderImprovedContextMenuFactory(MultiDecoderTab _tab) {
         tab = _tab;
     }
 

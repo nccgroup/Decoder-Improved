@@ -2,6 +2,7 @@ package trust.nccgroup.decoderimproved;
 
 import burp.IBurpExtenderCallbacks;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.LocalDateTime;
@@ -29,10 +30,16 @@ public class Logger {
 
     public static void printErrorFromException(Exception e) {
         if (callbacks != null) {
-            StringWriter stringWriter = new StringWriter();
-            PrintWriter printWriter = new PrintWriter(stringWriter);
-            e.printStackTrace(printWriter);
-            callbacks.printError(stringWriter.toString());
+            try {
+                StringWriter stringWriter = new StringWriter();
+                PrintWriter printWriter = new PrintWriter(stringWriter);
+                e.printStackTrace(printWriter);
+                callbacks.printError(stringWriter.toString());
+                printWriter.close();
+                stringWriter.close();
+            } catch (IOException ee){
+                printError(ee.getMessage());
+            }
         }
     }
 

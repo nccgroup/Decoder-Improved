@@ -14,6 +14,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.*;
 import java.util.ArrayList;
@@ -430,6 +431,7 @@ public class MultiDecoderTab extends JPanel implements ITab {
         private ButtonGroup textHexGroup;
         private JRadioButton textRadio;
         private JRadioButton hexRadio;
+        private JComboBox<String> exportComboBox;
 
         // These manage the editor views
         private JPanel masterEditorPanel;
@@ -556,6 +558,7 @@ public class MultiDecoderTab extends JPanel implements ITab {
             radioPanel = new JPanel();
             textRadio = new JRadioButton();
             hexRadio = new JRadioButton();
+            exportComboBox = new JComboBox<>();
 
             modeSelector = new JComboBox<>();
 
@@ -563,73 +566,77 @@ public class MultiDecoderTab extends JPanel implements ITab {
 
             hexEditor = new CodeArea();
 
-            this.setLayout(new BorderLayout());
-            {
-                this.setMaximumSize(new Dimension(3000, 150));
-                this.setMinimumSize(new Dimension(500, 133));
-                this.setPreferredSize(new Dimension(711, 200));
-                this.setSize(new Dimension(100, 200));
-                this.setLayout(new GridBagLayout());
-                {
-                    editorPanel.setMinimumSize(new Dimension(100, 150));
-                    editorPanel.setPreferredSize(new Dimension(100, 150));
+            // "this" is the decoder segment
+            this.setMaximumSize(new Dimension(3000, 200));
+            this.setMinimumSize(new Dimension(500, 133));
+            this.setPreferredSize(new Dimension(711, 200));
+            this.setSize(new Dimension(100, 200));
+            this.setLayout(new GridBagLayout());
+            editorPanel.setMinimumSize(new Dimension(100, 150));
+            editorPanel.setPreferredSize(new Dimension(100, 150));
 
-                    hexPanel.setMinimumSize(new Dimension(100, 150));
-                    hexPanel.setPreferredSize(new Dimension(100, 150));
-                    {
-                        textEditor.setMinimumSize(new Dimension(50, 150));
-                        textEditor.setSize(new Dimension(100, 80));
-                        textEditor.setContentType("text/plain");
-                        textEditor.setComponentPopupMenu(MenuHandler.createTextEditorPopupMenu(textEditor));
+            hexPanel.setMinimumSize(new Dimension(100, 150));
+            hexPanel.setPreferredSize(new Dimension(100, 150));
+            textEditor.setMinimumSize(new Dimension(50, 150));
+            textEditor.setSize(new Dimension(100, 80));
+            textEditor.setContentType("text/plain");
+            textEditor.setComponentPopupMenu(MenuHandler.createTextEditorPopupMenu(textEditor));
 
-                        hexEditor.setMinimumSize(new Dimension(50, 150));
-                        hexEditor.setSize(new Dimension(100, 80));
-                        hexEditor.setComponentPopupMenu(MenuHandler.createHexEditorPopupMenu(hexEditor));
-                    }
-                    hexPanel.setViewportView(hexEditor);
-                    editorPanel.setViewportView(textEditor);
-                }
-                GridBagConstraints editorPanelConstraints = new GridBagConstraints();
-                editorPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
-                editorPanelConstraints.anchor = GridBagConstraints.WEST;
-                editorPanelConstraints.weightx = 1.0;
+            hexEditor.setMinimumSize(new Dimension(50, 150));
+            hexEditor.setSize(new Dimension(100, 80));
+            hexEditor.setComponentPopupMenu(MenuHandler.createHexEditorPopupMenu(hexEditor));
+            hexPanel.setViewportView(hexEditor);
+            editorPanel.setViewportView(textEditor);
+            GridBagConstraints editorPanelConstraints = new GridBagConstraints();
+            editorPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
+            editorPanelConstraints.anchor = GridBagConstraints.WEST;
+            editorPanelConstraints.weightx = 1.0;
 
-                masterEditorPanel.add(editorPanel);
-                masterEditorPanel.add(hexPanel);
+            masterEditorPanel.add(editorPanel);
+            masterEditorPanel.add(hexPanel);
 
-                this.add(masterEditorPanel, editorPanelConstraints);
-                {
-                    controlPanel.setMaximumSize(new Dimension(2100, 150));
-                    controlPanel.setMinimumSize(new Dimension(2100, 150));
-                    controlPanel.setPreferredSize(new Dimension(150, 150));
-                    controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.PAGE_AXIS));
-                    {
-                        radioPanel.setMaximumSize(new Dimension(125, 25));
-                        radioPanel.setMinimumSize(new Dimension(125, 25));
-                        radioPanel.setPreferredSize(new Dimension(125, 25));
-                        radioPanel.setLayout(new GridLayout());
+            this.add(masterEditorPanel, editorPanelConstraints);
+            controlPanel.setMaximumSize(new Dimension(150, 200));
+            controlPanel.setMinimumSize(new Dimension(150, 150));
+            controlPanel.setPreferredSize(new Dimension(150, 200));
+            controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.PAGE_AXIS));
 
-                        textRadio.setText("Text");
-                        textRadio.setSelected(true);
-                        textRadio.putClientProperty("JComponent.sizeVariant", "small");
-                        textRadio.setHorizontalAlignment(AbstractButton.CENTER);
+            // Radio group
+            radioPanel.setMaximumSize(new Dimension(125, 25));
+            radioPanel.setMinimumSize(new Dimension(125, 25));
+            radioPanel.setPreferredSize(new Dimension(125, 25));
+            radioPanel.setLayout(new GridLayout());
 
-                        hexRadio.setText("Hex");
-                        hexRadio.putClientProperty("JComponent.sizeVariant", "small");
-                        hexRadio.setHorizontalAlignment(AbstractButton.CENTER);
+            textRadio.setText("Text");
+            textRadio.setSelected(true);
+            textRadio.putClientProperty("JComponent.sizeVariant", "small");
+            textRadio.setHorizontalAlignment(AbstractButton.CENTER);
 
-                        textHexGroup.add(textRadio);
-                        textHexGroup.add(hexRadio);
+            hexRadio.setText("Hex");
+            hexRadio.putClientProperty("JComponent.sizeVariant", "small");
+            hexRadio.setHorizontalAlignment(AbstractButton.CENTER);
 
-                        radioPanel.add(textRadio);
-                        radioPanel.add(hexRadio);
-                    }
-                    controlPanel.add(radioPanel);
+            textHexGroup.add(textRadio);
+            textHexGroup.add(hexRadio);
 
-                    controlPanel.add(modes.getUI());
+            radioPanel.add(textRadio);
+            radioPanel.add(hexRadio);
+            controlPanel.add(radioPanel);
 
-                }
-            }
+            // Modes
+            controlPanel.add(modes.getUI());
+
+            // Export combo box
+            exportComboBox.setMaximumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
+            exportComboBox.setMinimumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
+            exportComboBox.setPreferredSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
+            exportComboBox.addItem("Save as...");
+            exportComboBox.addItem("Raw Data");
+            exportComboBox.addItem("Hex");
+            exportComboBox.addItem("UTF-8 String");
+
+            controlPanel.add(exportComboBox);
+
             GridBagConstraints controlPanelConstraints = new GridBagConstraints();
 
             this.add(controlPanel, controlPanelConstraints);
@@ -643,6 +650,38 @@ public class MultiDecoderTab extends JPanel implements ITab {
             textRadio.addActionListener((ActionEvent e) -> {
                 updateEditors(dsState);
                 cardManager.first(masterEditorPanel);
+            });
+
+            exportComboBox.addActionListener((ActionEvent event) -> {
+                if (exportComboBox.getSelectedIndex() == 0) {
+                    return;
+                }
+                try {
+                    JFileChooser fileChooser = new JFileChooser();
+                    fileChooser.setDialogTitle("Save " + ((String) exportComboBox.getSelectedItem()).toUpperCase() + " to...");
+                    // Grab focus to save file dialog
+                    fileChooser.addHierarchyListener((_event)-> {
+                        grabFocus();
+                    });
+                    if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                        FileOutputStream fileOutputStream = new FileOutputStream(fileChooser.getSelectedFile());
+                        switch (exportComboBox.getSelectedIndex()) {
+                            case 1:
+                                fileOutputStream.write(dsState.getByteArray());
+                                break;
+                            case 2:
+                                fileOutputStream.write(Utils.convertByteArrayToHexString(dsState.getByteArray()).getBytes());
+                                break;
+                            case 3:
+                                fileOutputStream.write(dsState.getDisplayString().getBytes());
+                                break;
+                        }
+                        fileOutputStream.close();
+                    }
+                } catch (Exception ee) {
+                    Logger.printErrorFromException(ee);
+                }
+                exportComboBox.setSelectedIndex(0);
             });
 
             // add action listeners

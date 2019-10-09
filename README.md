@@ -120,8 +120,14 @@ included in the BouncyCastle Java crypto library. In contrast, decoder
 only contains a smattering of hashing algorithms that do not
 cover the entire range of hashing needs encountered during testing.
 
+### Save Data to Files in Different Formats
+
+Every piece of data can be saved to local files in raw, Hex and UTF-8 encoded formats.
+
+### Work State is Saved
+
+Decoder Improved automatically saves and reloads its work state after Burp restarts. Users have the options to export the work state to files.
+
 ### An Easy Extension Interface
 
-In the next blog post covering Decoder Improved, we will walk through
-examples of how to extend Decoder Improved and add new encoding modes,
-including a "FooBar" encoder and a "Text Replace" mode.
+The Decoder Improved can be extended with customized modes with easy-to-use interfaces.

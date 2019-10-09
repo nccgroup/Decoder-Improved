@@ -1,9 +1,9 @@
 Uuid: 0a05afd37da44adca514acef1cdde3b9
 ExtensionType: 1
-Name: decoder-improved
+Name: Decoder Improved
 RepoName: decoder-improved
-ScreenVersion: 1.0
-SerialVersion: 0
+ScreenVersion: 1.2
+SerialVersion: 3
 MinPlatformVersion: 0
 ProOnly: False
 Author: Justin Moore

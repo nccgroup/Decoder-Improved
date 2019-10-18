@@ -34,6 +34,7 @@ dependencies {
     compile group: 'org.exbin.deltahex', name: 'deltahex-swing', version: '0.1.3'
     compile group: 'org.exbin.utils', name: 'exbin-binary_data', version: '0.1.3-20171017.212506-7'
     compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.54'
+    compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
     //compile group: 'com.google.guava', name: 'guava', version: '+'
     //compile group: 'org.brotli', name: 'dec', version: '0.1.2'
     //compile group: 'org.brotli', name: 'parent', version: '0.1.2'

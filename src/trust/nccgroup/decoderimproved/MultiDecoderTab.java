@@ -1,7 +1,6 @@
 package trust.nccgroup.decoderimproved;
 
 import burp.ITab;
-import com.google.common.collect.Lists;
 import com.google.gson.*;
 import util.PDControlScrollPane;
 import org.exbin.utils.binary_data.ByteArrayEditableData;
@@ -351,7 +350,8 @@ public class MultiDecoderTab extends JPanel implements ITab {
         private void setupComponents() {
             scrollingBodyHolder = new JScrollPane();
             decoderTabBody = new JPanel();
-            decoderSegments = Lists.newArrayList(new DecoderSegment(this));
+            decoderSegments = new ArrayList<>();
+            decoderSegments.add(new DecoderSegment(this));
             this.setLayout(new BorderLayout());
             decoderTabBody.setLayout(new BoxLayout(decoderTabBody, BoxLayout.PAGE_AXIS));
 

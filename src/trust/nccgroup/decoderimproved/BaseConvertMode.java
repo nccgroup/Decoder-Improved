@@ -1,5 +1,7 @@
 package trust.nccgroup.decoderimproved;
 
+import com.google.gson.JsonObject;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.UnsupportedEncodingException;
@@ -78,18 +80,34 @@ public class BaseConvertMode extends ModificationMode {
         ui.add(comboBoxPanel);
     }
 
-    public byte[] modifyBytes(byte[] input) throws ModificationException{
+    public byte[] modifyBytes(byte[] input) throws ModificationException {
         try {
             String numericString = UTF8StringEncoder.newUTF8String(input);
             try {
-                BigInteger convertedNumber = new BigInteger(numericString, fromBaseComboBox.getSelectedIndex()+2);
-                String convertedNumberString = convertedNumber.toString(toBaseComboBox.getSelectedIndex()+2);
+                BigInteger convertedNumber = new BigInteger(numericString, fromBaseComboBox.getSelectedIndex() + 2);
+                String convertedNumberString = convertedNumber.toString(toBaseComboBox.getSelectedIndex() + 2);
                 return convertedNumberString.getBytes("UTF-8");
             } catch (NumberFormatException e) {
-                throw new ModificationException("Invalid "+(String)fromBaseComboBox.getSelectedItem()+" Number");
+                throw new ModificationException("Invalid " + (String) fromBaseComboBox.getSelectedItem() + " Number");
             }
         } catch (UnsupportedEncodingException e) {
-            throw new ModificationException("Invalid "+(String)fromBaseComboBox.getSelectedItem()+" Number");
+            throw new ModificationException("Invalid " + (String) fromBaseComboBox.getSelectedItem() + " Number");
+        }
+    }
+
+    public JsonObject toJSON() {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("f", (String) fromBaseComboBox.getSelectedItem());
+        jsonObject.addProperty("t", (String) toBaseComboBox.getSelectedItem());
+        return jsonObject;
+    }
+
+    public void setFromJSON(JsonObject jsonObject) {
+        try {
+            fromBaseComboBox.setSelectedItem(jsonObject.get("f").getAsString());
+            toBaseComboBox.setSelectedItem(jsonObject.get("t").getAsString());
+        } catch (Exception e) {
+            Logger.printErrorFromException(e);
         }
     }
 }

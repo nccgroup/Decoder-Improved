@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 
+import com.google.gson.JsonObject;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.*;
 
@@ -39,7 +40,7 @@ public class HashMode extends ModificationMode {
         cardLayout = new CardLayout();
 
         algos = new String[]{"Keccak", "MD2", "MD4", "MD5", "RIPEMD128", "RIPEMD160", "RIPEMD256", "RIPEMD320",
-                "SHA1", "SHA224", "SHA256", "SHA384", "SHA3", "SHAKE", "SM3", "Tiger", "GOST3411"};
+                "SHA1", "SHA224", "SHA256", "SHA384", "SHA512", "SHA3", "SHAKE", "SM3", "Tiger", "GOST3411"};
         algoComboBox = new JComboBox<>(algos);
 
         keccakComboBox = new JComboBox<>(new String[] {"224", "256", "288", "384", "512"});
@@ -132,6 +133,9 @@ public class HashMode extends ModificationMode {
         } else if (algoComboBox.getSelectedItem().equals("SHA384")) {
             digest = new SHA384Digest();
             output = new byte[digest.getDigestSize()];
+        } else if (algoComboBox.getSelectedItem().equals("SHA512")) {
+            digest = new SHA512Digest();
+            output = new byte[digest.getDigestSize()];
         } else if (algoComboBox.getSelectedItem().equals("SHA3")) {
             digest = new SHA3Digest(Integer.parseInt((String)sha3ComboBox.getSelectedItem()));
             output = new byte[digest.getDigestSize()];
@@ -160,5 +164,49 @@ public class HashMode extends ModificationMode {
         digest.update(input, 0, input.length);
         digest.doFinal(output, 0);
         return output;
+    }
+
+    public JsonObject toJSON(){
+        JsonObject jsonObject = new JsonObject();
+        try {
+            String algoName = (String) algoComboBox.getSelectedItem();
+            // Add algorithm
+            jsonObject.addProperty("a", algoName);
+            // Add additional config for specific algorithms
+            switch (algoName) {
+                case "Keccak":
+                    jsonObject.addProperty("c", (String) keccakComboBox.getSelectedItem());
+                    break;
+                case "SHA3":
+                    jsonObject.addProperty("c", (String) sha3ComboBox.getSelectedItem());
+                    break;
+                case "SHAKE":
+                    jsonObject.addProperty("c", (String) shakeComboBox.getSelectedItem());
+                    break;
+            }
+        } catch (Exception e) {
+            Logger.printErrorFromException(e);
+        }
+        return jsonObject;
+    }
+
+    public void setFromJSON(JsonObject jsonObject){
+        try {
+            String algoName = jsonObject.get("a").getAsString();
+            algoComboBox.setSelectedItem(algoName);
+            switch (algoName) {
+                case "Keccak":
+                    keccakComboBox.setSelectedItem(jsonObject.get("c").getAsString());
+                    break;
+                case "SHA3":
+                    sha3ComboBox.setSelectedItem(jsonObject.get("c").getAsString());
+                    break;
+                case "SHAKE":
+                    shakeComboBox.setSelectedItem(jsonObject.get("c").getAsString());
+                    break;
+            }
+        } catch (Exception e) {
+            Logger.printErrorFromException(e);
+        }
     }
 }

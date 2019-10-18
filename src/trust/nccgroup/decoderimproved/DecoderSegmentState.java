@@ -21,17 +21,54 @@ public class DecoderSegmentState {
     }
 
     public String getDisplayString() {
-        // This is a bad way to do this but it works for now
-        // but I need to convert the Byte ArrayList back to a byte[] for new String()
-        byte[] output = new byte[byteArrayList.size()];
-        for (int i = 0; i < byteArrayList.size(); i++) {
-            output[i] = byteArrayList.get(i);
+        return UTF8StringEncoder.newUTF8String(getByteArray());
+    }
+
+
+    // Calculate byte offset based on UTF-8 multibyte definition, to support more multibyte characters.
+    // The text editor is still buggy on showing the newly updated UTF-8 encoding result as the text won't be updated in real time.
+    private int calculateByteOffset(int stringOffset) {
+        byte[] bytes = getByteArray();
+        int offset = 0;
+        for (int i = 0; i < stringOffset; i++) {
+            int cur = offset;
+            if (cur >= bytes.length)
+                break;
+            byte b = bytes[cur];
+            if (b >= 0) { // single-byte char, in 00000000 - 01111111
+                if (b == 13 && cur + 1 < bytes.length && bytes[cur + 1] == 10) { // CRLF \x0d\x0a case
+                    offset += 2;
+                } else {
+                    offset += 1;
+                }
+            } else if (b <= -33 && b >= -64) { // two-byte char, first byte in 11000000 - 11011111
+                // for multibyte chars, the second, third and fourth byte should in 10000000 - 10111111
+                for (int j = 0; j <= 1; j++) {
+                    if (cur + j < bytes.length && (j == 0 || bytes[cur + j] <= -65)) {
+                        offset++;
+                    }
+                }
+            } else if (b <= -17 && b >= -32) { // three-byte char, first byte in 11100000 - 11101111
+                for (int j = 0; j <= 2; j++) {
+                    if (cur + j < bytes.length && (j == 0 || bytes[cur + j] <= -65)) {
+                        offset++;
+                    }
+                }
+            } else if (b <= -9 && b >= -16) { // four-byte char, first byte in 11110000 - 11110111
+                for (int j = 0; j <= 3; j++) {
+                    if (cur + j < bytes.length && (j == 0 || bytes[cur + j] <= -65)) {
+                        offset++;
+                    }
+                }
+            } else { // Unknown byte
+                offset += 1;
+            }
         }
-        return UTF8StringEncoder.newUTF8String(output);
+        return offset;
     }
 
     // This is a miracle that this works. If it causes an exception, sorry.
-    private int calculateByteOffset(int startIndex) {
+    private int calculateByteOffset_v0(int startIndex) {
         // byte[] replacementChar = Charset.forName("UTF-8").newEncoder().replacement();
         // System.out.print("The Replacement is: ");
         // Utils.printByteArray(replacementChar);
@@ -129,7 +166,7 @@ public class DecoderSegmentState {
         // try {
         // I need to calculate the correct offsets based on the actual underlying bytes
         int deleteOffset = calculateByteOffset(offset);
-        int charsRemovedLength = calculateByteOffset(offset + length)-deleteOffset;
+        int charsRemovedLength = calculateByteOffset(offset + length) - deleteOffset;
         for (int i = 0; i < charsRemovedLength; i++) {
             byteArrayList.remove(deleteOffset);
         }

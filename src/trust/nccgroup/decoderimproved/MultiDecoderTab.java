@@ -1,10 +1,8 @@
 package trust.nccgroup.decoderimproved;
 
-import burp.IBurpExtenderCallbacks;
-import burp.IExtensionHelpers;
 import burp.ITab;
-
 import com.google.common.collect.Lists;
+import com.google.gson.*;
 import util.PDControlScrollPane;
 import org.exbin.utils.binary_data.ByteArrayEditableData;
 import org.exbin.deltahex.swing.CodeArea;
@@ -14,20 +12,20 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.UnsupportedEncodingException;
+import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.*;
 import java.util.ArrayList;
+import java.util.Base64;
+
 import org.exbin.deltahex.CodeType;
 
 public class MultiDecoderTab extends JPanel implements ITab {
 
-    private IBurpExtenderCallbacks callbacks;
-
-    private IExtensionHelpers helpers;
-
     private JTabbedPane main;
     private JPanel newTabButton;
+
+    private ConfigPanel configPanel;
 
     boolean tabChangeListenerLock = false;
 
@@ -42,23 +40,16 @@ public class MultiDecoderTab extends JPanel implements ITab {
         this.tabChangeListenerLock = tabChangeListenerLock;
     }
 
-    public MultiDecoderTab(IBurpExtenderCallbacks _callbacks) {
+    public MultiDecoderTab(ExtensionRoot extensionRoot) {
         // Set main tab layout
         setLayout(new BorderLayout());
         //initialize ui elements
-        callbacks = _callbacks;
-        helpers = callbacks.getHelpers();
         main = new JTabbedPane();
 
         // Add "new tab" tab
         newTabButton = new JPanel();
         newTabButton.setName("...");
         main.add(newTabButton);
-
-        // Add initial decoder tab
-        this.addTab();
-
-        main.setSelectedIndex(0);
 
         main.addChangeListener((ChangeEvent e) -> {
             // If the '...' button is pressed, add a new tab
@@ -77,6 +68,9 @@ public class MultiDecoderTab extends JPanel implements ITab {
             }
         });
         add(main, BorderLayout.CENTER);
+
+        configPanel = new ConfigPanel(extensionRoot);
+        add(configPanel, BorderLayout.SOUTH);
     }
 
     // Logic for adding new tabs
@@ -85,7 +79,6 @@ public class MultiDecoderTab extends JPanel implements ITab {
         // Add a new tab
         overallCount += 1;
         DecoderTab mt2 = new DecoderTab(Integer.toString(overallCount, 10), this);
-        callbacks.customizeUiComponent(mt2);
         main.add(mt2);
         main.setTabComponentAt(main.indexOfComponent(mt2), mt2.getTabHandleElement());
         main.setSelectedComponent(mt2);
@@ -108,18 +101,10 @@ public class MultiDecoderTab extends JPanel implements ITab {
         return -1;
     }
 
-    public void receiveTextFromMenu(String selectedText) {
+    public void receiveTextFromMenu(byte[] selectedTextBytes) {
         // TODO: Add checks to see if the decoder segment is populated.
-        byte[] selectedTextBytes;
-        try {
-            selectedTextBytes = selectedText.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            // This should never happen
-            selectedTextBytes = new byte[0];
-        }
         if (firstEmptyDecoder() == -1) {
             // Add a new tab
-
             addTab();
             DecoderTab dt = (DecoderTab) main.getComponentAt(main.getTabCount()-2);
             dt.getDecoderSegments().get(0).dsState.setByteArrayList(selectedTextBytes);
@@ -149,6 +134,112 @@ public class MultiDecoderTab extends JPanel implements ITab {
 
     public JTabbedPane getMain() { return main; }
 
+    // Save the current state of extension to a JsonObject string
+    public String getState() {
+        JsonObject extensionStateObject = new JsonObject();
+        JsonArray tabStateArray = new JsonArray();
+        // Save all tabs except the last "..." one
+        for (int i = 0; i < main.getTabCount() - 1; i++) {
+            JsonObject tabStateObject = new JsonObject();
+            DecoderTab.DecoderTabHandle tabHandle = (DecoderTab.DecoderTabHandle) main.getTabComponentAt(i);
+            // Tab name
+            tabStateObject.addProperty("n", tabHandle.tabName.getText());
+            // Bytes in first segment of each tab
+            tabStateObject.addProperty("b", Base64.getEncoder().encodeToString(tabHandle.decoderTab.getDecoderSegments().get(0).dsState.getByteArray()));
+            // Save panel states of all segments
+            JsonArray segmentStateArray = new JsonArray();
+            for (DecoderSegment decoderSegment : tabHandle.decoderTab.getDecoderSegments()) {
+                JsonObject segmentStateObject = new JsonObject();
+                // Whether hex editor is selected
+                segmentStateObject.addProperty("h", decoderSegment.hexRadio.isSelected());
+                ModificationMode mode = decoderSegment.modes.getSelectedMode();
+                // Mode name
+                segmentStateObject.addProperty("m", mode.name);
+                // Mode configurations
+                segmentStateObject.add("c", mode.toJSON());
+                // Add each segment state object to the segment state array
+                segmentStateArray.add(segmentStateObject);
+            }
+            // Save the segment state array in tab state object
+            tabStateObject.add("s", segmentStateArray);
+            // Add each tab state object to the tab state array
+            tabStateArray.add(tabStateObject);
+        }
+        extensionStateObject.addProperty("i", main.getSelectedIndex());
+        extensionStateObject.add("t", tabStateArray);
+        return extensionStateObject.toString();
+    }
+
+    // Decode the saved extension setting string and recover all tabs
+    public void setState(String stateString, boolean initial) {
+        if (stateString == null || stateString.isEmpty()) {
+            if (initial) {
+                addTab();
+                main.setSelectedIndex(0);
+                return;
+            } else {
+                throw new IllegalArgumentException("Error reading file or file is empty");
+            }
+        }
+        try {
+            int originalIndex = initial ? 0 : main.getSelectedIndex();
+            int originalTabCount = main.getTabCount();
+            JsonObject extensionStateObject = JsonParser.parseString(stateString).getAsJsonObject();
+            JsonArray tabStateArray = extensionStateObject.get("t").getAsJsonArray();
+            if (tabStateArray.size() == 0) {
+                if (initial) {
+                    addTab();
+                    main.setSelectedIndex(0);
+                }
+                return;
+            }
+            for (int i = 0; i < tabStateArray.size(); i++) {
+                JsonObject tabStateObject = tabStateArray.get(i).getAsJsonObject();
+                // Build a new tab for each tab object
+                addTab();
+                DecoderTab dt = (DecoderTab) main.getComponentAt(originalTabCount + i - 1);
+                dt.decoderTabHandle.tabName.setText(tabStateObject.get("n").getAsString());
+                DecoderSegmentState dsState = dt.getDecoderSegments().get(0).dsState;
+                dsState.setByteArrayList(Base64.getDecoder().decode(tabStateObject.get("b").getAsString()));
+                JsonArray segmentStateArray = tabStateObject.getAsJsonArray("s");
+                // Create (n - 1) new segments and update state for the 1..n-1 segments
+                for (int j = 0; j < segmentStateArray.size() - 1; j++) {
+                    dt.decoderSegments.get(j).addDecoderSegment();
+                }
+                // Update state for all segments
+                for (int j = 0; j < dt.decoderSegments.size(); j++) {
+                    dt.decoderSegments.get(j).updateEditors(dsState);
+                }
+                for (int j = 0; j < segmentStateArray.size(); j++) {
+                    JsonObject segmentStateObject = segmentStateArray.get(j).getAsJsonObject();
+                    DecoderSegment ds = dt.decoderSegments.get(j);
+                    String mode = segmentStateObject.get("m").getAsString();
+                    JsonObject config = segmentStateObject.get("c").getAsJsonObject();
+                    // If encoded as plain, do not "select" the item as it will create a new segment under the last one
+                    if (!(mode.equals(EncodeMode.NAME) && config.get("e").getAsString().equals(PlaintextEncoder.NAME))) {
+                        ds.modes.setSelectedMode(mode);
+                        ds.modes.getSelectedMode().setFromJSON(config);
+                    }
+                    // Editor must be set at last to "force" the selection
+                    if (segmentStateObject.get("h").getAsBoolean()) {
+                        ds.displayHexEditor();
+                    } else {
+                        ds.displayTextEditor();
+                    }
+                }
+            }
+            main.setSelectedIndex(initial ? extensionStateObject.get("i").getAsInt() : originalIndex);
+        } catch (Exception e) {
+            if (initial) {
+                addTab();
+                main.setSelectedIndex(0);
+                Logger.printErrorFromException(e);
+            } else {
+                throw e;
+            }
+        }
+    }
+
     private static class DecoderTab extends JPanel {
         private DecoderTabHandle decoderTabHandle;
         private JScrollPane scrollingBodyHolder;
@@ -157,7 +248,6 @@ public class MultiDecoderTab extends JPanel implements ITab {
 
         public DecoderTab(String _title, MultiDecoderTab _parent) {
             decoderTabHandle = new DecoderTabHandle(_title, _parent, this);
-            _parent.callbacks.customizeUiComponent(decoderTabHandle);
             setupComponents();
         }
 
@@ -323,7 +413,7 @@ public class MultiDecoderTab extends JPanel implements ITab {
                     decoder.decode(ByteBuffer.wrap(nextDecoderSegment.dsState.getByteArray()));
                     new String(nextDecoderSegment.dsState.getByteArray(), "UTF-8");
                     // new UTF.newUTF8String(nextDecoderSegment.dsState.getByteArray());
-                    nextDecoderSegment.displayTextEditor();
+                    //nextDecoderSegment.displayTextEditor(); // This is commented out as it sometimes got the extension frozen during loading settings, FIXME if anything wrong happens because of this
                 } catch (Exception e) {
                     nextDecoderSegment.displayHexEditor();
                 }
@@ -348,6 +438,7 @@ public class MultiDecoderTab extends JPanel implements ITab {
         private ButtonGroup textHexGroup;
         private JRadioButton textRadio;
         private JRadioButton hexRadio;
+        private JComboBox<String> exportComboBox;
 
         // These manage the editor views
         private JPanel masterEditorPanel;
@@ -474,6 +565,7 @@ public class MultiDecoderTab extends JPanel implements ITab {
             radioPanel = new JPanel();
             textRadio = new JRadioButton();
             hexRadio = new JRadioButton();
+            exportComboBox = new JComboBox<>();
 
             modeSelector = new JComboBox<>();
 
@@ -481,73 +573,77 @@ public class MultiDecoderTab extends JPanel implements ITab {
 
             hexEditor = new CodeArea();
 
-            this.setLayout(new BorderLayout());
-            {
-                this.setMaximumSize(new Dimension(3000, 150));
-                this.setMinimumSize(new Dimension(500, 133));
-                this.setPreferredSize(new Dimension(711, 200));
-                this.setSize(new Dimension(100, 200));
-                this.setLayout(new GridBagLayout());
-                {
-                    editorPanel.setMinimumSize(new Dimension(100, 150));
-                    editorPanel.setPreferredSize(new Dimension(100, 150));
+            // "this" is the decoder segment
+            this.setMaximumSize(new Dimension(3000, 200));
+            this.setMinimumSize(new Dimension(500, 133));
+            this.setPreferredSize(new Dimension(711, 200));
+            this.setSize(new Dimension(100, 200));
+            this.setLayout(new GridBagLayout());
+            editorPanel.setMinimumSize(new Dimension(100, 150));
+            editorPanel.setPreferredSize(new Dimension(100, 150));
 
-                    hexPanel.setMinimumSize(new Dimension(100, 150));
-                    hexPanel.setPreferredSize(new Dimension(100, 150));
-                    {
-                        textEditor.setMinimumSize(new Dimension(50, 150));
-                        textEditor.setSize(new Dimension(100, 80));
-                        textEditor.setContentType("text/plain");
-                        textEditor.setComponentPopupMenu(MenuHandler.createTextEditorPopupMenu(textEditor));
+            hexPanel.setMinimumSize(new Dimension(100, 150));
+            hexPanel.setPreferredSize(new Dimension(100, 150));
+            textEditor.setMinimumSize(new Dimension(50, 150));
+            textEditor.setSize(new Dimension(100, 80));
+            textEditor.setContentType("text/plain");
+            textEditor.setComponentPopupMenu(MenuHandler.createTextEditorPopupMenu(textEditor));
 
-                        hexEditor.setMinimumSize(new Dimension(50, 150));
-                        hexEditor.setSize(new Dimension(100, 80));
-                        hexEditor.setComponentPopupMenu(MenuHandler.createHexEditorPopupMenu(hexEditor));
-                    }
-                    hexPanel.setViewportView(hexEditor);
-                    editorPanel.setViewportView(textEditor);
-                }
-                GridBagConstraints editorPanelConstraints = new GridBagConstraints();
-                editorPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
-                editorPanelConstraints.anchor = GridBagConstraints.WEST;
-                editorPanelConstraints.weightx = 1.0;
+            hexEditor.setMinimumSize(new Dimension(50, 150));
+            hexEditor.setSize(new Dimension(100, 80));
+            hexEditor.setComponentPopupMenu(MenuHandler.createHexEditorPopupMenu(hexEditor));
+            hexPanel.setViewportView(hexEditor);
+            editorPanel.setViewportView(textEditor);
+            GridBagConstraints editorPanelConstraints = new GridBagConstraints();
+            editorPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
+            editorPanelConstraints.anchor = GridBagConstraints.WEST;
+            editorPanelConstraints.weightx = 1.0;
 
-                masterEditorPanel.add(editorPanel);
-                masterEditorPanel.add(hexPanel);
+            masterEditorPanel.add(editorPanel);
+            masterEditorPanel.add(hexPanel);
 
-                this.add(masterEditorPanel, editorPanelConstraints);
-                {
-                    controlPanel.setMaximumSize(new Dimension(2100, 150));
-                    controlPanel.setMinimumSize(new Dimension(2100, 150));
-                    controlPanel.setPreferredSize(new Dimension(150, 150));
-                    controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.PAGE_AXIS));
-                    {
-                        radioPanel.setMaximumSize(new Dimension(125, 25));
-                        radioPanel.setMinimumSize(new Dimension(125, 25));
-                        radioPanel.setPreferredSize(new Dimension(125, 25));
-                        radioPanel.setLayout(new GridLayout());
+            this.add(masterEditorPanel, editorPanelConstraints);
+            controlPanel.setMaximumSize(new Dimension(150, 200));
+            controlPanel.setMinimumSize(new Dimension(150, 150));
+            controlPanel.setPreferredSize(new Dimension(150, 200));
+            controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.PAGE_AXIS));
 
-                        textRadio.setText("Text");
-                        textRadio.setSelected(true);
-                        textRadio.putClientProperty("JComponent.sizeVariant", "small");
-                        textRadio.setHorizontalAlignment(AbstractButton.CENTER);
+            // Radio group
+            radioPanel.setMaximumSize(new Dimension(125, 25));
+            radioPanel.setMinimumSize(new Dimension(125, 25));
+            radioPanel.setPreferredSize(new Dimension(125, 25));
+            radioPanel.setLayout(new GridLayout());
 
-                        hexRadio.setText("Hex");
-                        hexRadio.putClientProperty("JComponent.sizeVariant", "small");
-                        hexRadio.setHorizontalAlignment(AbstractButton.CENTER);
+            textRadio.setText("Text");
+            textRadio.setSelected(true);
+            textRadio.putClientProperty("JComponent.sizeVariant", "small");
+            textRadio.setHorizontalAlignment(AbstractButton.CENTER);
 
-                        textHexGroup.add(textRadio);
-                        textHexGroup.add(hexRadio);
+            hexRadio.setText("Hex");
+            hexRadio.putClientProperty("JComponent.sizeVariant", "small");
+            hexRadio.setHorizontalAlignment(AbstractButton.CENTER);
 
-                        radioPanel.add(textRadio);
-                        radioPanel.add(hexRadio);
-                    }
-                    controlPanel.add(radioPanel);
+            textHexGroup.add(textRadio);
+            textHexGroup.add(hexRadio);
 
-                    controlPanel.add(modes.getUI());
+            radioPanel.add(textRadio);
+            radioPanel.add(hexRadio);
+            controlPanel.add(radioPanel);
 
-                }
-            }
+            // Modes
+            controlPanel.add(modes.getUI());
+
+            // Export combo box
+            exportComboBox.setMaximumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
+            exportComboBox.setMinimumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
+            exportComboBox.setPreferredSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
+            exportComboBox.addItem("Save as...");
+            exportComboBox.addItem("Raw Data");
+            exportComboBox.addItem("Hex");
+            exportComboBox.addItem("UTF-8 String");
+
+            controlPanel.add(exportComboBox);
+
             GridBagConstraints controlPanelConstraints = new GridBagConstraints();
 
             this.add(controlPanel, controlPanelConstraints);
@@ -561,6 +657,38 @@ public class MultiDecoderTab extends JPanel implements ITab {
             textRadio.addActionListener((ActionEvent e) -> {
                 updateEditors(dsState);
                 cardManager.first(masterEditorPanel);
+            });
+
+            exportComboBox.addActionListener((ActionEvent event) -> {
+                if (exportComboBox.getSelectedIndex() == 0) {
+                    return;
+                }
+                try {
+                    JFileChooser fileChooser = new JFileChooser();
+                    fileChooser.setDialogTitle("Save " + ((String) exportComboBox.getSelectedItem()).toUpperCase() + " to...");
+                    // Grab focus to save file dialog
+                    fileChooser.addHierarchyListener((_event)-> {
+                        grabFocus();
+                    });
+                    if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                        FileOutputStream fileOutputStream = new FileOutputStream(fileChooser.getSelectedFile());
+                        switch (exportComboBox.getSelectedIndex()) {
+                            case 1:
+                                fileOutputStream.write(dsState.getByteArray());
+                                break;
+                            case 2:
+                                fileOutputStream.write(Utils.convertByteArrayToHexString(dsState.getByteArray()).getBytes());
+                                break;
+                            case 3:
+                                fileOutputStream.write(dsState.getDisplayString().getBytes());
+                                break;
+                        }
+                        fileOutputStream.close();
+                    }
+                } catch (Exception ee) {
+                    Logger.printErrorFromException(ee);
+                }
+                exportComboBox.setSelectedIndex(0);
             });
 
             // add action listeners
@@ -589,7 +717,7 @@ public class MultiDecoderTab extends JPanel implements ITab {
                 public void insertUpdate(DocumentEvent e) {
                     if (! lockDocumentEvents) {
                         // These events trigger when a user is doing regular typing into the text editor
-                        String insertedText = textEditor.getText().substring(e.getOffset(), e.getOffset() + e.getLength());
+                        String insertedText = textEditor.getText().replace("\r\n", "\n").substring(e.getOffset(), e.getOffset() + e.getLength());
                         dsState.insertUpdateIntoByteArrayList(insertedText, e.getOffset());
 
                         // Utils.printByteArray(dsState.getByteArray());

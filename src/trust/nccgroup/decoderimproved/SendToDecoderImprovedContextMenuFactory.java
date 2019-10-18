@@ -5,19 +5,16 @@ import burp.*;
 import javax.swing.*;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * Created by j on 12/9/16.
  */
 class SendToDecoderImprovedContextMenuFactory implements IContextMenuFactory {
-    private IBurpExtenderCallbacks callbacks;
-    private IExtensionHelpers helpers;
     private MultiDecoderTab tab;
 
-    public SendToDecoderImprovedContextMenuFactory(IBurpExtenderCallbacks _callbacks, MultiDecoderTab _tab) {
-        callbacks = _callbacks;
-        helpers = callbacks.getHelpers();
+    public SendToDecoderImprovedContextMenuFactory(MultiDecoderTab _tab) {
         tab = _tab;
     }
 
@@ -35,10 +32,10 @@ class SendToDecoderImprovedContextMenuFactory implements IContextMenuFactory {
                 int end = invocation.getSelectionBounds()[1];
                 //tab.receiveTextFromMenu(new String(requestResponses[0].getRequest(), "UTF-8").substring(start, end));
                 if (start == end) {
-                    tab.receiveTextFromMenu(UTF8StringEncoder.newUTF8String(requestResponses[0].getRequest()));
+                    tab.receiveTextFromMenu(requestResponses[0].getRequest());
                     Utils.highlightParentTab((JTabbedPane) tab.getUiComponent().getParent(), tab.getUiComponent());
                 } else {
-                    tab.receiveTextFromMenu(UTF8StringEncoder.newUTF8String(requestResponses[0].getRequest()).substring(start, end));
+                    tab.receiveTextFromMenu(Arrays.copyOfRange(requestResponses[0].getRequest(), start, end));
                     Utils.highlightParentTab((JTabbedPane) tab.getUiComponent().getParent(), tab.getUiComponent());
                 }
             };
@@ -50,10 +47,10 @@ class SendToDecoderImprovedContextMenuFactory implements IContextMenuFactory {
                 int start = invocation.getSelectionBounds()[0];
                 int end = invocation.getSelectionBounds()[1];
                 if (start == end) {
-                    tab.receiveTextFromMenu(UTF8StringEncoder.newUTF8String(requestResponses[0].getResponse()));
+                    tab.receiveTextFromMenu(requestResponses[0].getResponse());
                     Utils.highlightParentTab((JTabbedPane) tab.getUiComponent().getParent(), tab.getUiComponent());
                 } else {
-                    tab.receiveTextFromMenu(UTF8StringEncoder.newUTF8String(requestResponses[0].getResponse()).substring(start, end));
+                    tab.receiveTextFromMenu(Arrays.copyOfRange(requestResponses[0].getResponse(), start, end));
                     Utils.highlightParentTab((JTabbedPane) tab.getUiComponent().getParent(), tab.getUiComponent());
                 }
             };

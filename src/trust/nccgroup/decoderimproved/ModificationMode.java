@@ -1,16 +1,20 @@
 package trust.nccgroup.decoderimproved;
 
+import com.google.gson.JsonObject;
+
 import javax.swing.*;
 import java.awt.*;
 
 /**
  * Created by j on 12/6/16.
  */
-public class ModificationMode {
+public abstract class ModificationMode {
     protected JPanel ui;
     protected String name;
     protected CardLayout layoutManager;
 
+    public abstract JsonObject toJSON();
+    public abstract void setFromJSON(JsonObject jsonObject);
 
     public ModificationMode() {
         this.name = "";

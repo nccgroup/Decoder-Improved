@@ -1,5 +1,7 @@
 package trust.nccgroup.decoderimproved;
 
+import com.google.gson.JsonObject;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -10,6 +12,8 @@ import java.util.ArrayList;
 
 // New modes must inherit from the "ModificationMode" parent class. 
 public class EncodeMode extends ModificationMode {
+    public final static String NAME = "Encode as...";
+
     // ArrayList containing all the different encoders
     private ArrayList<ByteModifier> encoders;
 
@@ -19,7 +23,7 @@ public class EncodeMode extends ModificationMode {
 
     public EncodeMode() {
 		// "super" contains the name that will appear in the mode selection combobox
-        super("Encode as...");
+        super(NAME);
 
         // All encoders are managed within this arraylist, new encoders must be added here to appear
         encoders = new ArrayList<>();
@@ -79,5 +83,19 @@ public class EncodeMode extends ModificationMode {
 		// ModificationException propgates up from modifyBytes called from the ByteModifier exceptions.
 		// Get the selected encoder and returns the encoded text.
         return getSelectedMode().modifyBytes(input);
+    }
+
+    public JsonObject toJSON(){
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("e", (String) encoderComboBox.getSelectedItem());
+        return jsonObject;
+    }
+
+    public void setFromJSON(JsonObject jsonObject){
+        try {
+            encoderComboBox.setSelectedItem(jsonObject.get("e").getAsString());
+        } catch (Exception e) {
+            Logger.printErrorFromException(e);
+        }
     }
 }

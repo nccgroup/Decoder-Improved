@@ -17,7 +17,7 @@ public class UTF8StringEncoder {
         try {
             return utf8Decoder.decode(ByteBuffer.wrap(input)).toString();
         } catch (CharacterCodingException e) {
-            Utils.printByteArray(input);
+            System.out.println(Utils.convertByteArrayToHexString(input));
             return "";
         }
     }

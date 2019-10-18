@@ -24,9 +24,9 @@ public class ModificationModeManager {
 
         // Swing configuration
         ui.setLayout(new BoxLayout(ui, BoxLayout.PAGE_AXIS));
-        ui.setMaximumSize(new Dimension(180, 260));
-        ui.setMinimumSize(new Dimension(180, 260));
-        ui.setPreferredSize(new Dimension(180, 260));
+        ui.setMaximumSize(new Dimension(180, 120));
+        ui.setMinimumSize(new Dimension(180, 100));
+        ui.setPreferredSize(new Dimension(180, 105));
 
         modeComboBox.setMaximumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
         modeComboBox.setMinimumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
@@ -70,7 +70,7 @@ public class ModificationModeManager {
         return ui;
     }
 
-    private ModificationMode getSelectedMode() {
+    public ModificationMode getSelectedMode() {
         for (ModificationMode mode : modes) {
             if (mode.getName() == modeComboBox.getSelectedItem()) {
                 return mode;
@@ -78,6 +78,10 @@ public class ModificationModeManager {
         }
         // return the first encoder as a default
         return modes.get(0);
+    }
+
+    public void setSelectedMode(String name) {
+        modeComboBox.setSelectedItem(name);
     }
 
     public byte[] modifyBytes(byte[] input) throws ModificationException{

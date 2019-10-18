@@ -1,5 +1,7 @@
 package trust.nccgroup.decoderimproved;
 
+import com.google.gson.JsonObject;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -47,5 +49,14 @@ public class TextReplaceMode extends ModificationMode {
 
     public byte[] modifyBytes(byte[] input) {
         return replaceTextField.getText().getBytes();
+    }
+
+    public JsonObject toJSON() {
+        Logger.printError("TextReplaceMode not in use. Not implemented!");
+        return null;
+    }
+
+    public void setFromJSON(JsonObject jsonObject) {
+        Logger.printError("TextReplaceMode not in use. Not implemented!");
     }
 }

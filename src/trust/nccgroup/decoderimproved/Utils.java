@@ -56,12 +56,12 @@ public class Utils {
     }
 
 
-    public static void printByteArray (byte[] data) {
+    public static String convertByteArrayToHexString (byte[] data) {
         StringBuilder sb = new StringBuilder();
         for (byte b : data) {
-            sb.append(String.format("%02X ", b));
+            sb.append(String.format("%02X", b));
         }
-        System.out.println(sb.toString());
+        return sb.toString();
     }
 
     public static byte[] convertHexDataToByteArray(BinaryData data) {

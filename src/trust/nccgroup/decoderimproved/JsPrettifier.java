@@ -6,6 +6,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+//import org.graalvm.polyglot.*;
 
 public class JsPrettifier extends ByteModifier{
     //https://stackoverflow.com/a/48857894
@@ -16,6 +17,7 @@ public class JsPrettifier extends ByteModifier{
 
     private final ScriptEngine engine;
     public JsPrettifier() {
+
         super("JS(ON)");
         engine = new ScriptEngineManager().getEngineByName("nashorn");
         try {

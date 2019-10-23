@@ -28,6 +28,7 @@ public class DecoderSegmentState {
     // Calculate byte offset based on UTF-8 multibyte definition, to support more multibyte characters.
     private int calculateByteOffset(int stringOffset) {
         byte[] bytes = getByteArray();
+        String displayString = getDisplayString();
         int offset = 0;
         for (int i = 0; i < stringOffset; i++) {
             int cur = offset;
@@ -41,6 +42,10 @@ public class DecoderSegmentState {
                     offset += 1;
                 }
             } else if (b <= -33 && b >= -64) { // two-byte char, first byte in 11000000 - 11011111
+                if (displayString.charAt(i) == '�') {
+                    offset += 1;
+                    continue;
+                }
                 // for multibyte chars, the second, third and fourth byte should in 10000000 - 10111111
                 for (int j = 0; j <= 1; j++) {
                     if (cur + j < bytes.length && (j == 0 || bytes[cur + j] <= -65)) {
@@ -50,6 +55,11 @@ public class DecoderSegmentState {
                     }
                 }
             } else if (b <= -17 && b >= -32) { // three-byte char, first byte in 11100000 - 11101111
+                if (displayString.charAt(i) == '�'
+                        && !(bytes[cur] == (byte)0xef && cur + 2 < bytes.length && bytes[cur + 1] == (byte)0xbf && bytes[cur + 2] == (byte)0xbd)) {
+                    offset += 1;
+                    continue;
+                }
                 for (int j = 0; j <= 2; j++) {
                     if (cur + j < bytes.length && (j == 0 || bytes[cur + j] <= -65)) {
                         offset++;
@@ -58,6 +68,10 @@ public class DecoderSegmentState {
                     }
                 }
             } else if (b <= -9 && b >= -16) { // four-byte char, first byte in 11110000 - 11110111
+                if (displayString.charAt(i) == '�') {
+                    offset += 1;
+                    continue;
+                }
                 for (int j = 0; j <= 3; j++) {
                     if (cur + j < bytes.length && (j == 0 || bytes[cur + j] <= -65)) {
                         offset++;

@@ -26,7 +26,6 @@ public class DecoderSegmentState {
 
 
     // Calculate byte offset based on UTF-8 multibyte definition, to support more multibyte characters.
-    // The text editor is still buggy on showing the newly updated UTF-8 encoding result as the text won't be updated in real time.
     private int calculateByteOffset(int stringOffset) {
         byte[] bytes = getByteArray();
         int offset = 0;
@@ -46,18 +45,24 @@ public class DecoderSegmentState {
                 for (int j = 0; j <= 1; j++) {
                     if (cur + j < bytes.length && (j == 0 || bytes[cur + j] <= -65)) {
                         offset++;
+                    } else {
+                        break;
                     }
                 }
             } else if (b <= -17 && b >= -32) { // three-byte char, first byte in 11100000 - 11101111
                 for (int j = 0; j <= 2; j++) {
                     if (cur + j < bytes.length && (j == 0 || bytes[cur + j] <= -65)) {
                         offset++;
+                    } else {
+                        break;
                     }
                 }
             } else if (b <= -9 && b >= -16) { // four-byte char, first byte in 11110000 - 11110111
                 for (int j = 0; j <= 3; j++) {
                     if (cur + j < bytes.length && (j == 0 || bytes[cur + j] <= -65)) {
                         offset++;
+                    } else {
+                        break;
                     }
                 }
             } else { // Unknown byte

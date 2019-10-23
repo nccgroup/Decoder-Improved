@@ -2,7 +2,6 @@ package trust.nccgroup.decoderimproved;
 
 import java.awt.*;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -77,7 +76,7 @@ public class Utils {
        return ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'));
     }
 
-    public static byte[] convertByteArrayListToByteArray(ArrayList<Byte> input) {
+    public static byte[] convertByteArrayListToByteArray(List<Byte> input) {
         byte[] bytes = new byte[input.size()];
         for (int i = 0; i < input.size(); i++) {
             bytes[i] = input.get(i);

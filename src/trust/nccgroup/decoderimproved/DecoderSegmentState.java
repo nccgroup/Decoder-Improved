@@ -41,11 +41,11 @@ public class DecoderSegmentState {
                     offset += 1;
                 }
             } else if (b <= -33 && b >= -64) { // two-byte char, first byte in 11000000 - 11011111
-                offset += multibyteLength(bytes, cur, 1);
+                offset += multibyteOffset(bytes, cur, 1);
             } else if (b <= -17 && b >= -32) { // three-byte char, first byte in 11100000 - 11101111
-                offset += multibyteLength(bytes, cur, 2);
+                offset += multibyteOffset(bytes, cur, 2);
             } else if (b <= -9 && b >= -16) { // four-byte char, first byte in 11110000 - 11110111
-                offset += multibyteLength(bytes, cur, 3);
+                offset += multibyteOffset(bytes, cur, 3);
             } else { // Unsupported byte
                 offset += 1;
             }
@@ -53,20 +53,20 @@ public class DecoderSegmentState {
         return offset;
     }
 
-    private int multibyteLength(byte[] bytes, int currentOffset, int maxLength) {
-        int byteNumber = 0;
+    private int multibyteOffset(byte[] bytes, int currentOffset, int maxLength) {
+        int byteCount = 0;
         List<Byte> buf = new ArrayList<>();
         for (int j = 0; j <= maxLength; j++) {
             // the second (or third and fourth) byte should in 10000000 - 10111111
             if (currentOffset + j < bytes.length && (j == 0 || bytes[currentOffset + j] <= -65)) {
-                byteNumber += 1;
+                byteCount += 1;
                 buf.add(bytes[currentOffset + j]);
             } else {
                 break;
             }
         }
-        int characterNumber = UTF8StringEncoder.newUTF8String(Utils.convertByteArrayListToByteArray(buf)).length();
-        return byteNumber - characterNumber + 1;
+        int characterCount = UTF8StringEncoder.newUTF8String(Utils.convertByteArrayListToByteArray(buf)).length();
+        return byteCount - characterCount + 1;
     }
 
     // This is for when the text editor is updating the decoder segment state

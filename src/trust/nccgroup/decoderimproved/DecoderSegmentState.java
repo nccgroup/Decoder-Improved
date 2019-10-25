@@ -28,7 +28,6 @@ public class DecoderSegmentState {
     // Calculate byte offset based on UTF-8 multibyte definition, to support more multibyte characters.
     private int calculateByteOffset(int stringOffset) {
         byte[] bytes = getByteArray();
-        String displayString = getDisplayString();
         int offset = 0;
         for (int i = 0; i < stringOffset; i++) {
             int cur = offset;
@@ -66,57 +65,8 @@ public class DecoderSegmentState {
                 break;
             }
         }
-        int characterNumber = new String(Utils.convertByteArrayListToByteArray(buf)).length();
+        int characterNumber = UTF8StringEncoder.newUTF8String(Utils.convertByteArrayListToByteArray(buf)).length();
         return byteNumber - characterNumber + 1;
-    }
-
-    // This is a miracle that this works. If it causes an exception, sorry.
-    private int calculateByteOffset_v0(int startIndex) {
-        // byte[] replacementChar = Charset.forName("UTF-8").newEncoder().replacement();
-        // System.out.print("The Replacement is: ");
-        // Utils.printByteArray(replacementChar);
-        // System.out.println(new String(replacementChar));
-        try {
-            String displayString = getDisplayString();
-            // If there are no �s in the string, calculating the offset is easy.
-            if (!displayString.contains("�")) {
-                try {
-                    return displayString.substring(0, startIndex).getBytes("UTF-8").length;
-                } catch (UnsupportedEncodingException e) {
-                    // This should never happen.
-                    return -1;
-                }
-            } else {
-                // The underlying bytearray
-                byte[] bytes = getByteArray();
-                // This is the total offset
-                int offset = 0;
-                // Iterate over the first 0 -> startIndex chars in displayString
-                for (int i = 0; i < startIndex; i++)  {
-                    // Check if it's a two byte replacement
-                    if (displayString.charAt(i) == '�') {
-                        if (offset + 3 <= bytes.length && Utils.charIsReplacementChar(Arrays.copyOfRange(bytes, offset, offset+3))) {
-                            offset += 3;
-                        } else if (Utils.isTwoByteReplacementStart(bytes[offset])) {
-                            if (offset + 1 < bytes.length && Utils.isTwoByteReplacement(bytes[offset], bytes[offset + 1])) {
-                                    offset += 2;
-                            } else {
-                                offset += 1;
-                            }
-                        } else {
-                            offset += 1;
-                        }
-                    } else {
-                        byte[] characterBytes = displayString.substring(i,i+1).getBytes("UTF-8");
-                        offset += characterBytes.length;
-                    }
-                }
-                return offset;
-            }
-        } catch (UnsupportedEncodingException e) {
-            // this should never happen
-            return -1;
-        }
     }
 
     // This is for when the text editor is updating the decoder segment state

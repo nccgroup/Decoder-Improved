@@ -9,6 +9,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -86,7 +87,7 @@ public class FindAndReplaceMode extends ModificationMode {
         // Do this to make sure the input is a valid string
         // Find and replace doesn't work correctly on strings containing binary data
         try {
-            CharsetDecoder decoder = Charset.forName("UTF-8").newDecoder();
+            CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder();
             decoder.onUnmappableCharacter(CodingErrorAction.REPORT);
             decoder.onMalformedInput(CodingErrorAction.REPORT);
             decoder.decode(ByteBuffer.wrap(input));
@@ -94,25 +95,15 @@ public class FindAndReplaceMode extends ModificationMode {
             throw new ModificationException("Invalid input. Find and Replace does not accept strings that contain non-UTF-8 characters.");
         }
         if ((replaceComboBox.getSelectedItem()).equals("Replace First")) {
-            try {
-                //String inputString = new String(input, "UTF-8");
-                String inputString = UTF8StringEncoder.newUTF8String(input);
-                inputString = inputString.replaceFirst(regexTextField.getText(), replaceTextField.getText());
-                return inputString.getBytes("UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                // This should never happen
-                throw new ModificationException("Invalid Input");
-            }
+            //String inputString = new String(input, "UTF-8");
+            String inputString = UTF8StringEncoder.newUTF8String(input);
+            inputString = inputString.replaceFirst(regexTextField.getText(), replaceTextField.getText());
+            return inputString.getBytes(StandardCharsets.UTF_8);
         } else if ((replaceComboBox.getSelectedItem()).equals("Replace All")) {
-            try {
-                //String inputString = new String(input, "UTF-8");
-                String inputString = UTF8StringEncoder.newUTF8String(input);
-                inputString = inputString.replaceAll(regexTextField.getText(), replaceTextField.getText());
-                return inputString.getBytes("UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                // This should never happen
-                throw new ModificationException("Invalid input");
-            }
+            //String inputString = new String(input, "UTF-8");
+            String inputString = UTF8StringEncoder.newUTF8String(input);
+            inputString = inputString.replaceAll(regexTextField.getText(), replaceTextField.getText());
+            return inputString.getBytes(StandardCharsets.UTF_8);
         }
         return new byte[0];
     }

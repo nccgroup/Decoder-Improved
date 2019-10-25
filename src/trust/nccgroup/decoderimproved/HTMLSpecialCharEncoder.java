@@ -1,5 +1,6 @@
 package trust.nccgroup.decoderimproved;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +30,7 @@ public class HTMLSpecialCharEncoder extends ByteModifier {
         List<Byte> output = new ArrayList<>(input.length);
         for (byte b : input) {
             if (isSpecialChar(b)) {
-                for (byte _b : String.format(HTML_ENCODED_FORMAT_STRING, (int) b).getBytes()) {
+                for (byte _b : String.format(HTML_ENCODED_FORMAT_STRING, (int) b).getBytes(StandardCharsets.UTF_8)) {
                     output.add(_b);
                 }
             } else {

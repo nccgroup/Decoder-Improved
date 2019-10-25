@@ -1,6 +1,7 @@
 package trust.nccgroup.decoderimproved;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 /**
@@ -44,16 +45,12 @@ public class DecoderSegmentState {
     public boolean insertUpdateIntoByteArrayList(String input, int offset) {
         // I turn the input string into bytes so I can correctly input all the bytes
         // then I add those bytes to byteArrayList
-        try {
-            byte[] inputBytes = input.getBytes("UTF-8");
-            int inputOffset = Utils.calculateByteOffset(getByteArray(), offset);
-            for (int i = 0; i < inputBytes.length; i++) {
-                byteArrayList.add(i + inputOffset, inputBytes[i]);
-            }
-            return true;
-        } catch (UnsupportedEncodingException e ) {
-            return false;
+        byte[] inputBytes = input.getBytes(StandardCharsets.UTF_8);
+        int inputOffset = Utils.calculateByteOffset(getByteArray(), offset);
+        for (int i = 0; i < inputBytes.length; i++) {
+            byteArrayList.add(i + inputOffset, inputBytes[i]);
         }
+        return true;
     }
 
     // This is for when the text editor is removing characters from the byteArrayList

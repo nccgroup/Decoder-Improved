@@ -407,11 +407,11 @@ public class MultiDecoderTab extends JPanel implements ITab {
                 nextDecoderSegment.dsState.setByteArrayList(activeDecoderSegment.modes.modifyBytes(activeDsBytes));
                 nextDecoderSegment.updateEditors(nextDecoderSegment.dsState);
                 try {
-                    CharsetDecoder decoder = Charset.forName("UTF-8").newDecoder();
+                    CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder();
                     decoder.onUnmappableCharacter(CodingErrorAction.REPORT);
                     decoder.onMalformedInput(CodingErrorAction.REPORT);
                     decoder.decode(ByteBuffer.wrap(nextDecoderSegment.dsState.getByteArray()));
-                    new String(nextDecoderSegment.dsState.getByteArray(), "UTF-8");
+                    new String(nextDecoderSegment.dsState.getByteArray(), StandardCharsets.UTF_8);
                     // new UTF.newUTF8String(nextDecoderSegment.dsState.getByteArray());
                     //nextDecoderSegment.displayTextEditor(); // This is commented out as it sometimes got the extension frozen during loading settings, FIXME if anything wrong happens because of this
                 } catch (Exception e) {

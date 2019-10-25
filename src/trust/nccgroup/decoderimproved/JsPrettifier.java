@@ -6,6 +6,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 //import org.graalvm.polyglot.*;
 
 public class JsPrettifier extends ByteModifier{
@@ -31,9 +32,9 @@ public class JsPrettifier extends ByteModifier{
     @Override
     public byte[] modifyBytes(byte[] input) throws ModificationException {
         try {
-            String pretty =  (String) ((Invocable) engine).invokeFunction(BEAUTIFY_METHOD_NAME, new String(input, "UTF-8"));
-            return pretty.getBytes("UTF-8");
-        } catch (ScriptException | NoSuchMethodException | UnsupportedEncodingException e) {
+            String pretty =  (String) ((Invocable) engine).invokeFunction(BEAUTIFY_METHOD_NAME, new String(input, StandardCharsets.UTF_8));
+            return pretty.getBytes(StandardCharsets.UTF_8);
+        } catch (ScriptException | NoSuchMethodException e) {
             throw new ModificationException("Failed to prettify JS");
         }
     }

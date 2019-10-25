@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 /**
@@ -81,16 +82,12 @@ public class BaseConvertMode extends ModificationMode {
     }
 
     public byte[] modifyBytes(byte[] input) throws ModificationException {
+        String numericString = UTF8StringEncoder.newUTF8String(input);
         try {
-            String numericString = UTF8StringEncoder.newUTF8String(input);
-            try {
-                BigInteger convertedNumber = new BigInteger(numericString, fromBaseComboBox.getSelectedIndex() + 2);
-                String convertedNumberString = convertedNumber.toString(toBaseComboBox.getSelectedIndex() + 2);
-                return convertedNumberString.getBytes("UTF-8");
-            } catch (NumberFormatException e) {
-                throw new ModificationException("Invalid " + (String) fromBaseComboBox.getSelectedItem() + " Number");
-            }
-        } catch (UnsupportedEncodingException e) {
+            BigInteger convertedNumber = new BigInteger(numericString, fromBaseComboBox.getSelectedIndex() + 2);
+            String convertedNumberString = convertedNumber.toString(toBaseComboBox.getSelectedIndex() + 2);
+            return convertedNumberString.getBytes(StandardCharsets.UTF_8);
+        } catch (NumberFormatException e) {
             throw new ModificationException("Invalid " + (String) fromBaseComboBox.getSelectedItem() + " Number");
         }
     }

@@ -12,7 +12,6 @@ public class URLDecoder extends ByteModifier {
         super("URL");
     }
 
-    // URL Encode the bytes
     public byte[] modifyBytes(byte[] input) {
         ArrayList<Byte> output = new ArrayList<>();
         for (int i = 0; i < input.length; i++ ) {

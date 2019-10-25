@@ -2,6 +2,9 @@ package trust.nccgroup.decoderimproved;
 
 import burp.*;
 
+import java.lang.reflect.Field;
+import java.nio.charset.Charset;
+
 public class ExtensionRoot implements IBurpExtender {
 
     private IBurpExtenderCallbacks callbacks;
@@ -17,6 +20,20 @@ public class ExtensionRoot implements IBurpExtender {
         Logger.registerExtenderCallbacks(callbacks);
 
         callbacks.setExtensionName("Decoder Improved");
+
+        // Set Java Default Character encoding type to UTF-8 (which might not be default on Windows)
+        // This is required (at least) for HTML entity related actions
+        try {
+            if (!System.getProperty("file.encoding").equalsIgnoreCase("UTF-8")) {
+                System.setProperty("file.encoding", "UTF-8");
+                Field charset = Charset.class.getDeclaredField("defaultCharset");
+                charset.setAccessible(true);
+                charset.set(null, null);
+                charset.setAccessible(false);
+            }
+        } catch (Exception e) {
+            Logger.printErrorFromException(e);
+        }
 
         multiDecoderTab = new MultiDecoderTab(this);
         //callbacks.customizeUiComponent(multiDecoderTab);

@@ -1,6 +1,7 @@
 package trust.nccgroup.decoderimproved;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Created by j on 12/6/16.
@@ -18,11 +19,6 @@ public class URLEncoder extends ByteModifier {
             output += "%";
             output += String.format("%02X", (0xFF & (int)b));
         }
-        try {
-            return output.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-			// This should never happen
-            throw new ModificationException("Invalid Input");
-        }
+        return output.getBytes(StandardCharsets.UTF_8);
     }
 }

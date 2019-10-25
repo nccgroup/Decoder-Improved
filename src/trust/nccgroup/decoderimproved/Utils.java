@@ -2,6 +2,7 @@ package trust.nccgroup.decoderimproved;
 
 import java.awt.*;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -179,5 +180,48 @@ public class Utils {
                 }
             }
         }
+    }
+
+    // Calculate byte offset based on UTF-8 multibyte definition, to support more multibyte characters.
+    public static int calculateByteOffset(byte[] bytes, int stringOffset) {
+        int offset = 0;
+        for (int i = 0; i < stringOffset; i++) {
+            int cur = offset;
+            if (cur >= bytes.length)
+                break;
+            byte b = bytes[cur];
+            if (b >= 0) { // single-byte char, in 00000000 - 01111111
+                if (b == 13 && cur + 1 < bytes.length && bytes[cur + 1] == 10) { // CRLF \x0d\x0a case
+                    offset += 2;
+                } else {
+                    offset += 1;
+                }
+            } else if (b <= -33 && b >= -64) { // two-byte char, first byte in 11000000 - 11011111
+                offset += multibyteOffset(bytes, cur, 1);
+            } else if (b <= -17 && b >= -32) { // three-byte char, first byte in 11100000 - 11101111
+                offset += multibyteOffset(bytes, cur, 2);
+            } else if (b <= -9 && b >= -16) { // four-byte char, first byte in 11110000 - 11110111
+                offset += multibyteOffset(bytes, cur, 3);
+            } else { // Unsupported byte
+                offset += 1;
+            }
+        }
+        return offset;
+    }
+
+    private static int multibyteOffset(byte[] bytes, int currentOffset, int maxLength) {
+        int byteCount = 0;
+        List<Byte> buf = new ArrayList<>();
+        for (int i = 0; i <= maxLength; i++) {
+            // the second (or third and fourth) byte should in 10000000 - 10111111
+            if (currentOffset + i < bytes.length && (i == 0 || bytes[currentOffset + i] <= -65)) {
+                byteCount += 1;
+                buf.add(bytes[currentOffset + i]);
+            } else {
+                break;
+            }
+        }
+        int characterCount = UTF8StringEncoder.newUTF8String(Utils.convertByteArrayListToByteArray(buf)).length();
+        return byteCount - characterCount + 1;
     }
 }

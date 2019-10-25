@@ -1,6 +1,7 @@
 package trust.nccgroup.decoderimproved;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import javax.xml.bind.DatatypeConverter;
 
 /**
@@ -14,11 +15,7 @@ public class ASCIIHexDecoder extends ByteModifier{
     // URL Encode the bytes
     public byte[] modifyBytes(byte[] input) throws ModificationException{
         String inputString;
-        try {
-            inputString = new String(input, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new ModificationException("Invalid Hex String");
-        }
+        inputString = new String(input, StandardCharsets.UTF_8);
         try {
             return DatatypeConverter.parseHexBinary(inputString);
         } catch (IllegalArgumentException e) {

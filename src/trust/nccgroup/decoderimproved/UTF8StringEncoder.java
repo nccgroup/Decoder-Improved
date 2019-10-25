@@ -1,4 +1,5 @@
 package trust.nccgroup.decoderimproved;
+
 import java.nio.ByteBuffer;
 import java.nio.charset.*;
 
@@ -7,7 +8,7 @@ import java.nio.charset.*;
  */
 public class UTF8StringEncoder {
     //private final static  replacementChar = {(byte)0xEF, (byte)0xBF, (byte)0xBD};
-    private final static CharsetDecoder utf8Decoder = Charset.forName("UTF-8")
+    private final static CharsetDecoder utf8Decoder = StandardCharsets.UTF_8
             .newDecoder()
             .replaceWith("�")
             .onMalformedInput(CodingErrorAction.REPLACE)
@@ -17,7 +18,7 @@ public class UTF8StringEncoder {
         try {
             return utf8Decoder.decode(ByteBuffer.wrap(input)).toString();
         } catch (CharacterCodingException e) {
-            System.out.println(Utils.convertByteArrayToHexString(input));
+            Logger.printErrorFromException(e);
             return "";
         }
     }

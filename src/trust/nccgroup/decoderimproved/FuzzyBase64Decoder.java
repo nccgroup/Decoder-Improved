@@ -5,6 +5,7 @@ package trust.nccgroup.decoderimproved;
  */
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.regex.Matcher;
@@ -24,11 +25,7 @@ public class FuzzyBase64Decoder extends ByteModifier {
         input = Utils.convertUrlBase64ToStandard(input);
 
         String inputString;
-        try {
-            inputString = new String(input, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new ModificationException("Input Contains Non-Encodeable Characters");
-        }
+        inputString = new String(input, StandardCharsets.UTF_8);
         Pattern p = Pattern.compile("(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})");
         Matcher m = p.matcher(inputString);
         ArrayList<Byte> output = new ArrayList<>();

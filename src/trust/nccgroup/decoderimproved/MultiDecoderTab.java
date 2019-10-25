@@ -1,7 +1,6 @@
 package trust.nccgroup.decoderimproved;
 
 import burp.ITab;
-import com.google.common.collect.Lists;
 import com.google.gson.*;
 import util.PDControlScrollPane;
 import org.exbin.utils.binary_data.ByteArrayEditableData;
@@ -351,7 +350,8 @@ public class MultiDecoderTab extends JPanel implements ITab {
         private void setupComponents() {
             scrollingBodyHolder = new JScrollPane();
             decoderTabBody = new JPanel();
-            decoderSegments = Lists.newArrayList(new DecoderSegment(this));
+            decoderSegments = new ArrayList<>();
+            decoderSegments.add(new DecoderSegment(this));
             this.setLayout(new BorderLayout());
             decoderTabBody.setLayout(new BoxLayout(decoderTabBody, BoxLayout.PAGE_AXIS));
 
@@ -407,11 +407,11 @@ public class MultiDecoderTab extends JPanel implements ITab {
                 nextDecoderSegment.dsState.setByteArrayList(activeDecoderSegment.modes.modifyBytes(activeDsBytes));
                 nextDecoderSegment.updateEditors(nextDecoderSegment.dsState);
                 try {
-                    CharsetDecoder decoder = Charset.forName("UTF-8").newDecoder();
+                    CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder();
                     decoder.onUnmappableCharacter(CodingErrorAction.REPORT);
                     decoder.onMalformedInput(CodingErrorAction.REPORT);
                     decoder.decode(ByteBuffer.wrap(nextDecoderSegment.dsState.getByteArray()));
-                    new String(nextDecoderSegment.dsState.getByteArray(), "UTF-8");
+                    new String(nextDecoderSegment.dsState.getByteArray(), StandardCharsets.UTF_8);
                     // new UTF.newUTF8String(nextDecoderSegment.dsState.getByteArray());
                     //nextDecoderSegment.displayTextEditor(); // This is commented out as it sometimes got the extension frozen during loading settings, FIXME if anything wrong happens because of this
                 } catch (Exception e) {
@@ -724,6 +724,14 @@ public class MultiDecoderTab extends JPanel implements ITab {
 
                         int thisIndex = parent.decoderSegments.indexOf(outsideThis);
                         parent.updateDecoderSegments(thisIndex);
+
+                        SwingUtilities.invokeLater(() -> {
+                            int caretPos = textEditor.getCaretPosition();
+                            lockDocumentEvents = true;
+                            textEditor.setText(dsState.getDisplayString());
+                            lockDocumentEvents = false;
+                            textEditor.setCaretPosition(caretPos);
+                        });
                     }
                 }
 
@@ -735,6 +743,14 @@ public class MultiDecoderTab extends JPanel implements ITab {
 
                         int thisIndex = parent.decoderSegments.indexOf(outsideThis);
                         parent.updateDecoderSegments(thisIndex);
+
+                        SwingUtilities.invokeLater(() -> {
+                            int caretPos = textEditor.getCaretPosition();
+                            lockDocumentEvents = true;
+                            textEditor.setText(dsState.getDisplayString());
+                            lockDocumentEvents = false;
+                            textEditor.setCaretPosition(caretPos);
+                        });
                     }
                 }
 

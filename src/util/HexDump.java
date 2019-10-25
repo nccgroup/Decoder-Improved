@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 public class HexDump {
 
@@ -55,7 +56,7 @@ public class HexDump {
       width = Math.min(width, bytes.length - index);
       System.out.println(
           ":"
-              + new String(bytes, index, width, "UTF-8").replaceAll("\r\n", " ").replaceAll(
+              + new String(bytes, index, width, StandardCharsets.UTF_8).replaceAll("\r\n", " ").replaceAll(
               "\n",
               " "));
     } else {

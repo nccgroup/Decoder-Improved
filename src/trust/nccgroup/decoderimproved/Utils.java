@@ -1,10 +1,7 @@
 package trust.nccgroup.decoderimproved;
 
 import java.awt.*;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 
 import org.exbin.utils.binary_data.BinaryData;
@@ -16,45 +13,6 @@ import javax.swing.*;
  */
 
 public class Utils {
-    private static HashSet<List<Byte>> twoByteReplacement;
-
-    static {
-        twoByteReplacement = new HashSet<List<Byte>>();
-        try {
-            for (int i = 0; i <= 0xFF; i++) {
-                for (int j = 0; j <= 0xFF; j++) {
-                    byte[] bytes = {(byte)i, (byte)j};
-                    String displayString = UTF8StringEncoder.newUTF8String(bytes);
-                    if(displayString.getBytes("UTF-8").length == 3) {
-                        twoByteReplacement.add(Arrays.asList((byte)i, (byte)j));
-                    }
-                }
-            }
-        } catch (Exception e) { }
-    }
-
-    public static boolean isTwoByteReplacementStart(byte input) {
-        return (input >= (byte)0xE0 && input <= (byte)0xF4);
-    }
-
-    public static boolean isTwoByteReplacement(byte first, byte second) {
-        return twoByteReplacement.contains(Arrays.asList(first, second));
-    }
-
-    public static boolean charIsReplacementChar(byte[] b) {
-        try {
-            byte[] replacementCharByteArray = "�".getBytes("UTF-8");
-            for (int i = 0; i < 3; i++) {
-                if (b[i] != replacementCharByteArray[i]) {
-                    return false;
-                }
-            }
-            return true;
-        } catch (UnsupportedEncodingException e) {
-            return false;
-        }
-    }
-
 
     public static String convertByteArrayToHexString (byte[] data) {
         StringBuilder sb = new StringBuilder();
@@ -77,7 +35,7 @@ public class Utils {
        return ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'));
     }
 
-    public static byte[] convertByteArrayListToByteArray(ArrayList<Byte> input) {
+    public static byte[] convertByteArrayListToByteArray(List<Byte> input) {
         byte[] bytes = new byte[input.size()];
         for (int i = 0; i < input.size(); i++) {
             bytes[i] = input.get(i);
@@ -93,42 +51,6 @@ public class Utils {
             }
         }
         return false;
-    }
-
-    // Taken from http://stackoverflow.com/questions/28890907/implement-a-function-to-check-if-a-string-byte-array-follows-utf-8-format
-    // I don't think I'm going to use this, can probably be removed
-    public static boolean isUTF8(final byte[] pText) {
-
-        int expectedLength = 0;
-
-        for (int i = 0; i < pText.length; i++) {
-            if ((pText[i] & 0b10000000) == 0b00000000) {
-                expectedLength = 1;
-            } else if ((pText[i] & 0b11100000) == 0b11000000) {
-                expectedLength = 2;
-            } else if ((pText[i] & 0b11110000) == 0b11100000) {
-                expectedLength = 3;
-            } else if ((pText[i] & 0b11111000) == 0b11110000) {
-                expectedLength = 4;
-            } else if ((pText[i] & 0b11111100) == 0b11111000) {
-                expectedLength = 5;
-            } else if ((pText[i] & 0b11111110) == 0b11111100) {
-                expectedLength = 6;
-            } else {
-                return false;
-            }
-
-            while (--expectedLength > 0) {
-                if (++i >= pText.length) {
-                    return false;
-                }
-                if ((pText[i] & 0b11000000) != 0b10000000) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
     }
 
     public static byte[] extendByteArray(byte[] input, int length) {
@@ -180,5 +102,85 @@ public class Utils {
                 }
             }
         }
+    }
+
+    // Calculate byte offset based on UTF-8 multibyte definition, to support more multibyte characters.
+    public static int calculateByteOffset(byte[] bytes, int stringOffset) {
+        int offset = 0;
+        for (int i = 0; i < stringOffset; i++) {
+            int cur = offset;
+            if (cur >= bytes.length)
+                break;
+            byte b = bytes[cur];
+            int expectedLength = multibyteExpectLength(b);
+            switch (expectedLength) {
+                case 1: // single-byte char, in 00000000 - 01111111
+                    if (b == 13 && cur + 1 < bytes.length && bytes[cur + 1] == 10) { // CRLF \x0d\x0a case
+                        offset += 2;
+                    } else {
+                        offset += 1;
+                    }
+                    break;
+                case 2: // two-byte char, first byte in 11000000 - 11011111
+                case 3: // three-byte char, first byte in 11100000 - 11101111
+                case 4: // four-byte char, first byte in 11110000 - 11110111
+                    offset += multibyteOffset(bytes, cur, expectedLength);
+                    break;
+                default:
+                    offset += 1;
+                    break;
+            }
+        }
+        return offset;
+    }
+
+    private static int multibyteOffset(byte[] bytes, int currentOffset, int maxLength) {
+        int byteCount = 0;
+        List<Byte> buf = new ArrayList<>();
+        for (int i = 0; i < maxLength; i++) {
+            // the second (or third and fourth) byte should be in 10000000 - 10111111
+            if (currentOffset + i < bytes.length && (i == 0 || bytes[currentOffset + i] <= -65)) {
+                byteCount += 1;
+                buf.add(bytes[currentOffset + i]);
+            } else {
+                break;
+            }
+        }
+        int characterCount = UTF8StringEncoder.newUTF8String(Utils.convertByteArrayListToByteArray(buf)).length();
+        return byteCount - characterCount + 1;
+    }
+
+    // Taken from http://stackoverflow.com/questions/28890907/implement-a-function-to-check-if-a-string-byte-array-follows-utf-8-format
+    public static int multibyteExpectLength(byte b) {
+        int expectedLength = -1;
+        if ((b & 0b10000000) == 0b00000000) {
+            expectedLength = 1;
+        } else if ((b & 0b11100000) == 0b11000000) {
+            expectedLength = 2;
+        } else if ((b & 0b11110000) == 0b11100000) {
+            expectedLength = 3;
+        } else if ((b & 0b11111000) == 0b11110000) {
+            expectedLength = 4;
+        } else if ((b & 0b11111100) == 0b11111000) {
+            expectedLength = 5;
+        } else if ((b & 0b11111110) == 0b11111100) {
+            expectedLength = 6;
+        }
+        return expectedLength;
+    }
+
+    // Input bytes should consist of a valid start byte (0xxxxxxx/110xxxxx/1110xxxx/11110xxx)
+    // and multiple (0..n) byte in 10000000 - 10111111
+    public static boolean isUTF8Char(byte[] bytes) {
+        int count = multibyteExpectLength(bytes[0]);
+        if (bytes.length != count){
+            return false;
+        }
+        for (int i = 1; i < bytes.length; i++) {
+            if (bytes[i] > -65) {
+                return false;
+            }
+        }
+        return true;
     }
 }

@@ -1,10 +1,9 @@
 package trust.nccgroup.decoderimproved;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CodingErrorAction;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by j on 1/6/17.
@@ -12,34 +11,37 @@ import java.nio.charset.CodingErrorAction;
 
 public class HTMLEncoder extends ByteModifier {
     String HTML_ENCODED_FORMAT_STRING = "&#%d;";
+
     public HTMLEncoder() {
         super("HTML");
     }
 
     // URL Encode the bytes
-    public byte[] modifyBytes(byte[] input) throws ModificationException{
-        StringBuilder output = new StringBuilder();
-        try {
-            CharsetDecoder decoder = Charset.forName("UTF-8").newDecoder();
-            decoder.onUnmappableCharacter(CodingErrorAction.REPORT);
-            decoder.onMalformedInput(CodingErrorAction.REPORT);
-            decoder.decode(ByteBuffer.wrap(input));
-
-            // String displayString = new String(input, "UTF-8");
-            String displayString = UTF8StringEncoder.newUTF8String(input);
-
-            for (int i = 0; i < displayString.length(); i++) {
-                int charCodePoint = Character.codePointAt(displayString, i);
-                output.append(String.format(HTML_ENCODED_FORMAT_STRING, charCodePoint));
+    public byte[] modifyBytes(byte[] input) throws ModificationException {
+        List<Byte> output = new ArrayList<>(input.length);
+        for (int i = 0; i < input.length; i++) {
+            byte b = input[i];
+            boolean isMultibyte = false;
+            int codepoint = -1;
+            int expectedLength = Utils.multibyteExpectLength(b);
+            if (expectedLength > 1 && i + expectedLength - 1 < input.length) {
+                byte[] multibyte = Arrays.copyOfRange(input, i, i + expectedLength);
+                if (Utils.isUTF8Char(multibyte)) {
+                    String multibyteString = UTF8StringEncoder.newUTF8String(multibyte);
+                    if (multibyteString.length() == 1) {
+                        codepoint = multibyteString.codePointAt(0);
+                        i += expectedLength - 1;
+                        isMultibyte = true;
+                    }
+                }
             }
-
-        } catch (Exception e) {
-            throw new ModificationException("Invalid input. HTML encoding does not accept strings that contain non-UTF-8 characters.");
+            if (!isMultibyte) {
+                codepoint = b & 0xff;
+            }
+            for (byte _b : String.format(HTML_ENCODED_FORMAT_STRING, codepoint).getBytes(StandardCharsets.UTF_8)) {
+                output.add(_b);
+            }
         }
-        try {
-            return output.toString().getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new ModificationException("Invalid output");
-        }
+        return Utils.convertByteArrayListToByteArray(output);
     }
 }

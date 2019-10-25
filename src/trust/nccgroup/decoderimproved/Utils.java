@@ -1,10 +1,7 @@
 package trust.nccgroup.decoderimproved;
 
 import java.awt.*;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 
 import org.exbin.utils.binary_data.BinaryData;
@@ -16,45 +13,6 @@ import javax.swing.*;
  */
 
 public class Utils {
-    private static HashSet<List<Byte>> twoByteReplacement;
-
-    static {
-        twoByteReplacement = new HashSet<List<Byte>>();
-        try {
-            for (int i = 0; i <= 0xFF; i++) {
-                for (int j = 0; j <= 0xFF; j++) {
-                    byte[] bytes = {(byte)i, (byte)j};
-                    String displayString = UTF8StringEncoder.newUTF8String(bytes);
-                    if(displayString.getBytes("UTF-8").length == 3) {
-                        twoByteReplacement.add(Arrays.asList((byte)i, (byte)j));
-                    }
-                }
-            }
-        } catch (Exception e) { }
-    }
-
-    public static boolean isTwoByteReplacementStart(byte input) {
-        return (input >= (byte)0xE0 && input <= (byte)0xF4);
-    }
-
-    public static boolean isTwoByteReplacement(byte first, byte second) {
-        return twoByteReplacement.contains(Arrays.asList(first, second));
-    }
-
-    public static boolean charIsReplacementChar(byte[] b) {
-        try {
-            byte[] replacementCharByteArray = "�".getBytes("UTF-8");
-            for (int i = 0; i < 3; i++) {
-                if (b[i] != replacementCharByteArray[i]) {
-                    return false;
-                }
-            }
-            return true;
-        } catch (UnsupportedEncodingException e) {
-            return false;
-        }
-    }
-
 
     public static String convertByteArrayToHexString (byte[] data) {
         StringBuilder sb = new StringBuilder();
@@ -98,9 +56,7 @@ public class Utils {
     // Taken from http://stackoverflow.com/questions/28890907/implement-a-function-to-check-if-a-string-byte-array-follows-utf-8-format
     // I don't think I'm going to use this, can probably be removed
     public static boolean isUTF8(final byte[] pText) {
-
         int expectedLength = 0;
-
         for (int i = 0; i < pText.length; i++) {
             if ((pText[i] & 0b10000000) == 0b00000000) {
                 expectedLength = 1;
@@ -190,29 +146,50 @@ public class Utils {
             if (cur >= bytes.length)
                 break;
             byte b = bytes[cur];
-            if (b >= 0) { // single-byte char, in 00000000 - 01111111
-                if (b == 13 && cur + 1 < bytes.length && bytes[cur + 1] == 10) { // CRLF \x0d\x0a case
-                    offset += 2;
-                } else {
+            int expectedLength = multibyteExpectLength(b);
+            switch (expectedLength) {
+                case 1: // single-byte char, in 00000000 - 01111111
+                    if (b == 13 && cur + 1 < bytes.length && bytes[cur + 1] == 10) { // CRLF \x0d\x0a case
+                        offset += 2;
+                    } else {
+                        offset += 1;
+                    }
+                    break;
+                case 2: // two-byte char, first byte in 11000000 - 11011111
+                case 3: // three-byte char, first byte in 11100000 - 11101111
+                case 4: // four-byte char, first byte in 11110000 - 11110111
+                    offset += multibyteOffset(bytes, cur, expectedLength);
+                    break;
+                default:
                     offset += 1;
-                }
-            } else if (b <= -33 && b >= -64) { // two-byte char, first byte in 11000000 - 11011111
-                offset += multibyteOffset(bytes, cur, 1);
-            } else if (b <= -17 && b >= -32) { // three-byte char, first byte in 11100000 - 11101111
-                offset += multibyteOffset(bytes, cur, 2);
-            } else if (b <= -9 && b >= -16) { // four-byte char, first byte in 11110000 - 11110111
-                offset += multibyteOffset(bytes, cur, 3);
-            } else { // Unsupported byte
-                offset += 1;
+                    break;
             }
         }
         return offset;
     }
 
+    public static int multibyteExpectLength(byte b) {
+        int expectedLength = -1;
+        if ((b & 0b10000000) == 0b00000000) {
+            expectedLength = 1;
+        } else if ((b & 0b11100000) == 0b11000000) {
+            expectedLength = 2;
+        } else if ((b & 0b11110000) == 0b11100000) {
+            expectedLength = 3;
+        } else if ((b & 0b11111000) == 0b11110000) {
+            expectedLength = 4;
+        } else if ((b & 0b11111100) == 0b11111000) {
+            expectedLength = 5;
+        } else if ((b & 0b11111110) == 0b11111100) {
+            expectedLength = 6;
+        }
+        return expectedLength;
+    }
+
     private static int multibyteOffset(byte[] bytes, int currentOffset, int maxLength) {
         int byteCount = 0;
         List<Byte> buf = new ArrayList<>();
-        for (int i = 0; i <= maxLength; i++) {
+        for (int i = 0; i < maxLength; i++) {
             // the second (or third and fourth) byte should in 10000000 - 10111111
             if (currentOffset + i < bytes.length && (i == 0 || bytes[currentOffset + i] <= -65)) {
                 byteCount += 1;

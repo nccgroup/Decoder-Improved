@@ -3,6 +3,7 @@ package trust.nccgroup.decoderimproved;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by j on 10/10/16.
@@ -24,11 +25,10 @@ public class DecoderSegmentState {
         return UTF8StringEncoder.newUTF8String(getByteArray());
     }
 
-
     // Calculate byte offset based on UTF-8 multibyte definition, to support more multibyte characters.
-    // The text editor is still buggy on showing the newly updated UTF-8 encoding result as the text won't be updated in real time.
     private int calculateByteOffset(int stringOffset) {
         byte[] bytes = getByteArray();
+        String displayString = getDisplayString();
         int offset = 0;
         for (int i = 0; i < stringOffset; i++) {
             int cur = offset;
@@ -42,29 +42,32 @@ public class DecoderSegmentState {
                     offset += 1;
                 }
             } else if (b <= -33 && b >= -64) { // two-byte char, first byte in 11000000 - 11011111
-                // for multibyte chars, the second, third and fourth byte should in 10000000 - 10111111
-                for (int j = 0; j <= 1; j++) {
-                    if (cur + j < bytes.length && (j == 0 || bytes[cur + j] <= -65)) {
-                        offset++;
-                    }
-                }
+                offset += multibyteLength(bytes, cur, 1);
             } else if (b <= -17 && b >= -32) { // three-byte char, first byte in 11100000 - 11101111
-                for (int j = 0; j <= 2; j++) {
-                    if (cur + j < bytes.length && (j == 0 || bytes[cur + j] <= -65)) {
-                        offset++;
-                    }
-                }
+                offset += multibyteLength(bytes, cur, 2);
             } else if (b <= -9 && b >= -16) { // four-byte char, first byte in 11110000 - 11110111
-                for (int j = 0; j <= 3; j++) {
-                    if (cur + j < bytes.length && (j == 0 || bytes[cur + j] <= -65)) {
-                        offset++;
-                    }
-                }
-            } else { // Unknown byte
+                offset += multibyteLength(bytes, cur, 3);
+            } else { // Unsupported byte
                 offset += 1;
             }
         }
         return offset;
+    }
+
+    private int multibyteLength(byte[] bytes, int currentOffset, int maxLength) {
+        int byteNumber = 0;
+        List<Byte> buf = new ArrayList<>();
+        for (int j = 0; j <= maxLength; j++) {
+            // the second (or third and fourth) byte should in 10000000 - 10111111
+            if (currentOffset + j < bytes.length && (j == 0 || bytes[currentOffset + j] <= -65)) {
+                byteNumber += 1;
+                buf.add(bytes[currentOffset + j]);
+            } else {
+                break;
+            }
+        }
+        int characterNumber = new String(Utils.convertByteArrayListToByteArray(buf)).length();
+        return byteNumber - characterNumber + 1;
     }
 
     // This is a miracle that this works. If it causes an exception, sorry.

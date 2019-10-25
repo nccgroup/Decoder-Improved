@@ -724,6 +724,14 @@ public class MultiDecoderTab extends JPanel implements ITab {
 
                         int thisIndex = parent.decoderSegments.indexOf(outsideThis);
                         parent.updateDecoderSegments(thisIndex);
+
+                        SwingUtilities.invokeLater(() -> {
+                            int caretPos = textEditor.getCaretPosition();
+                            lockDocumentEvents = true;
+                            textEditor.setText(dsState.getDisplayString());
+                            lockDocumentEvents = false;
+                            textEditor.setCaretPosition(caretPos);
+                        });
                     }
                 }
 
@@ -735,6 +743,14 @@ public class MultiDecoderTab extends JPanel implements ITab {
 
                         int thisIndex = parent.decoderSegments.indexOf(outsideThis);
                         parent.updateDecoderSegments(thisIndex);
+
+                        SwingUtilities.invokeLater(() -> {
+                            int caretPos = textEditor.getCaretPosition();
+                            lockDocumentEvents = true;
+                            textEditor.setText(dsState.getDisplayString());
+                            lockDocumentEvents = false;
+                            textEditor.setCaretPosition(caretPos);
+                        });
                     }
                 }
 

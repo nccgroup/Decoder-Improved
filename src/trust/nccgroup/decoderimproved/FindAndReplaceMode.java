@@ -42,9 +42,9 @@ public class FindAndReplaceMode extends ModificationMode {
 
         regexBoxPanel = new JPanel();
         regexBoxPanel.setLayout(new BoxLayout(regexBoxPanel, BoxLayout.LINE_AXIS));
-        regexBoxPanel.setMaximumSize(new Dimension(180, 25));
-        regexBoxPanel.setMinimumSize(new Dimension(180, 25));
-        regexBoxPanel.setPreferredSize(new Dimension(180, 25));
+        regexBoxPanel.setMaximumSize(new Dimension(180, 30));
+        regexBoxPanel.setMinimumSize(new Dimension(180, 30));
+        regexBoxPanel.setPreferredSize(new Dimension(180, 30));
 
         regexLabel = new JLabel("Regex: ");
         regexTextField = new JTextField();
@@ -57,9 +57,9 @@ public class FindAndReplaceMode extends ModificationMode {
 
         replaceBoxPanel = new JPanel();
         replaceBoxPanel.setLayout(new BoxLayout(replaceBoxPanel, BoxLayout.LINE_AXIS));
-        replaceBoxPanel.setMaximumSize(new Dimension(180, 25));
-        replaceBoxPanel.setMinimumSize(new Dimension(180, 25));
-        replaceBoxPanel.setPreferredSize(new Dimension(180, 25));
+        replaceBoxPanel.setMaximumSize(new Dimension(180, 30));
+        replaceBoxPanel.setMinimumSize(new Dimension(180, 30));
+        replaceBoxPanel.setPreferredSize(new Dimension(180, 30));
 
         replaceBoxPanel.add(replaceLabel);
         replaceBoxPanel.add(replaceTextField);
@@ -78,14 +78,19 @@ public class FindAndReplaceMode extends ModificationMode {
 
     // There's a limitation here. Invalid UTF-8 bytes will be replaced by the replacement char in the result.
     public byte[] modifyBytes(byte[] input) throws ModificationException {
+        String regexText = regexTextField.getText();
+        if (regexText == null || regexText.isEmpty()) {
+            return input;
+        }
         // Do this first to make sure the regex is valid
         try {
-            Pattern.compile(regexTextField.getText());
+            Pattern.compile(regexText);
         } catch (PatternSyntaxException e) {
-            throw new ModificationException(regexTextField.getText() + " Is Not A Valid Regular Expression.");
+            throw new ModificationException(regexText + " Is Not A Valid Regular Expression.");
         }
         // Do this to make sure the input is a valid string
         // Find and replace doesn't work correctly on strings containing binary data
+        /* fixme: I didn't notice error when replacing a string that contains non-UTF-8 chars - fix me if anything is wrong
         try {
             CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder();
             decoder.onUnmappableCharacter(CodingErrorAction.REPORT);
@@ -93,16 +98,16 @@ public class FindAndReplaceMode extends ModificationMode {
             decoder.decode(ByteBuffer.wrap(input));
         } catch (Exception e) {
             throw new ModificationException("Invalid input. Find and Replace does not accept strings that contain non-UTF-8 characters.");
-        }
+        }*/
         if ((replaceComboBox.getSelectedItem()).equals("Replace First")) {
             //String inputString = new String(input, "UTF-8");
             String inputString = UTF8StringEncoder.newUTF8String(input);
-            inputString = inputString.replaceFirst(regexTextField.getText(), replaceTextField.getText());
+            inputString = inputString.replaceFirst(regexText, replaceTextField.getText());
             return inputString.getBytes(StandardCharsets.UTF_8);
         } else if ((replaceComboBox.getSelectedItem()).equals("Replace All")) {
             //String inputString = new String(input, "UTF-8");
             String inputString = UTF8StringEncoder.newUTF8String(input);
-            inputString = inputString.replaceAll(regexTextField.getText(), replaceTextField.getText());
+            inputString = inputString.replaceAll(regexText, replaceTextField.getText());
             return inputString.getBytes(StandardCharsets.UTF_8);
         }
         return new byte[0];

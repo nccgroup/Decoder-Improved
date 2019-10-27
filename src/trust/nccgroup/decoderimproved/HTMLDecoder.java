@@ -10,7 +10,7 @@ import org.jsoup.parser.Parser;
  */
 
 public class HTMLDecoder extends ByteModifier {
-    final Pattern HTML_ENTITY_REGEX = Pattern.compile("&([a-zA-Z]+|#([xX][a-fA-F0-9]+|[0-9]+));");
+    private final Pattern HTML_ENTITY_REGEX = Pattern.compile("&([a-zA-Z]+|#([xX][a-fA-F0-9]+|[0-9]+));");
 
     public HTMLDecoder() {
         super("HTML");

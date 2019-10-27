@@ -1,6 +1,5 @@
 package trust.nccgroup.decoderimproved;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
@@ -9,7 +8,7 @@ import java.util.ArrayList;
  * This file contains the backing Byte Arraylist for every decoder segment
  */
 
-public class DecoderSegmentState {
+class DecoderSegmentState {
     // I'm going to back this thing with an arraylist for now
     // This is going to get changed to a rope or a data structure that's better
     // for text editors in the future.
@@ -42,7 +41,7 @@ public class DecoderSegmentState {
     }
 
     // This is for when the text editor is updating the decoder segment state
-    public boolean insertUpdateIntoByteArrayList(String input, int offset) {
+    public void insertUpdateIntoByteArrayList(String input, int offset) {
         // I turn the input string into bytes so I can correctly input all the bytes
         // then I add those bytes to byteArrayList
         byte[] inputBytes = input.getBytes(StandardCharsets.UTF_8);
@@ -50,7 +49,6 @@ public class DecoderSegmentState {
         for (int i = 0; i < inputBytes.length; i++) {
             byteArrayList.add(i + inputOffset, inputBytes[i]);
         }
-        return true;
     }
 
     // This is for when the text editor is removing characters from the byteArrayList

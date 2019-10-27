@@ -5,16 +5,16 @@ import javax.swing.*;
 /**
  * Created by j on 12/6/16.
  */
-public class ByteModifier extends AbstractByteModifier{
-    protected String name;
-    protected JPanel ui;
+class ByteModifier extends AbstractByteModifier{
+    private String name;
+    private JPanel ui;
 
-    public ByteModifier() {
+    ByteModifier() {
         this.name = "";
         ui = new JPanel();
     }
 
-    public ByteModifier(String name) {
+    ByteModifier(String name) {
         this.name = name;
     }
 

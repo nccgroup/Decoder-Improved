@@ -2,12 +2,10 @@ package util;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
-public class HexDump {
+class HexDump {
 
   public static void dump(byte[] arr) {
     try {
@@ -21,7 +19,7 @@ public class HexDump {
   }
 
   private static byte[] read(String inputFileName, int start, int end)
-      throws FileNotFoundException, IOException {
+      throws IOException {
     File theFile = new File(inputFileName);
     FileInputStream input = new FileInputStream(theFile);
     int skipped = 0;
@@ -50,8 +48,7 @@ public class HexDump {
     }
   }
 
-  private static void printAscii(byte[] bytes, int index, int width)
-      throws UnsupportedEncodingException {
+  private static void printAscii(byte[] bytes, int index, int width) {
     if (index < bytes.length) {
       width = Math.min(width, bytes.length - index);
       System.out.println(

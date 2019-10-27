@@ -16,7 +16,7 @@ public class Base64Decoder extends ByteModifier {
 
         // Convert from Url safe
         input = Utils.convertUrlBase64ToStandard(input);
-        
+
         try {
             Base64.Decoder decoder = Base64.getDecoder();
             return decoder.decode(input);

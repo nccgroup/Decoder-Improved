@@ -92,7 +92,7 @@ public class HashMode extends ModificationMode {
         ui.add(comboBoxPanel);
     }
 
-    public byte[] modifyBytes(byte[] input) throws ModificationException{
+    public byte[] modifyBytes(byte[] input) {
         // Get the selected ByteModifier and use the modifyBytes method from their to update input.
         Digest digest;
         byte[] output;

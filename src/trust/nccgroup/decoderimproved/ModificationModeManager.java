@@ -8,7 +8,7 @@ import java.util.ArrayList;
 /**
  * Created by j on 12/6/16.
  */
-public class ModificationModeManager {
+class ModificationModeManager {
     private ArrayList<ModificationMode> modes;
     private JPanel ui;
     private JPanel modeUI;

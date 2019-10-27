@@ -1,6 +1,5 @@
 package trust.nccgroup.decoderimproved;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -12,7 +11,7 @@ public class URLEncoder extends ByteModifier {
     }
 
     // URL Encode the bytes
-    public byte[] modifyBytes(byte[] input) throws ModificationException{
+    public byte[] modifyBytes(byte[] input) {
         StringBuilder output = new StringBuilder();
 
         for (byte b : input) {

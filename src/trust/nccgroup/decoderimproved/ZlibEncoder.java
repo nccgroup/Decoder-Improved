@@ -22,8 +22,7 @@ public class ZlibEncoder  extends ByteModifier {
             bos.close();
             return bos.toByteArray();
         } catch (IOException e) {
-            byte [] empty = {};
-            return empty;
+            return new byte[]{};
         }
     }
 }

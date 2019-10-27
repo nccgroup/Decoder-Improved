@@ -14,12 +14,12 @@ import javax.swing.KeyStroke;
 /**
  * Basic encoding selection dialog.
  */
-public class EncodingSelectionDialog extends javax.swing.JDialog {
+class EncodingSelectionDialog extends javax.swing.JDialog {
 
     /**
      * A return status code - returned if Cancel button has been pressed
      */
-    public static final int RET_CANCEL = 0;
+    private static final int RET_CANCEL = 0;
     /**
      * A return status code - returned if OK button has been pressed
      */
@@ -113,7 +113,7 @@ public class EncodingSelectionDialog extends javax.swing.JDialog {
                 .addContainerGap())
         );
 
-        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {cancelButton, okButton});
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, cancelButton, okButton);
 
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

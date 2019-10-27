@@ -1,6 +1,5 @@
 package trust.nccgroup.decoderimproved;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 /**

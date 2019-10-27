@@ -6,10 +6,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
-public class ConfigPanel extends JPanel {
-    JButton exportButton;
-    JButton loadButton;
-    JToggleButton clearButton;
+class ConfigPanel extends JPanel {
+    private JButton exportButton;
+    private JButton loadButton;
+    private JToggleButton clearButton;
 
     public ConfigPanel(ExtensionRoot extensionRoot) {
         this.setLayout(new FlowLayout(FlowLayout.LEFT));

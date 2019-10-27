@@ -4,7 +4,6 @@ import com.google.gson.JsonObject;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -88,7 +87,7 @@ public class BaseConvertMode extends ModificationMode {
             String convertedNumberString = convertedNumber.toString(toBaseComboBox.getSelectedIndex() + 2);
             return convertedNumberString.getBytes(StandardCharsets.UTF_8);
         } catch (NumberFormatException e) {
-            throw new ModificationException("Invalid " + (String) fromBaseComboBox.getSelectedItem() + " Number");
+            throw new ModificationException("Invalid " + fromBaseComboBox.getSelectedItem() + " Number");
         }
     }
 

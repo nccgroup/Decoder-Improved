@@ -19,14 +19,14 @@ import java.util.Base64;
 
 import org.exbin.deltahex.CodeType;
 
-public class MultiDecoderTab extends JPanel implements ITab {
+class MultiDecoderTab extends JPanel implements ITab {
 
     private JTabbedPane main;
     private JPanel newTabButton;
 
     private ConfigPanel configPanel;
 
-    boolean tabChangeListenerLock = false;
+    private boolean tabChangeListenerLock = false;
 
     //Plugin starts with one decoder tab open and the "new tab" tab
     private int overallCount = 0;
@@ -35,7 +35,7 @@ public class MultiDecoderTab extends JPanel implements ITab {
         return tabChangeListenerLock;
     }
 
-    public void setTabChangeListenerLock(boolean tabChangeListenerLock) {
+    private void setTabChangeListenerLock(boolean tabChangeListenerLock) {
         this.tabChangeListenerLock = tabChangeListenerLock;
     }
 
@@ -73,7 +73,7 @@ public class MultiDecoderTab extends JPanel implements ITab {
     }
 
     // Logic for adding new tabs
-    public void addTab() {
+    private void addTab() {
         tabChangeListenerLock = true;
         // Add a new tab
         overallCount += 1;
@@ -90,7 +90,7 @@ public class MultiDecoderTab extends JPanel implements ITab {
         tabChangeListenerLock = false;
     }
 
-    public int firstEmptyDecoder() {
+    private int firstEmptyDecoder() {
         if (main.getComponentAt(main.getTabCount()-2) instanceof DecoderTab) {
             DecoderTab dt = (DecoderTab) main.getComponentAt(main.getTabCount()-2);
             if (dt.getDecoderSegments().get(0).dsState.getDisplayString().equals("")) {
@@ -131,7 +131,7 @@ public class MultiDecoderTab extends JPanel implements ITab {
         return this;
     }
 
-    public JTabbedPane getMain() { return main; }
+    private JTabbedPane getMain() { return main; }
 
     // Save the current state of extension to a JsonObject string
     public String getState() {
@@ -245,16 +245,16 @@ public class MultiDecoderTab extends JPanel implements ITab {
         private JPanel decoderTabBody;
         private ArrayList<DecoderSegment> decoderSegments;
 
-        public DecoderTab(String _title, MultiDecoderTab _parent) {
+        DecoderTab(String _title, MultiDecoderTab _parent) {
             decoderTabHandle = new DecoderTabHandle(_title, _parent, this);
             setupComponents();
         }
 
-        public Component getTabHandleElement() {
+        Component getTabHandleElement() {
             return decoderTabHandle;
         }
 
-        public ArrayList<DecoderSegment> getDecoderSegments() {
+        ArrayList<DecoderSegment> getDecoderSegments() {
             return new ArrayList<>(decoderSegments);
         }
 
@@ -467,7 +467,7 @@ public class MultiDecoderTab extends JPanel implements ITab {
 
         private boolean lockDocumentEvents;
 
-        public DecoderSegment(DecoderTab _parent) {
+        DecoderSegment(DecoderTab _parent) {
             parent = _parent;
             setupComponents();
         }
@@ -485,32 +485,32 @@ public class MultiDecoderTab extends JPanel implements ITab {
             }
         }
 
-        public JTextPane getTextEditor() {
+        JTextPane getTextEditor() {
             return textEditor;
         }
 
         // This function locks the text editor documentevents, calls textEditor.setText(), then unlocks the textEditor
         // to prevent setting the text from squashing the decoder segment state.
 
-        public void updateEditors(DecoderSegmentState dsState) {
+        void updateEditors(DecoderSegmentState dsState) {
             lockDocumentEvents = true;
             textEditor.setText(dsState.getDisplayString());
             hexEditor.setData(new ByteArrayEditableData(dsState.getByteArray()));
             lockDocumentEvents = false;
         }
 
-        public void displayHexEditor() {
+        void displayHexEditor() {
             hexRadio.setSelected(true);
             cardManager.last(masterEditorPanel);
         }
 
-        public void displayTextEditor() {
+        void displayTextEditor() {
             textRadio.setSelected(true);
             cardManager.last(masterEditorPanel);
             cardManager.first(masterEditorPanel);
         }
 
-        public void addActionListeners(JPanel panel) {
+        void addActionListeners(JPanel panel) {
             DecoderSegment outsideThis = this;
             for (Component c : panel.getComponents()) {
                 if (c instanceof JComboBox) {

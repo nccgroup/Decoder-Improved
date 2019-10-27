@@ -9,20 +9,20 @@ import java.awt.*;
  * Created by j on 12/6/16.
  */
 public abstract class ModificationMode {
-    protected JPanel ui;
-    protected String name;
-    protected CardLayout layoutManager;
+    JPanel ui;
+    String name;
+    private CardLayout layoutManager;
 
     public abstract JsonObject toJSON();
     public abstract void setFromJSON(JsonObject jsonObject);
 
-    public ModificationMode() {
+    ModificationMode() {
         this.name = "";
         layoutManager = new CardLayout();
         this.ui = new JPanel(layoutManager);
     }
 
-    public ModificationMode(String name) {
+    ModificationMode(String name) {
         this.name = name;
         layoutManager = new CardLayout();
         this.ui = new JPanel(layoutManager);

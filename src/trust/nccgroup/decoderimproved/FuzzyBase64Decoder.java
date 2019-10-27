@@ -4,7 +4,6 @@ package trust.nccgroup.decoderimproved;
  * Created by j on 7/27/17.
  */
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -19,13 +18,10 @@ public class FuzzyBase64Decoder extends ByteModifier {
 
     // This function uses a regex to extract base64 encoded strings out of the input and decode them.
     // Useful for jwts
-    public byte[] modifyBytes(byte[] input) throws ModificationException {
+    public byte[] modifyBytes(byte[] input) {
 
         // Convert from Url safe
-        input = Utils.convertUrlBase64ToStandard(input);
-
-        String inputString;
-        inputString = new String(input, StandardCharsets.UTF_8);
+        String inputString = new String(Utils.convertUrlBase64ToStandard(input), StandardCharsets.UTF_8);
         Pattern p = Pattern.compile("(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})");
         Matcher m = p.matcher(inputString);
         ArrayList<Byte> output = new ArrayList<>();

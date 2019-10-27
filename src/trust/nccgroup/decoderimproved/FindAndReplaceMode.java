@@ -4,11 +4,6 @@ import com.google.gson.JsonObject;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;

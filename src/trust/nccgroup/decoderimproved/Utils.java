@@ -2,6 +2,7 @@ package trust.nccgroup.decoderimproved;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.exbin.utils.binary_data.BinaryData;
@@ -12,7 +13,7 @@ import javax.swing.*;
  * Created by j on 10/26/16.
  */
 
-public class Utils {
+class Utils {
 
     public static String convertByteArrayToHexString (byte[] data) {
         StringBuilder sb = new StringBuilder();
@@ -27,7 +28,9 @@ public class Utils {
         byte[] output = new byte[dataLength];
         try {
             data.getDataInputStream().read(output);
-        } catch (Exception e) { }
+        } catch (Exception e) {
+            Logger.printErrorFromException(e);
+        }
         return output;
     }
 
@@ -68,17 +71,18 @@ public class Utils {
     // "_" (0x5F) -> "/" (0x2F)
     // Because we just want to two simple replaces we can just iterate over the byte array
     public static byte[] convertUrlBase64ToStandard(byte[] input) {
-        for (int i = 0; i < input.length ; i ++) {
-            if (input[i] == 0x2D) {
+        byte[] output = Arrays.copyOf(input, input.length);
+        for (int i = 0; i < output.length ; i ++) {
+            if (output[i] == 0x2D) {
                 // this just looks cooler than a simple replacement
                 // input[i] = input[i] - 0x02 
-                input[i] = 0x2B;
-            } else if (input[i] == 0x5F) {
+                output[i] = 0x2B;
+            } else if (output[i] == 0x5F) {
                 // input[i] = input[i] - 0x30
-                input[i] = 0x2F;
+                output[i] = 0x2F;
             }
         }
-        return input;
+        return output;
     }
 
     public static void highlightParentTab(JTabbedPane parentTabbedPane, Component childComponent) {

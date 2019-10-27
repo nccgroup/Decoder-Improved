@@ -9,8 +9,8 @@ import java.util.List;
  */
 
 public class HTMLSpecialCharEncoder extends ByteModifier {
-    String HTML_ENCODED_FORMAT_STRING = "&#%d;";
-    char[] SPECIAL_CHARS = {'"', '\'', '&', '<', '>'};
+    private String HTML_ENCODED_FORMAT_STRING = "&#%d;";
+    private char[] SPECIAL_CHARS = {'"', '\'', '&', '<', '>'};
 
     public HTMLSpecialCharEncoder() {
         super("HTML Special Characters");
@@ -26,7 +26,7 @@ public class HTMLSpecialCharEncoder extends ByteModifier {
     }
 
     // URL Encode the bytes
-    public byte[] modifyBytes(byte[] input) throws ModificationException {
+    public byte[] modifyBytes(byte[] input) {
         List<Byte> output = new ArrayList<>(input.length);
         for (byte b : input) {
             if (isSpecialChar(b)) {

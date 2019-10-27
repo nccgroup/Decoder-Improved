@@ -10,14 +10,14 @@ import java.util.List;
  */
 
 public class HTMLEncoder extends ByteModifier {
-    String HTML_ENCODED_FORMAT_STRING = "&#%d;";
+    private String HTML_ENCODED_FORMAT_STRING = "&#%d;";
 
     public HTMLEncoder() {
         super("HTML");
     }
 
     // URL Encode the bytes
-    public byte[] modifyBytes(byte[] input) throws ModificationException {
+    public byte[] modifyBytes(byte[] input) {
         List<Byte> output = new ArrayList<>(input.length);
         for (int i = 0; i < input.length; i++) {
             byte b = input[i];

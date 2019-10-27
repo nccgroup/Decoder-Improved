@@ -58,10 +58,8 @@ public class Utils {
         if (length > 0) {
             return new byte[0];
         }
-        byte[] output = new byte[input.length+length];
-        for (int i = 0; i < input.length; i ++) {
-            output [i] = input[i];
-        }
+        byte[] output = new byte[input.length + length];
+        System.arraycopy(input, 0, output, 0, input.length);
         return output;
     }
     

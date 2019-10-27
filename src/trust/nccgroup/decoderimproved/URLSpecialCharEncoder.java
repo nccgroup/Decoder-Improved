@@ -18,15 +18,15 @@ public class URLSpecialCharEncoder extends ByteModifier {
         String specialChars = "$-_.+!*'(),,";
         byte[] whitelist = (letters + numbers + specialChars).getBytes(StandardCharsets.UTF_8);
 
-        String output = "";
+        StringBuilder output = new StringBuilder();
         for (byte b : input) {
             if (!Utils.contains(whitelist, b)) {
-                output += "%";
-                output += String.format("%02X", (0xFF & (int) b));
+                output.append("%");
+                output.append(String.format("%02X", (0xFF & (int) b)));
             } else {
-                output += (char)b;
+                output.append((char) b);
             }
         }
-        return output.getBytes(StandardCharsets.UTF_8);
+        return output.toString().getBytes(StandardCharsets.UTF_8);
     }
 }

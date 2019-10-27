@@ -13,12 +13,12 @@ public class URLEncoder extends ByteModifier {
 
     // URL Encode the bytes
     public byte[] modifyBytes(byte[] input) throws ModificationException{
-        String output = "";
+        StringBuilder output = new StringBuilder();
 
         for (byte b : input) {
-            output += "%";
-            output += String.format("%02X", (0xFF & (int)b));
+            output.append("%");
+            output.append(String.format("%02X", (0xFF & (int) b)));
         }
-        return output.getBytes(StandardCharsets.UTF_8);
+        return output.toString().getBytes(StandardCharsets.UTF_8);
     }
 }

@@ -71,6 +71,7 @@ public class HTMLDecoder extends ByteModifier {
                     throw new ModificationException("Unknown Error");
             }
         }
+        byteArray.addAll(buf);
         return Utils.convertByteArrayListToByteArray(byteArray);
     }
 }

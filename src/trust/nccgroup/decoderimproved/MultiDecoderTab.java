@@ -574,24 +574,26 @@ class MultiDecoderTab extends JPanel implements ITab {
             hexEditor = new CodeArea();
 
             // "this" is the decoder segment
-            this.setMaximumSize(new Dimension(3000, 200));
-            this.setMinimumSize(new Dimension(500, 133));
-            this.setPreferredSize(new Dimension(711, 200));
-            this.setSize(new Dimension(100, 200));
+            this.setMaximumSize(new Dimension(3000, 185));
+            this.setMinimumSize(new Dimension(50, 185));
+            this.setPreferredSize(new Dimension(711, 185));
+            this.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 0));
             this.setLayout(new GridBagLayout());
-            editorPanel.setMinimumSize(new Dimension(100, 150));
-            editorPanel.setPreferredSize(new Dimension(100, 150));
 
-            hexPanel.setMinimumSize(new Dimension(100, 150));
-            hexPanel.setPreferredSize(new Dimension(100, 150));
-            textEditor.setMinimumSize(new Dimension(50, 150));
-            textEditor.setSize(new Dimension(100, 80));
+            editorPanel.setMinimumSize(new Dimension(50, 180));
+            editorPanel.setPreferredSize(new Dimension(100, 180));
+            hexPanel.setMinimumSize(new Dimension(50, 180));
+            hexPanel.setPreferredSize(new Dimension(100, 180));
+
+            textEditor.setMinimumSize(new Dimension(50, 180));
+            textEditor.setPreferredSize(new Dimension(100, 180));
             textEditor.setContentType("text/plain");
             textEditor.setComponentPopupMenu(MenuHandler.createTextEditorPopupMenu(textEditor));
 
-            hexEditor.setMinimumSize(new Dimension(50, 150));
-            hexEditor.setSize(new Dimension(100, 80));
+            hexEditor.setMinimumSize(new Dimension(50, 180));
+            hexEditor.setPreferredSize(new Dimension(100, 180));
             hexEditor.setComponentPopupMenu(MenuHandler.createHexEditorPopupMenu(hexEditor));
+
             hexPanel.setViewportView(hexEditor);
             editorPanel.setViewportView(textEditor);
             GridBagConstraints editorPanelConstraints = new GridBagConstraints();
@@ -603,9 +605,9 @@ class MultiDecoderTab extends JPanel implements ITab {
             masterEditorPanel.add(hexPanel);
 
             this.add(masterEditorPanel, editorPanelConstraints);
-            controlPanel.setMaximumSize(new Dimension(150, 200));
-            controlPanel.setMinimumSize(new Dimension(150, 150));
-            controlPanel.setPreferredSize(new Dimension(150, 200));
+            controlPanel.setMaximumSize(new Dimension(150, 180));
+            controlPanel.setMinimumSize(new Dimension(150, 180));
+            controlPanel.setPreferredSize(new Dimension(150, 180));
             controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.PAGE_AXIS));
 
             // Radio group
@@ -759,11 +761,36 @@ class MultiDecoderTab extends JPanel implements ITab {
                 @Override
                 public void changedUpdate(DocumentEvent e) { }
             });
+
+            this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK), "undo");
+            this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK), "redo");
+            this.getActionMap().put("undo", new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    dsState.undo();
+                    SwingUtilities.invokeLater(() -> {
+                        int thisIndex = parent.decoderSegments.indexOf(outsideThis);
+                        parent.updateDecoderSegments(thisIndex);
+                        outsideThis.updateEditors(dsState);
+                    });
+                }
+            });
+            this.getActionMap().put("redo", new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    dsState.redo();
+                    SwingUtilities.invokeLater(() -> {
+                        int thisIndex = parent.decoderSegments.indexOf(outsideThis);
+                        parent.updateDecoderSegments(thisIndex);
+                        outsideThis.updateEditors(dsState);
+                    });
+                }
+            });
         }
     }
-    
+
     private static class MenuHandler {
-        
+
         private static final int META_MASK = java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
         private static final String CUT_ACTION_NAME = "Cut";
@@ -771,7 +798,7 @@ class MultiDecoderTab extends JPanel implements ITab {
         private static final String PASTE_ACTION_NAME = "Paste";
         private static final String DELETE_ACTION_NAME = "Delete";
         private static final String SELECT_ALL_ACTION_NAME = "Select All";
-        
+
         private static JPopupMenu createHexEditorPopupMenu(final CodeArea codeArea) {
             JPopupMenu popupMenu = new JPopupMenu();
 
@@ -798,7 +825,7 @@ class MultiDecoderTab extends JPanel implements ITab {
             viewMenu.add(wrappingModeMenuItem);
 
             popupMenu.add(viewMenu);
-            
+
             JMenu codeTypeMenu = new JMenu("Code Type");
             final JRadioButtonMenuItem binaryCodeTypeMenuItem = new JRadioButtonMenuItem("Binary");
             binaryCodeTypeMenuItem.addActionListener(new ActionListener() {
@@ -839,10 +866,10 @@ class MultiDecoderTab extends JPanel implements ITab {
             });
             codeTypeButtonGroup.add(hexaCodeTypeMenuItem);
             codeTypeMenu.add(hexaCodeTypeMenuItem);
-            
+
             popupMenu.add(codeTypeMenu);
             popupMenu.addSeparator();
-            
+
             final JMenuItem editCutPopupMenuItem = new JMenuItem();
             AbstractAction cutAction = new AbstractAction(CUT_ACTION_NAME) {
                 @Override
@@ -898,7 +925,7 @@ class MultiDecoderTab extends JPanel implements ITab {
             selectAllPopupMenuItem.setAction(selectAllAction);
             popupMenu.add(selectAllPopupMenuItem);
             popupMenu.addSeparator();
-            
+
             JMenuItem changeEncoding = new JMenuItem();
             changeEncoding.setAction(new AbstractAction("Change Encoding...") {
                 @Override
@@ -914,7 +941,7 @@ class MultiDecoderTab extends JPanel implements ITab {
                 }
             });
             popupMenu.add(changeEncoding);
-            
+
             popupMenu.addPopupMenuListener(new PopupMenuListener() {
                 @Override
                 public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
@@ -922,7 +949,7 @@ class MultiDecoderTab extends JPanel implements ITab {
                     editCopyPopupMenuItem.setEnabled(codeArea.hasSelection());
                     editDeletePopupMenuItem.setEnabled(codeArea.hasSelection());
                     editPastePopupMenuItem.setEnabled(codeArea.canPaste());
-                    
+
                     CodeType codeType = codeArea.getCodeType();
                     switch (codeType) {
                         case BINARY: {
@@ -942,7 +969,7 @@ class MultiDecoderTab extends JPanel implements ITab {
                             break;
                         }
                     }
-                    
+
                     showUnprintableMenuItem.setSelected(codeArea.isShowUnprintableCharacters());
                     wrappingModeMenuItem.setSelected(codeArea.isWrapMode());
                 }
@@ -955,10 +982,10 @@ class MultiDecoderTab extends JPanel implements ITab {
                 public void popupMenuCanceled(PopupMenuEvent e) {
                 }
             });
-            
+
             return popupMenu;
         }
-        
+
         private static JPopupMenu createTextEditorPopupMenu(final JTextPane textEditor) {
             JPopupMenu popupMenu = new JPopupMenu();
 
@@ -1014,7 +1041,7 @@ class MultiDecoderTab extends JPanel implements ITab {
                 public void popupMenuCanceled(PopupMenuEvent e) {
                 }
             });
-            
+
             return popupMenu;
         }
     }

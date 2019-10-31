@@ -588,11 +588,11 @@ class MultiDecoderTab extends JPanel implements ITab {
             textEditor.setMinimumSize(new Dimension(50, 180));
             textEditor.setPreferredSize(new Dimension(100, 180));
             textEditor.setContentType("text/plain");
-            textEditor.setComponentPopupMenu(MenuHandler.createTextEditorPopupMenu(textEditor));
+            textEditor.setComponentPopupMenu(MenuHandler.createTextEditorPopupMenu(textEditor, this));
 
             hexEditor.setMinimumSize(new Dimension(50, 180));
             hexEditor.setPreferredSize(new Dimension(100, 180));
-            hexEditor.setComponentPopupMenu(MenuHandler.createHexEditorPopupMenu(hexEditor));
+            hexEditor.setComponentPopupMenu(MenuHandler.createHexEditorPopupMenu(hexEditor, this));
 
             hexPanel.setViewportView(hexEditor);
             editorPanel.setViewportView(textEditor);
@@ -761,37 +761,15 @@ class MultiDecoderTab extends JPanel implements ITab {
                 @Override
                 public void changedUpdate(DocumentEvent e) { }
             });
-
-            this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK), "undo");
-            this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK), "redo");
-            this.getActionMap().put("undo", new AbstractAction() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    dsState.undo();
-                    SwingUtilities.invokeLater(() -> {
-                        int thisIndex = parent.decoderSegments.indexOf(outsideThis);
-                        parent.updateDecoderSegments(thisIndex);
-                        outsideThis.updateEditors(dsState);
-                    });
-                }
-            });
-            this.getActionMap().put("redo", new AbstractAction() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    dsState.redo();
-                    SwingUtilities.invokeLater(() -> {
-                        int thisIndex = parent.decoderSegments.indexOf(outsideThis);
-                        parent.updateDecoderSegments(thisIndex);
-                        outsideThis.updateEditors(dsState);
-                    });
-                }
-            });
         }
     }
 
     private static class MenuHandler {
 
-        private static final int META_MASK = java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+        private static final int META_MASK = java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
+
+        private static final String UNDO_ACTION_NAME = "Undo";
+        private static final String REDO_ACTION_NAME = "Redo";
 
         private static final String CUT_ACTION_NAME = "Cut";
         private static final String COPY_ACTION_NAME = "Copy";
@@ -799,8 +777,46 @@ class MultiDecoderTab extends JPanel implements ITab {
         private static final String DELETE_ACTION_NAME = "Delete";
         private static final String SELECT_ALL_ACTION_NAME = "Select All";
 
-        private static JPopupMenu createHexEditorPopupMenu(final CodeArea codeArea) {
+        private static JPopupMenu createHexEditorPopupMenu(final CodeArea codeArea, final DecoderSegment decoderSegment) {
             JPopupMenu popupMenu = new JPopupMenu();
+
+            // Undo popup menu item
+            final JMenuItem undoPopupMenuItem = new JMenuItem();
+            AbstractAction undoAction = new AbstractAction(UNDO_ACTION_NAME) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    decoderSegment.dsState.undo();
+                    SwingUtilities.invokeLater(() -> {
+                        int thisIndex = decoderSegment.parent.decoderSegments.indexOf(decoderSegment);
+                        decoderSegment.parent.updateDecoderSegments(thisIndex);
+                        decoderSegment.updateEditors(decoderSegment.dsState);
+                    });
+                }
+            };
+            codeArea.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, META_MASK), "undo");
+            codeArea.getActionMap().put("undo", undoAction);
+            undoPopupMenuItem.setAction(undoAction);
+            popupMenu.add(undoPopupMenuItem);
+
+            // Redo popup menu item
+            final JMenuItem redoPopupMenuItem = new JMenuItem();
+            AbstractAction redoAction = new AbstractAction(REDO_ACTION_NAME) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    decoderSegment.dsState.redo();
+                    SwingUtilities.invokeLater(() -> {
+                        int thisIndex = decoderSegment.parent.decoderSegments.indexOf(decoderSegment);
+                        decoderSegment.parent.updateDecoderSegments(thisIndex);
+                        decoderSegment.updateEditors(decoderSegment.dsState);
+                    });
+                }
+            };
+            codeArea.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, META_MASK | InputEvent.SHIFT_DOWN_MASK), "redo");
+            codeArea.getActionMap().put("redo", redoAction);
+            redoPopupMenuItem.setAction(redoAction);
+            popupMenu.add(redoPopupMenuItem);
+
+            popupMenu.addSeparator();
 
             final ButtonGroup codeTypeButtonGroup = new ButtonGroup();
 
@@ -877,7 +893,6 @@ class MultiDecoderTab extends JPanel implements ITab {
                     codeArea.cut();
                 }
             };
-            cutAction.putValue(Action.ACCELERATOR_KEY, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, META_MASK));
             editCutPopupMenuItem.setAction(cutAction);
             popupMenu.add(editCutPopupMenuItem);
 
@@ -888,7 +903,6 @@ class MultiDecoderTab extends JPanel implements ITab {
                     codeArea.copy();
                 }
             };
-            copyAction.putValue(Action.ACCELERATOR_KEY, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, META_MASK));
             editCopyPopupMenuItem.setAction(copyAction);
             popupMenu.add(editCopyPopupMenuItem);
 
@@ -899,7 +913,6 @@ class MultiDecoderTab extends JPanel implements ITab {
                     codeArea.paste();
                 }
             };
-            pasteAction.putValue(Action.ACCELERATOR_KEY, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_V, META_MASK));
             editPastePopupMenuItem.setAction(pasteAction);
             popupMenu.add(editPastePopupMenuItem);
 
@@ -910,7 +923,6 @@ class MultiDecoderTab extends JPanel implements ITab {
                     codeArea.delete();
                 }
             };
-            deleteAction.putValue(Action.ACCELERATOR_KEY, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_DELETE, 0));
             editDeletePopupMenuItem.setAction(deleteAction);
             popupMenu.add(editDeletePopupMenuItem);
 
@@ -921,7 +933,6 @@ class MultiDecoderTab extends JPanel implements ITab {
                     codeArea.selectAll();
                 }
             };
-            selectAllAction.putValue(Action.ACCELERATOR_KEY, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, META_MASK));
             selectAllPopupMenuItem.setAction(selectAllAction);
             popupMenu.add(selectAllPopupMenuItem);
             popupMenu.addSeparator();
@@ -945,6 +956,9 @@ class MultiDecoderTab extends JPanel implements ITab {
             popupMenu.addPopupMenuListener(new PopupMenuListener() {
                 @Override
                 public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                    undoPopupMenuItem.setEnabled(decoderSegment.dsState.canUndo());
+                    redoPopupMenuItem.setEnabled(decoderSegment.dsState.canRedo());
+
                     editCutPopupMenuItem.setEnabled(codeArea.hasSelection());
                     editCopyPopupMenuItem.setEnabled(codeArea.hasSelection());
                     editDeletePopupMenuItem.setEnabled(codeArea.hasSelection());
@@ -986,8 +1000,46 @@ class MultiDecoderTab extends JPanel implements ITab {
             return popupMenu;
         }
 
-        private static JPopupMenu createTextEditorPopupMenu(final JTextPane textEditor) {
+        private static JPopupMenu createTextEditorPopupMenu(final JTextPane textEditor, final DecoderSegment decoderSegment) {
             JPopupMenu popupMenu = new JPopupMenu();
+
+            // Undo popup menu item
+            final JMenuItem undoPopupMenuItem = new JMenuItem();
+            AbstractAction undoAction = new AbstractAction(UNDO_ACTION_NAME) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    decoderSegment.dsState.undo();
+                    SwingUtilities.invokeLater(() -> {
+                        int thisIndex = decoderSegment.parent.decoderSegments.indexOf(decoderSegment);
+                        decoderSegment.parent.updateDecoderSegments(thisIndex);
+                        decoderSegment.updateEditors(decoderSegment.dsState);
+                    });
+                }
+            };
+            textEditor.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, META_MASK), "undo");
+            textEditor.getActionMap().put("undo", undoAction);
+            undoPopupMenuItem.setAction(undoAction);
+            popupMenu.add(undoPopupMenuItem);
+
+            // Redo popup menu item
+            final JMenuItem redoPopupMenuItem = new JMenuItem();
+            AbstractAction redoAction = new AbstractAction(REDO_ACTION_NAME) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    decoderSegment.dsState.redo();
+                    SwingUtilities.invokeLater(() -> {
+                        int thisIndex = decoderSegment.parent.decoderSegments.indexOf(decoderSegment);
+                        decoderSegment.parent.updateDecoderSegments(thisIndex);
+                        decoderSegment.updateEditors(decoderSegment.dsState);
+                    });
+                }
+            };
+            textEditor.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, META_MASK | InputEvent.SHIFT_DOWN_MASK), "redo");
+            textEditor.getActionMap().put("redo", redoAction);
+            redoPopupMenuItem.setAction(redoAction);
+            popupMenu.add(redoPopupMenuItem);
+
+            popupMenu.addSeparator();
 
             final JMenuItem editCutPopupMenuItem = new JMenuItem();
             AbstractAction cutAction = new AbstractAction(CUT_ACTION_NAME) {
@@ -996,7 +1048,6 @@ class MultiDecoderTab extends JPanel implements ITab {
                     textEditor.cut();
                 }
             };
-            cutAction.putValue(Action.ACCELERATOR_KEY, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, META_MASK));
             editCutPopupMenuItem.setAction(cutAction);
             popupMenu.add(editCutPopupMenuItem);
 
@@ -1007,7 +1058,6 @@ class MultiDecoderTab extends JPanel implements ITab {
                     textEditor.copy();
                 }
             };
-            copyAction.putValue(Action.ACCELERATOR_KEY, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, META_MASK));
             editCopyPopupMenuItem.setAction(copyAction);
             popupMenu.add(editCopyPopupMenuItem);
 
@@ -1018,13 +1068,15 @@ class MultiDecoderTab extends JPanel implements ITab {
                     textEditor.paste();
                 }
             };
-            pasteAction.putValue(Action.ACCELERATOR_KEY, javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_V, META_MASK));
             editPastePopupMenuItem.setAction(pasteAction);
             popupMenu.add(editPastePopupMenuItem);
 
             popupMenu.addPopupMenuListener(new PopupMenuListener() {
                 @Override
                 public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                    undoPopupMenuItem.setEnabled(decoderSegment.dsState.canUndo());
+                    redoPopupMenuItem.setEnabled(decoderSegment.dsState.canRedo());
+
                     boolean hasSelection = textEditor.getSelectionEnd() > textEditor.getSelectionStart();
                     // TODO detect
                     boolean pasteAvailable = true;

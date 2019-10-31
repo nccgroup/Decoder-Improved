@@ -92,6 +92,14 @@ class DecoderSegmentState {
         }
     }
 
+    public boolean canUndo() {
+        return undoDeque.size() > 0;
+    }
+
+    public boolean canRedo() {
+        return redoDeque.size() > 0;
+    }
+
     public void undo() {
         if (! undoDeque.isEmpty()) {
             Command undoCommand = undoDeque.removeLast();

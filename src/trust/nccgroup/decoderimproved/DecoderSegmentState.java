@@ -16,7 +16,9 @@ class DecoderSegmentState {
     // autoboxing makes me sad
     private final int UNDO_LIMIT = 5;
     private final int REDO_LIMIT = 5;
-    enum Action {INSERT, REMOVE, REPLACE};
+    private enum Action {
+        INSERT, REMOVE, REPLACE
+    }
 
     private ArrayList<Byte> byteArrayList;
     private ArrayDeque<Command> undoDeque;
@@ -101,7 +103,7 @@ class DecoderSegmentState {
     }
 
     public void undo() {
-        if (! undoDeque.isEmpty()) {
+        if (!undoDeque.isEmpty()) {
             Command undoCommand = undoDeque.removeLast();
             switch (undoCommand.action) {
                 case INSERT:
@@ -124,7 +126,7 @@ class DecoderSegmentState {
     }
 
     public void redo() {
-        if (! redoDeque.isEmpty()) {
+        if (!redoDeque.isEmpty()) {
             Command redoCommand = redoDeque.removeLast();
             switch (redoCommand.action) {
                 case INSERT:
@@ -155,10 +157,11 @@ class DecoderSegmentState {
         }
     }
 
-    static class Command {
+    private static class Command {
         Action action;
         byte[] diff;
         int offset;
+
         Command(Action action, byte[] diff, int offset) {
             this.action = action;
             this.diff = diff; // Making use of the original array, assuming that it's not used by any other functions

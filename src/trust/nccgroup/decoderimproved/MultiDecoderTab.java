@@ -776,7 +776,7 @@ class MultiDecoderTab extends JPanel implements ITab {
 
     private static class MenuHandler {
 
-        private static final int META_MASK = java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
+        private static final int META_MASK = java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
         private static final String UNDO_ACTION_NAME = "Undo";
         private static final String REDO_ACTION_NAME = "Redo";

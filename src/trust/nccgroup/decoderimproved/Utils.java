@@ -85,24 +85,16 @@ class Utils {
         return output;
     }
 
-    public static void highlightParentTab(JTabbedPane parentTabbedPane, Component childComponent) {
-        if (parentTabbedPane != null) {
-            for (int i = 0; i < parentTabbedPane.getTabCount(); i++) {
-                if (parentTabbedPane.getComponentAt(i).equals(childComponent)) {
-                    parentTabbedPane.setBackgroundAt(i, new Color(0xE58900));
-                    Timer timer = new Timer(3000, e -> {
-                        for (int j = 0; j < parentTabbedPane.getTabCount(); j++) {
-                            if (parentTabbedPane.getComponentAt(j).equals(childComponent)) {
-                                parentTabbedPane.setBackgroundAt(j, Color.BLACK);
-                                break;
-                            }
-                        }
-                    });
-                    timer.setRepeats(false);
-                    timer.start();
-                    break;
-                }
-            }
+    public static void highlightParentTab(Component tabComponent) {
+        if (tabComponent != null) {
+            JTabbedPane parentTabbedPane = (JTabbedPane) tabComponent.getParent();
+            int index = parentTabbedPane.indexOfComponent(tabComponent);
+            parentTabbedPane.setBackgroundAt(index, new Color(0xE58900));
+            Timer timer = new Timer(3000, e -> {
+                parentTabbedPane.setBackgroundAt(index, Color.BLACK);
+            });
+            timer.setRepeats(false);
+            timer.start();
         }
     }
 

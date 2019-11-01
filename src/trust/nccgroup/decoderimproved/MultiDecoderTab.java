@@ -250,6 +250,13 @@ class MultiDecoderTab extends JPanel implements ITab {
             setupComponents();
         }
 
+        void clear() {
+            decoderSegments.forEach(x -> {
+                x.dsState.clear();
+            });
+            decoderSegments.clear();
+        }
+
         Component getTabHandleElement() {
             return decoderTabHandle;
         }
@@ -334,6 +341,7 @@ class MultiDecoderTab extends JPanel implements ITab {
                             parentTabbedPane.remove(decoderTab);
                             //autoRepeaters.remove(autoRepeater);
                         }
+                        decoderTab.clear();
                         if (parentTabbedPane.getSelectedIndex() == parentTabbedPane.getTabCount() - 1) {
                             parentTabbedPane.setSelectedIndex(parentTabbedPane.getTabCount() - 2);
                         }
@@ -584,6 +592,8 @@ class MultiDecoderTab extends JPanel implements ITab {
             editorPanel.setPreferredSize(new Dimension(100, 180));
             hexPanel.setMinimumSize(new Dimension(50, 180));
             hexPanel.setPreferredSize(new Dimension(100, 180));
+            // hexEditor has its own vertical scrollbar
+            hexPanel.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 
             textEditor.setMinimumSize(new Dimension(50, 180));
             textEditor.setPreferredSize(new Dimension(100, 180));
@@ -1035,6 +1045,7 @@ class MultiDecoderTab extends JPanel implements ITab {
                 }
             };
             textEditor.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, META_MASK | InputEvent.SHIFT_DOWN_MASK), "redo");
+            textEditor.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Y, META_MASK), "redo");
             textEditor.getActionMap().put("redo", redoAction);
             redoPopupMenuItem.setAction(redoAction);
             popupMenu.add(redoPopupMenuItem);

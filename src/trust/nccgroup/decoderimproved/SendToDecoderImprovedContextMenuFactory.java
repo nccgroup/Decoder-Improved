@@ -33,10 +33,10 @@ class SendToDecoderImprovedContextMenuFactory implements IContextMenuFactory {
                 //tab.receiveTextFromMenu(new String(requestResponses[0].getRequest(), "UTF-8").substring(start, end));
                 if (start == end) {
                     tab.receiveTextFromMenu(requestResponses[0].getRequest());
-                    Utils.highlightParentTab((JTabbedPane) tab.getUiComponent().getParent(), tab.getUiComponent());
+                    Utils.highlightParentTab(tab.getUiComponent());
                 } else {
                     tab.receiveTextFromMenu(Arrays.copyOfRange(requestResponses[0].getRequest(), start, end));
-                    Utils.highlightParentTab((JTabbedPane) tab.getUiComponent().getParent(), tab.getUiComponent());
+                    Utils.highlightParentTab(tab.getUiComponent());
                 }
             };
             //System.out.println("1");
@@ -48,10 +48,10 @@ class SendToDecoderImprovedContextMenuFactory implements IContextMenuFactory {
                 int end = invocation.getSelectionBounds()[1];
                 if (start == end) {
                     tab.receiveTextFromMenu(requestResponses[0].getResponse());
-                    Utils.highlightParentTab((JTabbedPane) tab.getUiComponent().getParent(), tab.getUiComponent());
+                    Utils.highlightParentTab(tab.getUiComponent());
                 } else {
                     tab.receiveTextFromMenu(Arrays.copyOfRange(requestResponses[0].getResponse(), start, end));
-                    Utils.highlightParentTab((JTabbedPane) tab.getUiComponent().getParent(), tab.getUiComponent());
+                    Utils.highlightParentTab(tab.getUiComponent());
                 }
             };
 

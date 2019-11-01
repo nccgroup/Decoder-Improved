@@ -14,8 +14,8 @@ class DecoderSegmentState {
     // This is going to get changed to a rope or a data structure that's better
     // for text editors in the future.
     // autoboxing makes me sad
-    private final int UNDO_LIMIT = 5;
-    private final int REDO_LIMIT = 5;
+    private final int UNDO_LIMIT = 10;
+    private final int REDO_LIMIT = 10;
     private enum Action {
         INSERT, REMOVE, REPLACE
     }
@@ -28,6 +28,12 @@ class DecoderSegmentState {
         byteArrayList = new ArrayList<>();
         undoDeque = new ArrayDeque<>();
         redoDeque = new ArrayDeque<>();
+    }
+
+    public void clear() {
+        byteArrayList.clear();
+        undoDeque.clear();
+        redoDeque.clear();
     }
 
     public String getDisplayString() {

@@ -6,7 +6,7 @@ import java.nio.charset.*;
 /**
  * Created by j on 1/18/17.
  */
-class UTF8StringEncoder {
+public class UTF8StringEncoder {
     //private final static  replacementChar = {(byte)0xEF, (byte)0xBF, (byte)0xBD};
     private final static CharsetDecoder utf8Decoder = StandardCharsets.UTF_8
             .newDecoder()

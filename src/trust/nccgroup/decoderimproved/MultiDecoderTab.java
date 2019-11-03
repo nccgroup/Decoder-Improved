@@ -2,6 +2,9 @@ package trust.nccgroup.decoderimproved;
 
 import burp.ITab;
 import com.google.gson.*;
+import trust.nccgroup.decoderimproved.modes.AbstractModificationMode;
+import trust.nccgroup.decoderimproved.modifiers.encoders.PlaintextEncoder;
+import trust.nccgroup.decoderimproved.modes.EncodeMode;
 import util.PDControlScrollPane;
 import org.exbin.utils.binary_data.ByteArrayEditableData;
 import org.exbin.deltahex.swing.CodeArea;
@@ -151,9 +154,9 @@ class MultiDecoderTab extends JPanel implements ITab {
                 JsonObject segmentStateObject = new JsonObject();
                 // Whether hex editor is selected
                 segmentStateObject.addProperty("h", decoderSegment.hexRadio.isSelected());
-                ModificationMode mode = decoderSegment.modes.getSelectedMode();
+                AbstractModificationMode mode = decoderSegment.modes.getSelectedMode();
                 // Mode name
-                segmentStateObject.addProperty("m", mode.name);
+                segmentStateObject.addProperty("m", mode.getName());
                 // Mode configurations
                 segmentStateObject.add("c", mode.toJSON());
                 // Add each segment state object to the segment state array
@@ -212,11 +215,11 @@ class MultiDecoderTab extends JPanel implements ITab {
                 for (int j = 0; j < segmentStateArray.size(); j++) {
                     JsonObject segmentStateObject = segmentStateArray.get(j).getAsJsonObject();
                     DecoderSegment ds = dt.decoderSegments.get(j);
-                    String mode = segmentStateObject.get("m").getAsString();
+                    String modeName = segmentStateObject.get("m").getAsString();
                     JsonObject config = segmentStateObject.get("c").getAsJsonObject();
                     // If encoded as plain, do not "select" the item as it will create a new segment under the last one
-                    if (!(mode.equals(EncodeMode.NAME) && config.get("e").getAsString().equals(PlaintextEncoder.NAME))) {
-                        ds.modes.setSelectedMode(mode);
+                    if (!(modeName.equals(EncodeMode.NAME) && config.get("e").getAsString().equals(PlaintextEncoder.NAME))) {
+                        ds.modes.setSelectedMode(modeName);
                         ds.modes.getSelectedMode().setFromJSON(config);
                     }
                     // Editor must be set at last to "force" the selection
@@ -705,7 +708,7 @@ class MultiDecoderTab extends JPanel implements ITab {
 
             // add action listeners
             addActionListeners(modes.getUI());
-            for (ModificationMode mode : modes.getModes()) {
+            for (AbstractModificationMode mode : modes.getModes()) {
                 addActionListeners(mode.getUI());
             }
 

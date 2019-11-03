@@ -1,5 +1,7 @@
 package trust.nccgroup.decoderimproved;
 
+import trust.nccgroup.decoderimproved.modes.*;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -9,7 +11,7 @@ import java.util.ArrayList;
  * Created by j on 12/6/16.
  */
 class ModificationModeManager {
-    private ArrayList<ModificationMode> modes;
+    private ArrayList<AbstractModificationMode> modes;
     private JPanel ui;
     private JPanel modeUI;
     private CardLayout layoutManager;
@@ -50,7 +52,7 @@ class ModificationModeManager {
         //addMode(new TextReplaceMode());
     }
 
-    private void addMode(ModificationMode mode) {
+    private void addMode(AbstractModificationMode mode) {
         modes.add(mode);
         modeComboBox.addItem(mode.getName());
         modeUI.add(mode.getUI(), mode.getName());
@@ -62,7 +64,7 @@ class ModificationModeManager {
         }
     }
 
-    public ArrayList<ModificationMode> getModes() {
+    public ArrayList<AbstractModificationMode> getModes() {
         return modes;
     }
 
@@ -70,8 +72,8 @@ class ModificationModeManager {
         return ui;
     }
 
-    public ModificationMode getSelectedMode() {
-        for (ModificationMode mode : modes) {
+    public AbstractModificationMode getSelectedMode() {
+        for (AbstractModificationMode mode : modes) {
             if (mode.getName() == modeComboBox.getSelectedItem()) {
                 return mode;
             }

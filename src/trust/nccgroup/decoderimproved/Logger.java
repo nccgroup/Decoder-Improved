@@ -8,7 +8,7 @@ import java.io.StringWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-class Logger {
+public class Logger {
 
     private static IBurpExtenderCallbacks callbacks = null;
 

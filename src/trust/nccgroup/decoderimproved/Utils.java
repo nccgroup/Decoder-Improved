@@ -13,7 +13,7 @@ import javax.swing.*;
  * Created by j on 10/26/16.
  */
 
-class Utils {
+public class Utils {
 
     public static String convertByteArrayToHexString (byte[] data) {
         StringBuilder sb = new StringBuilder();

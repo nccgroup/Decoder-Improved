@@ -26,6 +26,7 @@ public class GZIPEncoder extends ByteModifier {
             bos.close();
             return bos.toByteArray();
         } catch (IOException e) {
+            Logger.printErrorFromException(e);
             return input;
         }
     }

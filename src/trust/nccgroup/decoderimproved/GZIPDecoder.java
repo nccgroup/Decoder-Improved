@@ -14,24 +14,20 @@ public class GZIPDecoder extends ByteModifier {
     }
 
     // GZIP Encode the bytes
-    public byte[] modifyBytes(byte[] input) throws ModificationException{
+    public byte[] modifyBytes(byte[] input) throws ModificationException {
         try {
             ByteArrayInputStream bais = new ByteArrayInputStream(input);
             GZIPInputStream gzis = new GZIPInputStream(bais);
 
-            byte[] buffer = new byte[input.length*2];
+            byte[] buffer = new byte[input.length * 2];
             int bytesRead;
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             while ((bytesRead = gzis.read(buffer)) != -1) {
-                // I need to change this to accept arbitrary values
-                if (bytesRead < input.length*2) {
-                    output.write(buffer, 0, bytesRead);
-                } else {
-                    throw new ModificationException("Cannot Decompress, input too long.");
-                }
+                output.write(buffer, 0, bytesRead);
             }
             return output.toByteArray();
         } catch (IOException e) {
+            Logger.printErrorFromException(e);
             throw new ModificationException("Invalid GZIP Input");
         }
     }

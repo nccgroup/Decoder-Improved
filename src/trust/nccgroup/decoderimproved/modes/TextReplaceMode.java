@@ -5,7 +5,6 @@ import trust.nccgroup.decoderimproved.CONSTANTS;
 import trust.nccgroup.decoderimproved.Logger;
 
 import javax.swing.*;
-import java.awt.*;
 
 /**
  * Created by j on 12/7/16.

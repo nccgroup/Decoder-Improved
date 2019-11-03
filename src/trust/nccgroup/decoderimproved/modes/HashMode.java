@@ -3,12 +3,10 @@ package trust.nccgroup.decoderimproved.modes;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
 
 import com.google.gson.JsonObject;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.*;
-import trust.nccgroup.decoderimproved.modifiers.ByteModifier;
 import trust.nccgroup.decoderimproved.CONSTANTS;
 import trust.nccgroup.decoderimproved.Logger;
 
@@ -30,9 +28,6 @@ public class HashMode extends AbstractModificationMode {
     private JPanel emptyPanel;
 
     private CardLayout cardLayout;
-
-    // private JPanel toPanel;
-    private JPanel fromPanel;
 
     public HashMode() {
         super("Hash with...");

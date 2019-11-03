@@ -6,7 +6,6 @@ import trust.nccgroup.decoderimproved.modifiers.ByteModifier;
 import trust.nccgroup.decoderimproved.modifiers.encoders.*;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.ArrayList;
 
 /**

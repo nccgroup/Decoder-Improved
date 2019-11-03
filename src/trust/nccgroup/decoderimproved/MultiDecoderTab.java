@@ -5,7 +5,6 @@ import com.google.gson.*;
 import trust.nccgroup.decoderimproved.modes.AbstractModificationMode;
 import trust.nccgroup.decoderimproved.modifiers.encoders.PlaintextEncoder;
 import trust.nccgroup.decoderimproved.modes.EncodeMode;
-import util.PDControlScrollPane;
 import org.exbin.utils.binary_data.ByteArrayEditableData;
 import org.exbin.deltahex.swing.CodeArea;
 import org.exbin.deltahex.DataChangedListener;

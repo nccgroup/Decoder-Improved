@@ -8,7 +8,7 @@ import java.awt.*;
 public class CONSTANTS {
     public static final int COMBO_BOX_WIDTH = 180;
     public static final int COMBO_BOX_HEIGHT = 25;
-    public static final int INPUT_BOX_HEIGHT = 25;
+    public static final int INPUT_BOX_HEIGHT = 30;
     public static final int SEGMENT_HEIGHT = 185;
     public static final int PANEL_HEIGHT = 180;
 

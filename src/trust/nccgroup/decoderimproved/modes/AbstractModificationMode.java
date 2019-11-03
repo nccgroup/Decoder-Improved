@@ -36,12 +36,4 @@ public abstract class AbstractModificationMode implements ByteModifier {
     public String getName() {
         return name;
     }
-
-    public void setUI(JPanel ui) {
-        this.ui = ui;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 }

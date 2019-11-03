@@ -27,18 +27,19 @@ public class FindAndReplaceMode extends AbstractModificationMode {
 
     public FindAndReplaceMode() {
         super("Find and Replace");
+        Dimension inputComboBoxDimension = new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.INPUT_BOX_HEIGHT);
 
         REPLACE_LABELS = new String[]{"Replace First", "Replace All"};
         replaceComboBox = new JComboBox<>(REPLACE_LABELS);
-        replaceComboBox.setMaximumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.INPUT_BOX_HEIGHT));
-        replaceComboBox.setMinimumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.INPUT_BOX_HEIGHT));
-        replaceComboBox.setPreferredSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.INPUT_BOX_HEIGHT));
+        replaceComboBox.setMaximumSize(inputComboBoxDimension);
+        replaceComboBox.setMinimumSize(inputComboBoxDimension);
+        replaceComboBox.setPreferredSize(inputComboBoxDimension);
 
         regexBoxPanel = new JPanel();
         regexBoxPanel.setLayout(new BoxLayout(regexBoxPanel, BoxLayout.LINE_AXIS));
-        regexBoxPanel.setMaximumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.INPUT_BOX_HEIGHT));
-        regexBoxPanel.setMinimumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.INPUT_BOX_HEIGHT));
-        regexBoxPanel.setPreferredSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.INPUT_BOX_HEIGHT));
+        regexBoxPanel.setMaximumSize(inputComboBoxDimension);
+        regexBoxPanel.setMinimumSize(inputComboBoxDimension);
+        regexBoxPanel.setPreferredSize(inputComboBoxDimension);
 
 
         regexLabel = new JLabel("Regex: ");
@@ -56,18 +57,18 @@ public class FindAndReplaceMode extends AbstractModificationMode {
 
         replaceBoxPanel = new JPanel();
         replaceBoxPanel.setLayout(new BoxLayout(replaceBoxPanel, BoxLayout.LINE_AXIS));
-        replaceBoxPanel.setMaximumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.INPUT_BOX_HEIGHT));
-        replaceBoxPanel.setMinimumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.INPUT_BOX_HEIGHT));
-        replaceBoxPanel.setPreferredSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.INPUT_BOX_HEIGHT));
+        replaceBoxPanel.setMaximumSize(inputComboBoxDimension);
+        replaceBoxPanel.setMinimumSize(inputComboBoxDimension);
+        replaceBoxPanel.setPreferredSize(inputComboBoxDimension);
 
         replaceBoxPanel.add(replaceLabel);
         replaceBoxPanel.add(replaceTextField);
 
         comboBoxPanel = new JPanel();
         comboBoxPanel.setLayout(new BoxLayout(comboBoxPanel, BoxLayout.PAGE_AXIS));
-        comboBoxPanel.setMaximumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.INPUT_BOX_HEIGHT));
-        comboBoxPanel.setMinimumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.INPUT_BOX_HEIGHT));
-        comboBoxPanel.setPreferredSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.INPUT_BOX_HEIGHT));
+        comboBoxPanel.setMaximumSize(inputComboBoxDimension);
+        comboBoxPanel.setMinimumSize(inputComboBoxDimension);
+        comboBoxPanel.setPreferredSize(inputComboBoxDimension);
         comboBoxPanel.add(replaceComboBox);
         comboBoxPanel.add(regexBoxPanel);
         comboBoxPanel.add(replaceBoxPanel);

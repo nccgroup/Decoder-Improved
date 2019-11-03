@@ -2,13 +2,11 @@ package trust.nccgroup.decoderimproved.modes;
 
 import com.google.gson.JsonObject;
 import trust.nccgroup.decoderimproved.*;
-import trust.nccgroup.decoderimproved.modifiers.ByteModifier;
 
 import javax.swing.*;
 import java.awt.*;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 
 /**
  * Created by j on 12/7/16.

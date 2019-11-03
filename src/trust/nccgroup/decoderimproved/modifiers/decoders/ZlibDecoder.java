@@ -1,6 +1,6 @@
 package trust.nccgroup.decoderimproved.modifiers.decoders;
 
-import trust.nccgroup.decoderimproved.modifiers.AbstractByteModifier;
+import trust.nccgroup.decoderimproved.modifiers.ByteModifier;
 import trust.nccgroup.decoderimproved.ModificationException;
 
 import java.io.ByteArrayInputStream;
@@ -12,12 +12,11 @@ import java.util.zip.ZipException;
 /**
  * Created by webpentest on 05/2018.
  */
-public class ZlibDecoder extends AbstractByteModifier {
-    public ZlibDecoder() {
-        super("Zlib");
+public class ZlibDecoder implements ByteModifier {
+    public String getName() {
+        return "Zlib";
     }
 
-    @Override
     public byte[] modifyBytes(byte[] input) throws ModificationException {
         try {
             ByteArrayInputStream bais = new ByteArrayInputStream(input);

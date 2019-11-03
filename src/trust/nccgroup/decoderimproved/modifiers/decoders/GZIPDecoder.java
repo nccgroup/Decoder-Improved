@@ -1,6 +1,6 @@
 package trust.nccgroup.decoderimproved.modifiers.decoders;
 
-import trust.nccgroup.decoderimproved.modifiers.AbstractByteModifier;
+import trust.nccgroup.decoderimproved.modifiers.ByteModifier;
 import trust.nccgroup.decoderimproved.Logger;
 import trust.nccgroup.decoderimproved.ModificationException;
 
@@ -12,9 +12,9 @@ import java.util.zip.GZIPInputStream;
 /**
  * Created by j on 12/7/16.
  */
-public class GZIPDecoder extends AbstractByteModifier {
-    public GZIPDecoder() {
-        super("GZIP");
+public class GZIPDecoder implements ByteModifier {
+    public String getName() {
+        return "GZIP";
     }
 
     // GZIP Encode the bytes

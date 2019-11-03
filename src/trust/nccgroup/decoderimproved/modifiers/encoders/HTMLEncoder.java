@@ -1,6 +1,6 @@
 package trust.nccgroup.decoderimproved.modifiers.encoders;
 
-import trust.nccgroup.decoderimproved.modifiers.AbstractByteModifier;
+import trust.nccgroup.decoderimproved.modifiers.ByteModifier;
 import trust.nccgroup.decoderimproved.UTF8StringEncoder;
 import trust.nccgroup.decoderimproved.Utils;
 
@@ -13,14 +13,13 @@ import java.util.List;
  * Created by j on 1/6/17.
  */
 
-public class HTMLEncoder extends AbstractByteModifier {
+public class HTMLEncoder implements ByteModifier {
     private String HTML_ENCODED_FORMAT_STRING = "&#%d;";
 
-    public HTMLEncoder() {
-        super("HTML");
+    public String getName() {
+        return "HTML";
     }
 
-    // URL Encode the bytes
     public byte[] modifyBytes(byte[] input) {
         List<Byte> output = new ArrayList<>(input.length);
         for (int i = 0; i < input.length; i++) {

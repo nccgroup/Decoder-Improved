@@ -14,8 +14,6 @@ import java.util.regex.PatternSyntaxException;
  */
 
 public class FindAndReplaceMode extends AbstractModificationMode {
-    // ArrayList containing all the different encoders
-
     // Swing components
     private String[] REPLACE_LABELS;
     private JComboBox<String> replaceComboBox;
@@ -32,20 +30,25 @@ public class FindAndReplaceMode extends AbstractModificationMode {
 
         REPLACE_LABELS = new String[]{"Replace First", "Replace All"};
         replaceComboBox = new JComboBox<>(REPLACE_LABELS);
-        replaceComboBox.setMaximumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
-        replaceComboBox.setMinimumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
-        replaceComboBox.setPreferredSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
+        replaceComboBox.setMaximumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.INPUT_BOX_HEIGHT));
+        replaceComboBox.setMinimumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.INPUT_BOX_HEIGHT));
+        replaceComboBox.setPreferredSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.INPUT_BOX_HEIGHT));
 
         regexBoxPanel = new JPanel();
         regexBoxPanel.setLayout(new BoxLayout(regexBoxPanel, BoxLayout.LINE_AXIS));
-        regexBoxPanel.setMaximumSize(new Dimension(180, 30));
-        regexBoxPanel.setMinimumSize(new Dimension(180, 30));
-        regexBoxPanel.setPreferredSize(new Dimension(180, 30));
+        regexBoxPanel.setMaximumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.INPUT_BOX_HEIGHT));
+        regexBoxPanel.setMinimumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.INPUT_BOX_HEIGHT));
+        regexBoxPanel.setPreferredSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.INPUT_BOX_HEIGHT));
+
 
         regexLabel = new JLabel("Regex: ");
-        regexTextField = new JTextField();
-
         replaceLabel = new JLabel("Replace: ");
+
+        float labelFontSize = (float)regexLabel.getFont().getSize() * 3 / 4;
+
+        regexLabel.setFont(regexLabel.getFont().deriveFont(labelFontSize));
+        regexTextField = new JTextField();
+        replaceLabel.setFont(replaceLabel.getFont().deriveFont(labelFontSize));
         replaceTextField = new JTextField();
 
         regexBoxPanel.add(regexLabel);
@@ -53,18 +56,18 @@ public class FindAndReplaceMode extends AbstractModificationMode {
 
         replaceBoxPanel = new JPanel();
         replaceBoxPanel.setLayout(new BoxLayout(replaceBoxPanel, BoxLayout.LINE_AXIS));
-        replaceBoxPanel.setMaximumSize(new Dimension(180, 30));
-        replaceBoxPanel.setMinimumSize(new Dimension(180, 30));
-        replaceBoxPanel.setPreferredSize(new Dimension(180, 30));
+        replaceBoxPanel.setMaximumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.INPUT_BOX_HEIGHT));
+        replaceBoxPanel.setMinimumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.INPUT_BOX_HEIGHT));
+        replaceBoxPanel.setPreferredSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.INPUT_BOX_HEIGHT));
 
         replaceBoxPanel.add(replaceLabel);
         replaceBoxPanel.add(replaceTextField);
 
         comboBoxPanel = new JPanel();
         comboBoxPanel.setLayout(new BoxLayout(comboBoxPanel, BoxLayout.PAGE_AXIS));
-        comboBoxPanel.setMaximumSize(new Dimension(180, 20));
-        comboBoxPanel.setMinimumSize(new Dimension(180, 20));
-        comboBoxPanel.setPreferredSize(new Dimension(180, 20));
+        comboBoxPanel.setMaximumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.INPUT_BOX_HEIGHT));
+        comboBoxPanel.setMinimumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.INPUT_BOX_HEIGHT));
+        comboBoxPanel.setPreferredSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.INPUT_BOX_HEIGHT));
         comboBoxPanel.add(replaceComboBox);
         comboBoxPanel.add(regexBoxPanel);
         comboBoxPanel.add(replaceBoxPanel);

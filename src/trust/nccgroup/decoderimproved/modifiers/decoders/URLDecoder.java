@@ -4,15 +4,15 @@ package trust.nccgroup.decoderimproved.modifiers.decoders;
  * Created by j on 12/7/16.
  */
 
-import trust.nccgroup.decoderimproved.modifiers.AbstractByteModifier;
+import trust.nccgroup.decoderimproved.modifiers.ByteModifier;
 import trust.nccgroup.decoderimproved.Utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class URLDecoder extends AbstractByteModifier {
-    public URLDecoder() {
-        super("URL");
+public class URLDecoder implements ByteModifier {
+    public String getName() {
+        return "URL";
     }
 
     public byte[] modifyBytes(byte[] input) {

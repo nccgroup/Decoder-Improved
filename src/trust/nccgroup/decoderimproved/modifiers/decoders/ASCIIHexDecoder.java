@@ -1,6 +1,6 @@
 package trust.nccgroup.decoderimproved.modifiers.decoders;
 
-import trust.nccgroup.decoderimproved.modifiers.AbstractByteModifier;
+import trust.nccgroup.decoderimproved.modifiers.ByteModifier;
 import trust.nccgroup.decoderimproved.ModificationException;
 
 import java.nio.charset.StandardCharsets;
@@ -9,12 +9,11 @@ import javax.xml.bind.DatatypeConverter;
 /**
  * Created by j on 4/7/17.
  */
-public class ASCIIHexDecoder extends AbstractByteModifier {
-    public ASCIIHexDecoder() {
-        super("ASCII Hex");
+public class ASCIIHexDecoder implements ByteModifier {
+    public String getName() {
+        return "ASCII Hex";
     }
 
-    // URL Encode the bytes
     public byte[] modifyBytes(byte[] input) throws ModificationException {
         String inputString;
         inputString = new String(input, StandardCharsets.UTF_8);
@@ -34,5 +33,4 @@ public class ASCIIHexDecoder extends AbstractByteModifier {
         //    return new byte[0];
         //}
     }
-
 }

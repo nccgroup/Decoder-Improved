@@ -1,11 +1,11 @@
 package trust.nccgroup.decoderimproved.modifiers.encoders;
 
-import trust.nccgroup.decoderimproved.modifiers.AbstractByteModifier;
+import trust.nccgroup.decoderimproved.modifiers.ByteModifier;
 import trust.nccgroup.decoderimproved.ModificationException;
 
-public class FooBarEncoder extends AbstractByteModifier {
-    public FooBarEncoder() {
-        super("FooBar");
+public class FooBarEncoder implements ByteModifier {
+    public String getName() {
+        return "FooBar";
     }
 
     // If the input = 'foo', return 'bar', otherwise throw a ModificationException

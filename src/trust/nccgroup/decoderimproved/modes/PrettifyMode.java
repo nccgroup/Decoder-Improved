@@ -2,7 +2,7 @@ package trust.nccgroup.decoderimproved.modes;
 
 import com.google.gson.JsonObject;
 import trust.nccgroup.decoderimproved.*;
-import trust.nccgroup.decoderimproved.modifiers.AbstractByteModifier;
+import trust.nccgroup.decoderimproved.modifiers.ByteModifier;
 import trust.nccgroup.decoderimproved.modifiers.prettifiers.JsPrettifier;
 import trust.nccgroup.decoderimproved.modifiers.prettifiers.XmlPrettifier;
 
@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 public class PrettifyMode extends AbstractModificationMode {
     // Copied from EncodeMode with insignificant adjustments
-    private ArrayList<AbstractByteModifier> prettifiers;
+    private ArrayList<ByteModifier> prettifiers;
 
     private JComboBox<String> prettifierComboBox;
     private JPanel comboBoxPanel;
@@ -24,24 +24,24 @@ public class PrettifyMode extends AbstractModificationMode {
         prettifiers.add(new JsPrettifier());
 
         prettifierComboBox = new JComboBox<>();
-        prettifierComboBox.setMaximumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
-        prettifierComboBox.setMinimumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
-        prettifierComboBox.setPreferredSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
-        for (AbstractByteModifier modifier : prettifiers) {
+        prettifierComboBox.setMaximumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        prettifierComboBox.setMinimumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        prettifierComboBox.setPreferredSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        for (ByteModifier modifier : prettifiers) {
             prettifierComboBox.addItem(modifier.getName());
         }
         prettifierComboBox.setMaximumRowCount(prettifiers.size());
         comboBoxPanel = new JPanel();
         comboBoxPanel.setLayout(new BoxLayout(comboBoxPanel, BoxLayout.PAGE_AXIS));
-        comboBoxPanel.setMaximumSize(new Dimension(180, 40));
-        comboBoxPanel.setMinimumSize(new Dimension(180, 40));
-        comboBoxPanel.setPreferredSize(new Dimension(180, 40));
+        comboBoxPanel.setMaximumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        comboBoxPanel.setMinimumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        comboBoxPanel.setPreferredSize(CONSTANTS.COMBO_BOX_DIMENSION);
         comboBoxPanel.add(prettifierComboBox);
         ui.add(comboBoxPanel);
     }
 
-    private AbstractByteModifier getSelectedMode() {
-        for (AbstractByteModifier modifier : prettifiers) {
+    private ByteModifier getSelectedMode() {
+        for (ByteModifier modifier : prettifiers) {
             if (modifier.getName() == prettifierComboBox.getSelectedItem()) {
                 return modifier;
             }

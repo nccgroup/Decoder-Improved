@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import com.google.gson.JsonObject;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.*;
-import trust.nccgroup.decoderimproved.modifiers.AbstractByteModifier;
+import trust.nccgroup.decoderimproved.modifiers.ByteModifier;
 import trust.nccgroup.decoderimproved.CONSTANTS;
 import trust.nccgroup.decoderimproved.Logger;
 
@@ -16,9 +16,6 @@ import trust.nccgroup.decoderimproved.Logger;
  * Created by j on 12/8/16.
  */
 public class HashMode extends AbstractModificationMode {
-    // ArrayList containing all the different encoders
-    private ArrayList<AbstractByteModifier> hashAlgorithms;
-
     // Swing components
     // private JComboBox<String> toBaseComboBox;
     private JComboBox<String> algoComboBox;
@@ -52,24 +49,24 @@ public class HashMode extends AbstractModificationMode {
 
         comboBoxPanel = new JPanel();
         comboBoxPanel.setLayout(new BoxLayout(comboBoxPanel, BoxLayout.PAGE_AXIS));
-        comboBoxPanel.setMaximumSize(new Dimension(180, 40));
-        comboBoxPanel.setMinimumSize(new Dimension(180, 40));
-        comboBoxPanel.setPreferredSize(new Dimension(180, 40));
+        comboBoxPanel.setMaximumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        comboBoxPanel.setMinimumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        comboBoxPanel.setPreferredSize(CONSTANTS.COMBO_BOX_DIMENSION);
 
-        algoComboBox.setMaximumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
-        algoComboBox.setMinimumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
-        algoComboBox.setPreferredSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
+        algoComboBox.setMaximumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        algoComboBox.setMinimumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        algoComboBox.setPreferredSize(CONSTANTS.COMBO_BOX_DIMENSION);
 
         outputSizePanel = new JPanel(cardLayout);
-        outputSizePanel.setMaximumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
-        outputSizePanel.setMinimumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
-        outputSizePanel.setPreferredSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
+        outputSizePanel.setMaximumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        outputSizePanel.setMinimumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        outputSizePanel.setPreferredSize(CONSTANTS.COMBO_BOX_DIMENSION);
 
         emptyPanel = new JPanel();
         emptyPanel.setLayout(new BoxLayout(emptyPanel, BoxLayout.PAGE_AXIS));
-        emptyPanel.setMaximumSize(new Dimension(180, 40));
-        emptyPanel.setMinimumSize(new Dimension(180, 40));
-        emptyPanel.setPreferredSize(new Dimension(180, 40));
+        emptyPanel.setMaximumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        emptyPanel.setMinimumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        emptyPanel.setPreferredSize(CONSTANTS.COMBO_BOX_DIMENSION);
 
         outputSizePanel.add(emptyPanel, "emptyPanel");
         outputSizePanel.add(keccakComboBox, "keccakComboBox");

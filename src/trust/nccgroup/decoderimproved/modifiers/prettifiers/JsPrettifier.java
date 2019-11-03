@@ -1,7 +1,7 @@
 package trust.nccgroup.decoderimproved.modifiers.prettifiers;
 
 import trust.nccgroup.decoderimproved.ModificationException;
-import trust.nccgroup.decoderimproved.modifiers.AbstractByteModifier;
+import trust.nccgroup.decoderimproved.modifiers.ByteModifier;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -11,17 +11,18 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 //import org.graalvm.polyglot.*;
 
-public class JsPrettifier extends AbstractByteModifier {
+public class JsPrettifier implements ByteModifier {
     //https://stackoverflow.com/a/48857894
 
+    public String getName() {
+        return "JS(ON)";
+    }
 
     private static final String BEAUTIFY_JS_RESOURCE = "beautify.js";
     private static final String BEAUTIFY_METHOD_NAME = "js_beautify";
 
     private final ScriptEngine engine;
     public JsPrettifier() {
-
-        super("JS(ON)");
         engine = new ScriptEngineManager().getEngineByName("nashorn");
         try {
             engine.eval("var global = this;");
@@ -31,7 +32,6 @@ public class JsPrettifier extends AbstractByteModifier {
         }
     }
 
-    @Override
     public byte[] modifyBytes(byte[] input) throws ModificationException {
         try {
             String pretty =  (String) ((Invocable) engine).invokeFunction(BEAUTIFY_METHOD_NAME, new String(input, StandardCharsets.UTF_8));

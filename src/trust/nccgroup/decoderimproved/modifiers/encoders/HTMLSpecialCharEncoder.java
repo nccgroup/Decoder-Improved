@@ -1,6 +1,6 @@
 package trust.nccgroup.decoderimproved.modifiers.encoders;
 
-import trust.nccgroup.decoderimproved.modifiers.AbstractByteModifier;
+import trust.nccgroup.decoderimproved.modifiers.ByteModifier;
 import trust.nccgroup.decoderimproved.Utils;
 
 import java.nio.charset.StandardCharsets;
@@ -11,12 +11,12 @@ import java.util.List;
  * Created by j on 1/6/17.
  */
 
-public class HTMLSpecialCharEncoder extends AbstractByteModifier {
+public class HTMLSpecialCharEncoder implements ByteModifier {
     private String HTML_ENCODED_FORMAT_STRING = "&#%d;";
     private char[] SPECIAL_CHARS = {'"', '\'', '&', '<', '>'};
 
-    public HTMLSpecialCharEncoder() {
-        super("HTML Special Characters");
+    public String getName() {
+        return "HTML Special Characters";
     }
 
     private boolean isSpecialChar(byte b) {
@@ -28,7 +28,6 @@ public class HTMLSpecialCharEncoder extends AbstractByteModifier {
         return false;
     }
 
-    // URL Encode the bytes
     public byte[] modifyBytes(byte[] input) {
         List<Byte> output = new ArrayList<>(input.length);
         for (byte b : input) {

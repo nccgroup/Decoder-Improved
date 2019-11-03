@@ -1,17 +1,16 @@
 package trust.nccgroup.decoderimproved.modifiers.encoders;
 
-import trust.nccgroup.decoderimproved.modifiers.AbstractByteModifier;
+import trust.nccgroup.decoderimproved.modifiers.ByteModifier;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.zip.DeflaterOutputStream;
 
-public class ZlibEncoder  extends AbstractByteModifier {
-    public ZlibEncoder() {
-        super("Zlib");
+public class ZlibEncoder implements ByteModifier {
+    public String getName() {
+        return "Zlib";
     }
 
-    @Override
     public byte[] modifyBytes(byte[] input) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream(input.length);

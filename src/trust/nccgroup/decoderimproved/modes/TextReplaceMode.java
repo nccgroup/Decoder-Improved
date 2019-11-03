@@ -1,6 +1,7 @@
 package trust.nccgroup.decoderimproved.modes;
 
 import com.google.gson.JsonObject;
+import trust.nccgroup.decoderimproved.CONSTANTS;
 import trust.nccgroup.decoderimproved.Logger;
 
 import javax.swing.*;
@@ -28,9 +29,9 @@ public class TextReplaceMode extends AbstractModificationMode {
         // Need to make a JPanel to contain the textfield and label
         replaceBoxPanel = new JPanel();
         replaceBoxPanel.setLayout(new BoxLayout(replaceBoxPanel, BoxLayout.LINE_AXIS));
-        replaceBoxPanel.setMaximumSize(new Dimension(180, 25));
-        replaceBoxPanel.setMinimumSize(new Dimension(180, 25));
-        replaceBoxPanel.setPreferredSize(new Dimension(180, 25));
+        replaceBoxPanel.setMaximumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        replaceBoxPanel.setMinimumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        replaceBoxPanel.setPreferredSize(CONSTANTS.COMBO_BOX_DIMENSION);
 
         // Add the label and the text field
         replaceBoxPanel.add(replaceLabel);
@@ -39,9 +40,9 @@ public class TextReplaceMode extends AbstractModificationMode {
         // Need a second JPanel to contain the first to keep the sizing correct.
         comboBoxPanel = new JPanel();
         comboBoxPanel.setLayout(new BoxLayout(comboBoxPanel, BoxLayout.PAGE_AXIS));
-        comboBoxPanel.setMaximumSize(new Dimension(180, 20));
-        comboBoxPanel.setMinimumSize(new Dimension(180, 20));
-        comboBoxPanel.setPreferredSize(new Dimension(180, 20));
+        comboBoxPanel.setMaximumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        comboBoxPanel.setMinimumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        comboBoxPanel.setPreferredSize(CONSTANTS.COMBO_BOX_DIMENSION);
         comboBoxPanel.add(replaceBoxPanel);
 
         // UI is a JPanel defined within ModificationMode that is used to draw the UI

@@ -1,7 +1,8 @@
 package trust.nccgroup.decoderimproved.modes;
 
 import com.google.gson.JsonObject;
-import trust.nccgroup.decoderimproved.ModificationException;
+import trust.nccgroup.decoderimproved.CONSTANTS;
+import trust.nccgroup.decoderimproved.modifiers.ByteModifier;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,14 +10,13 @@ import java.awt.*;
 /**
  * Created by j on 12/6/16.
  */
-public abstract class AbstractModificationMode {
+public abstract class AbstractModificationMode implements ByteModifier {
     protected JPanel ui;
     private String name;
     private CardLayout layoutManager;
 
     public abstract JsonObject toJSON();
     public abstract void setFromJSON(JsonObject jsonObject);
-    public abstract byte[] modifyBytes(byte [] input) throws ModificationException;
 
     public AbstractModificationMode(String name) {
         this.name = name;
@@ -24,9 +24,9 @@ public abstract class AbstractModificationMode {
         this.ui = new JPanel(layoutManager);
 
         // Set the JPanel default sizes
-        ui.setMaximumSize(new Dimension(180, 20));
-        ui.setMinimumSize(new Dimension(180, 20));
-        ui.setPreferredSize(new Dimension(180, 20));
+        ui.setMaximumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        ui.setMinimumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        ui.setPreferredSize(CONSTANTS.COMBO_BOX_DIMENSION);
     }
 
     public JPanel getUI() {

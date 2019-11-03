@@ -2,7 +2,7 @@ package trust.nccgroup.decoderimproved.modes;
 
 import com.google.gson.JsonObject;
 import trust.nccgroup.decoderimproved.*;
-import trust.nccgroup.decoderimproved.modifiers.AbstractByteModifier;
+import trust.nccgroup.decoderimproved.modifiers.ByteModifier;
 import trust.nccgroup.decoderimproved.modifiers.encoders.*;
 
 import javax.swing.*;
@@ -18,7 +18,7 @@ public class EncodeMode extends AbstractModificationMode {
     public final static String NAME = "Encode as...";
 
     // ArrayList containing all the different encoders
-    private ArrayList<AbstractByteModifier> encoders;
+    private ArrayList<ByteModifier> encoders;
 
     // EncodeMode Swing components
     private JComboBox<String> encoderComboBox;
@@ -45,12 +45,12 @@ public class EncodeMode extends AbstractModificationMode {
 
         // Swing Components for displaying encoder names
         encoderComboBox = new JComboBox<>();
-        encoderComboBox.setMaximumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
-        encoderComboBox.setMinimumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
-        encoderComboBox.setPreferredSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
+        encoderComboBox.setMaximumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        encoderComboBox.setMinimumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        encoderComboBox.setPreferredSize(CONSTANTS.COMBO_BOX_DIMENSION);
 
         // Populate the combobox with values
-        for (AbstractByteModifier modifier : encoders) {
+        for (ByteModifier modifier : encoders) {
             encoderComboBox.addItem(modifier.getName());
         }
 
@@ -61,18 +61,18 @@ public class EncodeMode extends AbstractModificationMode {
         comboBoxPanel = new JPanel();
         comboBoxPanel.setLayout(new BoxLayout(comboBoxPanel, BoxLayout.PAGE_AXIS));
         // JPanel does not honor these settings, works based on combobox dimensions
-        comboBoxPanel.setMaximumSize(new Dimension(180, 40));
-        comboBoxPanel.setMinimumSize(new Dimension(180, 40));
-        comboBoxPanel.setPreferredSize(new Dimension(180, 40));
+        comboBoxPanel.setMaximumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        comboBoxPanel.setMinimumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        comboBoxPanel.setPreferredSize(CONSTANTS.COMBO_BOX_DIMENSION);
         comboBoxPanel.add(encoderComboBox);
 
 		//"ui" is a JPanel from the ModificationMode parent class that stores the swing UI to draw.
         ui.add(comboBoxPanel);
     }
 
-    private AbstractByteModifier getSelectedMode() {
+    private ByteModifier getSelectedMode() {
 		// Returns the selected encoder object
-        for (AbstractByteModifier modifier : encoders) {
+        for (ByteModifier modifier : encoders) {
             if (modifier.getName() == encoderComboBox.getSelectedItem()) {
                 return modifier;
             }

@@ -1,7 +1,7 @@
 package trust.nccgroup.decoderimproved.modifiers.prettifiers;
 
 import trust.nccgroup.decoderimproved.ModificationException;
-import trust.nccgroup.decoderimproved.modifiers.AbstractByteModifier;
+import trust.nccgroup.decoderimproved.modifiers.ByteModifier;
 
 import javax.xml.XMLConstants;
 import javax.xml.transform.*;
@@ -10,12 +10,11 @@ import javax.xml.transform.stream.StreamSource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
-public class XmlPrettifier extends AbstractByteModifier {
-    public XmlPrettifier() {
-        super("XML");
+public class XmlPrettifier implements ByteModifier {
+    public String getName() {
+        return "XML";
     }
 
-    @Override
     public byte[] modifyBytes(byte[] input) throws ModificationException {
         // @See https://stackoverflow.com/a/1264912
         try {

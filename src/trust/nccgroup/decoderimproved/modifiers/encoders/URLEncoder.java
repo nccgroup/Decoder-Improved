@@ -1,15 +1,15 @@
 package trust.nccgroup.decoderimproved.modifiers.encoders;
 
-import trust.nccgroup.decoderimproved.modifiers.AbstractByteModifier;
+import trust.nccgroup.decoderimproved.modifiers.ByteModifier;
 
 import java.nio.charset.StandardCharsets;
 
 /**
  * Created by j on 12/6/16.
  */
-public class URLEncoder extends AbstractByteModifier {
-    public URLEncoder() {
-        super("URL");
+public class URLEncoder implements ByteModifier {
+    public String getName() {
+        return "URL";
     }
 
     // URL Encode the bytes

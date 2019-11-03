@@ -4,7 +4,7 @@ package trust.nccgroup.decoderimproved.modifiers.decoders;
  * Created by j on 7/27/17.
  */
 
-import trust.nccgroup.decoderimproved.modifiers.AbstractByteModifier;
+import trust.nccgroup.decoderimproved.modifiers.ByteModifier;
 import trust.nccgroup.decoderimproved.Utils;
 
 import java.nio.charset.StandardCharsets;
@@ -13,10 +13,9 @@ import java.util.Base64;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class FuzzyBase64Decoder extends AbstractByteModifier {
-
-    public FuzzyBase64Decoder() {
-        super("Fuzzy Base64");
+public class FuzzyBase64Decoder implements ByteModifier {
+    public String getName() {
+        return "Fuzzy Base64";
     }
 
     // This function uses a regex to extract base64 encoded strings out of the input and decode them.
@@ -35,7 +34,7 @@ public class FuzzyBase64Decoder extends AbstractByteModifier {
             int matchEnd = m.end();
 
             for (int i = startIndex; i < matchStart; i++) {
-                output.add((byte)inputString.charAt(i));
+                output.add((byte) inputString.charAt(i));
             }
 
             String currentBase64edString = inputString.substring(matchStart, matchEnd);
@@ -50,7 +49,7 @@ public class FuzzyBase64Decoder extends AbstractByteModifier {
         }
 
         for (int i = startIndex; i < inputString.length(); i++) {
-            output.add((byte)inputString.charAt(i));
+            output.add((byte) inputString.charAt(i));
         }
 
         byte[] outputArray = new byte[output.size()];
@@ -59,6 +58,7 @@ public class FuzzyBase64Decoder extends AbstractByteModifier {
             outputArray[i] = output.get(i);
         }
 
-        return(outputArray);
+        return (outputArray);
     }
 }
+

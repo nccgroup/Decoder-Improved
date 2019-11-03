@@ -2,7 +2,7 @@ package trust.nccgroup.decoderimproved.modes;
 
 import com.google.gson.JsonObject;
 import trust.nccgroup.decoderimproved.*;
-import trust.nccgroup.decoderimproved.modifiers.AbstractByteModifier;
+import trust.nccgroup.decoderimproved.modifiers.ByteModifier;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,9 +15,6 @@ import java.util.ArrayList;
  */
 
 public class BaseConvertMode extends AbstractModificationMode {
-    // ArrayList containing all the different encoders
-    private ArrayList<AbstractByteModifier> encoders;
-
     // Swing components
     private JComboBox<String> fromBaseComboBox;
     private JComboBox<String> toBaseComboBox;
@@ -30,7 +27,7 @@ public class BaseConvertMode extends AbstractModificationMode {
     private JPanel fromPanel;
 
     public BaseConvertMode() {
-        super("Convert Numeric Base");
+        super("Numeric Base");
 
         CHANGE_BASE_LABELS = new String[]{"Base 2", "Base 3", "Base 4", "Base 5",
                 "Base 6", "Base 7", "Base 8", "Base 9", "Base 10", "Base 11",
@@ -41,9 +38,9 @@ public class BaseConvertMode extends AbstractModificationMode {
 
         comboBoxPanel = new JPanel();
         comboBoxPanel.setLayout(new BoxLayout(comboBoxPanel, BoxLayout.PAGE_AXIS));
-        comboBoxPanel.setMaximumSize(new Dimension(180, 20));
-        comboBoxPanel.setMinimumSize(new Dimension(180, 20));
-        comboBoxPanel.setPreferredSize(new Dimension(180, 20));
+        comboBoxPanel.setMaximumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        comboBoxPanel.setMinimumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        comboBoxPanel.setPreferredSize(CONSTANTS.COMBO_BOX_DIMENSION);
 
         // Swing Components
         toBaseComboBox = new JComboBox<>(CHANGE_BASE_LABELS);
@@ -68,7 +65,7 @@ public class BaseConvertMode extends AbstractModificationMode {
 
         fromBaseLabel = new JLabel("From: ");
 
-        toBaseLabel = new JLabel("To: ");
+        toBaseLabel = new JLabel("To:     ");
 
         fromPanel.add(fromBaseLabel);
         fromPanel.add(fromBaseComboBox);

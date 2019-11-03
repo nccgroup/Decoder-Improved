@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.jsoup.parser.Parser;
-import trust.nccgroup.decoderimproved.modifiers.AbstractByteModifier;
+import trust.nccgroup.decoderimproved.modifiers.ByteModifier;
 import trust.nccgroup.decoderimproved.Logger;
 import trust.nccgroup.decoderimproved.ModificationException;
 import trust.nccgroup.decoderimproved.Utils;
@@ -13,14 +13,13 @@ import trust.nccgroup.decoderimproved.Utils;
  * Created by j on 1/6/17.
  */
 
-public class HTMLDecoder extends AbstractByteModifier {
+public class HTMLDecoder implements ByteModifier {
     private final Pattern HTML_ENTITY_REGEX = Pattern.compile("&([a-zA-Z]+|#([xX][a-fA-F0-9]+|[0-9]+));");
 
-    public HTMLDecoder() {
-        super("HTML");
+    public String getName() {
+        return "HTML";
     }
 
-    // URL Encode the bytes
     public byte[] modifyBytes(byte[] input) throws ModificationException {
         List<Byte> byteArray = new ArrayList<>(input.length);
         int i = 0;

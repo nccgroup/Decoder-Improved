@@ -1,6 +1,6 @@
 package trust.nccgroup.decoderimproved.modifiers.encoders;
 
-import trust.nccgroup.decoderimproved.modifiers.AbstractByteModifier;
+import trust.nccgroup.decoderimproved.modifiers.ByteModifier;
 import trust.nccgroup.decoderimproved.Utils;
 
 import java.nio.charset.StandardCharsets;
@@ -8,9 +8,9 @@ import java.nio.charset.StandardCharsets;
 /**
  * Created by j on 12/6/16.
  */
-public class URLSpecialCharEncoder extends AbstractByteModifier {
-    public URLSpecialCharEncoder() {
-        super("URL Special Characters");
+public class URLSpecialCharEncoder implements ByteModifier {
+    public String getName() {
+        return "URL Special Characters";
     }
 
     // URL Encode the bytes

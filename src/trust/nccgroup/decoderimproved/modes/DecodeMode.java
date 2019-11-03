@@ -2,7 +2,7 @@ package trust.nccgroup.decoderimproved.modes;
 
 import com.google.gson.JsonObject;
 import trust.nccgroup.decoderimproved.*;
-import trust.nccgroup.decoderimproved.modifiers.AbstractByteModifier;
+import trust.nccgroup.decoderimproved.modifiers.ByteModifier;
 import trust.nccgroup.decoderimproved.modifiers.decoders.*;
 
 import javax.swing.*;
@@ -14,7 +14,7 @@ import java.util.ArrayList;
  */
 public class DecodeMode extends AbstractModificationMode {
     // ArrayList containing all the different encoders
-    private ArrayList<AbstractByteModifier> decoders;
+    private ArrayList<ByteModifier> decoders;
 
     // Swing components
     private JComboBox<String> decoderComboBox;
@@ -36,27 +36,27 @@ public class DecodeMode extends AbstractModificationMode {
 
         // Swing Components
         decoderComboBox = new JComboBox<>();
-        decoderComboBox.setMaximumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
-        decoderComboBox.setMinimumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
-        decoderComboBox.setPreferredSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
+        decoderComboBox.setMaximumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        decoderComboBox.setMinimumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        decoderComboBox.setPreferredSize(CONSTANTS.COMBO_BOX_DIMENSION);
 
         // Populate the combobox with values
-        for (AbstractByteModifier modifier : decoders) {
+        for (ByteModifier modifier : decoders) {
             decoderComboBox.addItem(modifier.getName());
         }
 
         comboBoxPanel = new JPanel();
         comboBoxPanel.setLayout(new BoxLayout(comboBoxPanel, BoxLayout.PAGE_AXIS));
-        comboBoxPanel.setMaximumSize(new Dimension(180, 40));
-        comboBoxPanel.setMinimumSize(new Dimension(180, 40));
-        comboBoxPanel.setPreferredSize(new Dimension(180, 40));
+        comboBoxPanel.setMaximumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        comboBoxPanel.setMinimumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        comboBoxPanel.setPreferredSize(CONSTANTS.COMBO_BOX_DIMENSION);
 
         comboBoxPanel.add(decoderComboBox);
         ui.add(comboBoxPanel);
     }
 
-    private AbstractByteModifier getSelectedMode() {
-        for (AbstractByteModifier modifier : decoders) {
+    private ByteModifier getSelectedMode() {
+        for (ByteModifier modifier : decoders) {
             if (modifier.getName() == decoderComboBox.getSelectedItem()) {
                 return modifier;
             }

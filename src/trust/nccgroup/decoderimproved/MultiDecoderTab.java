@@ -585,26 +585,26 @@ class MultiDecoderTab extends JPanel implements ITab {
             hexEditor = new CodeArea();
 
             // "this" is the decoder segment
-            this.setMaximumSize(new Dimension(3000, 185));
-            this.setMinimumSize(new Dimension(50, 185));
-            this.setPreferredSize(new Dimension(711, 185));
+            this.setMaximumSize(new Dimension(3000, CONSTANTS.SEGMENT_HEIGHT));
+            this.setMinimumSize(new Dimension(50, CONSTANTS.SEGMENT_HEIGHT));
+            this.setPreferredSize(new Dimension(711, CONSTANTS.SEGMENT_HEIGHT));
             this.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 0));
             this.setLayout(new GridBagLayout());
 
-            editorPanel.setMinimumSize(new Dimension(50, 180));
-            editorPanel.setPreferredSize(new Dimension(100, 180));
-            hexPanel.setMinimumSize(new Dimension(50, 180));
-            hexPanel.setPreferredSize(new Dimension(100, 180));
+            editorPanel.setMinimumSize(new Dimension(50, CONSTANTS.PANEL_HEIGHT));
+            editorPanel.setPreferredSize(new Dimension(100, CONSTANTS.PANEL_HEIGHT));
+            hexPanel.setMinimumSize(new Dimension(50, CONSTANTS.PANEL_HEIGHT));
+            hexPanel.setPreferredSize(new Dimension(100, CONSTANTS.PANEL_HEIGHT));
             // hexEditor has its own vertical scrollbar
             hexPanel.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 
-            textEditor.setMinimumSize(new Dimension(50, 180));
-            textEditor.setPreferredSize(new Dimension(100, 180));
+            textEditor.setMinimumSize(new Dimension(50, CONSTANTS.PANEL_HEIGHT));
+            textEditor.setPreferredSize(new Dimension(100, CONSTANTS.PANEL_HEIGHT));
             textEditor.setContentType("text/plain");
             textEditor.setComponentPopupMenu(MenuHandler.createTextEditorPopupMenu(textEditor, this));
 
-            hexEditor.setMinimumSize(new Dimension(50, 180));
-            hexEditor.setPreferredSize(new Dimension(100, 180));
+            hexEditor.setMinimumSize(new Dimension(50, CONSTANTS.PANEL_HEIGHT));
+            hexEditor.setPreferredSize(new Dimension(100, CONSTANTS.PANEL_HEIGHT));
             hexEditor.setComponentPopupMenu(MenuHandler.createHexEditorPopupMenu(hexEditor, this));
 
             hexPanel.setViewportView(hexEditor);
@@ -618,15 +618,15 @@ class MultiDecoderTab extends JPanel implements ITab {
             masterEditorPanel.add(hexPanel);
 
             this.add(masterEditorPanel, editorPanelConstraints);
-            controlPanel.setMaximumSize(new Dimension(150, 180));
-            controlPanel.setMinimumSize(new Dimension(150, 180));
-            controlPanel.setPreferredSize(new Dimension(150, 180));
+            controlPanel.setMaximumSize(new Dimension(150, CONSTANTS.PANEL_HEIGHT));
+            controlPanel.setMinimumSize(new Dimension(150, CONSTANTS.PANEL_HEIGHT));
+            controlPanel.setPreferredSize(new Dimension(150, CONSTANTS.PANEL_HEIGHT));
             controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.PAGE_AXIS));
 
             // Radio group
-            radioPanel.setMaximumSize(new Dimension(125, 25));
-            radioPanel.setMinimumSize(new Dimension(125, 25));
-            radioPanel.setPreferredSize(new Dimension(125, 25));
+            radioPanel.setMaximumSize(new Dimension(125, CONSTANTS.COMBO_BOX_HEIGHT));
+            radioPanel.setMinimumSize(new Dimension(125, CONSTANTS.COMBO_BOX_HEIGHT));
+            radioPanel.setPreferredSize(new Dimension(125, CONSTANTS.COMBO_BOX_HEIGHT));
             radioPanel.setLayout(new GridLayout());
 
             textRadio.setText("Text");
@@ -649,9 +649,9 @@ class MultiDecoderTab extends JPanel implements ITab {
             controlPanel.add(modes.getUI());
 
             // Export combo box
-            exportComboBox.setMaximumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
-            exportComboBox.setMinimumSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
-            exportComboBox.setPreferredSize(new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
+            exportComboBox.setMaximumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+            exportComboBox.setMinimumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+            exportComboBox.setPreferredSize(CONSTANTS.COMBO_BOX_DIMENSION);
             exportComboBox.addItem("Save as...");
             exportComboBox.addItem("Raw Data");
             exportComboBox.addItem("Hex");

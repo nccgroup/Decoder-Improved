@@ -170,9 +170,7 @@ public class DecoderTab extends JPanel {
         // Then change the text editor background red and display the error message
         if (activeDecoderSegment.hasError) {
             nextDecoderSegment.hasError = true;
-            nextDecoderSegment.errorMessage = activeDecoderSegment.errorMessage;
-            nextDecoderSegment.textEditor.setText(nextDecoderSegment.errorMessage);
-            nextDecoderSegment.displayTextEditor();
+            nextDecoderSegment.showError(activeDecoderSegment.errorMessage);
             return;
         }
 
@@ -193,10 +191,7 @@ public class DecoderTab extends JPanel {
                 nextDecoderSegment.displayHexEditor();
             }
         } catch (ModificationException e) {
-            nextDecoderSegment.hasError = true;
-            nextDecoderSegment.errorMessage = e.getMessage();
-            nextDecoderSegment.textEditor.setText(nextDecoderSegment.errorMessage);
-            nextDecoderSegment.displayTextEditor();
+            nextDecoderSegment.showError(e.getMessage());
         }
     }
 }

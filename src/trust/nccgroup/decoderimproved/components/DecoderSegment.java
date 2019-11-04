@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DecoderSegment extends JPanel {
-
     private DecoderTab parent;
 
     public DecoderSegmentState dsState;
@@ -45,12 +44,11 @@ public class DecoderSegment extends JPanel {
     private CardLayout cardManager;
 
     // These are all related to the editor views
-    private CodeArea hexEditor;
     private JPanel controlPanel;
     private JScrollPane editorPanel;
     private JScrollPane hexPanel;
-
-    JTextPane textEditor;
+    private JTextPane textEditor;
+    private CodeArea hexEditor;
 
 
     // This handles all the modes
@@ -93,6 +91,8 @@ public class DecoderSegment extends JPanel {
     void updateEditors(DecoderSegmentState dsState) {
         lockDocumentEvents = true;
         textEditor.setText(dsState.getDisplayString());
+        textEditor.setForeground(Color.BLACK);
+        textEditor.setEditable(true);
         hexEditor.setData(new ByteArrayEditableData(dsState.getByteArray()));
         lockDocumentEvents = false;
     }
@@ -113,6 +113,15 @@ public class DecoderSegment extends JPanel {
             textRadio.setSelected(true);
             cardManager.first(masterEditorPanel);
         });
+    }
+
+    void showError(String _errorMessage) {
+        hasError = true;
+        errorMessage = _errorMessage;
+        textEditor.setText(errorMessage);
+        textEditor.setForeground(Color.RED);
+        textEditor.setEditable(false);
+        displayTextEditor();
     }
 
     void addActionListeners(JPanel panel) {

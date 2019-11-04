@@ -1,7 +1,6 @@
 package trust.nccgroup.decoderimproved.modifiers.encoders;
 
 import trust.nccgroup.decoderimproved.modifiers.ByteModifier;
-import trust.nccgroup.decoderimproved.UTF8StringEncoder;
 import trust.nccgroup.decoderimproved.Utils;
 
 import java.nio.charset.StandardCharsets;
@@ -30,7 +29,7 @@ public class HTMLEncoder implements ByteModifier {
             if (expectedLength > 1 && i + expectedLength - 1 < input.length) {
                 byte[] multibyte = Arrays.copyOfRange(input, i, i + expectedLength);
                 if (Utils.isUTF8Char(multibyte)) {
-                    String multibyteString = UTF8StringEncoder.newUTF8String(multibyte);
+                    String multibyteString = Utils.newUTF8String(multibyte);
                     if (multibyteString.length() == 1) {
                         codepoint = multibyteString.codePointAt(0);
                         i += expectedLength - 1;

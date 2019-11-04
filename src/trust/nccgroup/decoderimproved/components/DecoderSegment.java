@@ -337,7 +337,7 @@ public class DecoderSegment extends JPanel {
         textEditor.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                if (! lockDocumentEvents) {
+                if (! lockDocumentEvents && !hasError) {
                     // These events trigger when a user is doing regular typing into the text editor
                     String insertedText = textEditor.getText().replace("\r\n", "\n").substring(e.getOffset(), e.getOffset() + e.getLength());
                     dsState.insertUpdateIntoByteArrayList(insertedText, e.getOffset());
@@ -359,7 +359,7 @@ public class DecoderSegment extends JPanel {
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                if (!lockDocumentEvents) {
+                if (!lockDocumentEvents && !hasError) {
                     dsState.removeUpdateFromByteArrayList(e.getOffset(), e.getLength());
                     // Utils.printByteArray(dsState.getByteArray());
 
@@ -405,12 +405,14 @@ public class DecoderSegment extends JPanel {
             AbstractAction undoAction = new AbstractAction(UNDO_ACTION_NAME) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    decoderSegment.dsState.undo();
-                    SwingUtilities.invokeLater(() -> {
-                        int thisIndex = decoderSegment.parent.decoderSegments.indexOf(decoderSegment);
-                        decoderSegment.parent.updateDecoderSegments(thisIndex);
-                        decoderSegment.updateEditors(decoderSegment.dsState);
-                    });
+                    if (decoderSegment.dsState.canUndo()) {
+                        decoderSegment.dsState.undo();
+                        SwingUtilities.invokeLater(() -> {
+                            int thisIndex = decoderSegment.parent.decoderSegments.indexOf(decoderSegment);
+                            decoderSegment.parent.updateDecoderSegments(thisIndex);
+                            decoderSegment.updateEditors(decoderSegment.dsState);
+                        });
+                    }
                 }
             };
             codeArea.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, META_MASK), "undo");
@@ -423,12 +425,14 @@ public class DecoderSegment extends JPanel {
             AbstractAction redoAction = new AbstractAction(REDO_ACTION_NAME) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    decoderSegment.dsState.redo();
-                    SwingUtilities.invokeLater(() -> {
-                        int thisIndex = decoderSegment.parent.decoderSegments.indexOf(decoderSegment);
-                        decoderSegment.parent.updateDecoderSegments(thisIndex);
-                        decoderSegment.updateEditors(decoderSegment.dsState);
-                    });
+                    if (decoderSegment.dsState.canRedo()) {
+                        decoderSegment.dsState.redo();
+                        SwingUtilities.invokeLater(() -> {
+                            int thisIndex = decoderSegment.parent.decoderSegments.indexOf(decoderSegment);
+                            decoderSegment.parent.updateDecoderSegments(thisIndex);
+                            decoderSegment.updateEditors(decoderSegment.dsState);
+                        });
+                    }
                 }
             };
             codeArea.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, META_MASK | InputEvent.SHIFT_DOWN_MASK), "redo");
@@ -576,7 +580,7 @@ public class DecoderSegment extends JPanel {
             popupMenu.addPopupMenuListener(new PopupMenuListener() {
                 @Override
                 public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-                    undoPopupMenuItem.setEnabled(decoderSegment.dsState.canUndo());
+                    undoPopupMenuItem.setEnabled(decoderSegment.dsState. canUndo());
                     redoPopupMenuItem.setEnabled(decoderSegment.dsState.canRedo());
 
                     editCutPopupMenuItem.setEnabled(codeArea.hasSelection());
@@ -628,12 +632,14 @@ public class DecoderSegment extends JPanel {
             AbstractAction undoAction = new AbstractAction(UNDO_ACTION_NAME) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    decoderSegment.dsState.undo();
-                    SwingUtilities.invokeLater(() -> {
-                        int thisIndex = decoderSegment.parent.decoderSegments.indexOf(decoderSegment);
-                        decoderSegment.parent.updateDecoderSegments(thisIndex);
-                        decoderSegment.updateEditors(decoderSegment.dsState);
-                    });
+                    if (decoderSegment.dsState.canUndo()) {
+                        decoderSegment.dsState.undo();
+                        SwingUtilities.invokeLater(() -> {
+                            int thisIndex = decoderSegment.parent.decoderSegments.indexOf(decoderSegment);
+                            decoderSegment.parent.updateDecoderSegments(thisIndex);
+                            decoderSegment.updateEditors(decoderSegment.dsState);
+                        });
+                    }
                 }
             };
             textEditor.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, META_MASK), "undo");
@@ -646,12 +652,14 @@ public class DecoderSegment extends JPanel {
             AbstractAction redoAction = new AbstractAction(REDO_ACTION_NAME) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    decoderSegment.dsState.redo();
-                    SwingUtilities.invokeLater(() -> {
-                        int thisIndex = decoderSegment.parent.decoderSegments.indexOf(decoderSegment);
-                        decoderSegment.parent.updateDecoderSegments(thisIndex);
-                        decoderSegment.updateEditors(decoderSegment.dsState);
-                    });
+                    if (decoderSegment.dsState.canRedo()) {
+                        decoderSegment.dsState.redo();
+                        SwingUtilities.invokeLater(() -> {
+                            int thisIndex = decoderSegment.parent.decoderSegments.indexOf(decoderSegment);
+                            decoderSegment.parent.updateDecoderSegments(thisIndex);
+                            decoderSegment.updateEditors(decoderSegment.dsState);
+                        });
+                    }
                 }
             };
             textEditor.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, META_MASK | InputEvent.SHIFT_DOWN_MASK), "redo");
@@ -719,16 +727,29 @@ public class DecoderSegment extends JPanel {
         }
     }
 
-    static class DecoderSegmentState {
+    private enum Action {
+        INSERT, REMOVE, REPLACE
+    }
+
+    private class Command {
+        Action action;
+        byte[] diff;
+        int offset;
+
+        Command(Action action, byte[] diff, int offset) {
+            this.action = action;
+            this.diff = diff; // Making use of the original array, assuming that it's not used by any other functions
+            this.offset = offset;
+        }
+    }
+
+    class DecoderSegmentState {
         // I'm going to back this thing with an arraylist for now
         // This is going to get changed to a rope or a data structure that's better
         // for text editors in the future.
         // autoboxing makes me sad
         private final int UNDO_LIMIT = 10;
         private final int REDO_LIMIT = 10;
-        private enum Action {
-            INSERT, REMOVE, REPLACE
-        }
 
         private ArrayList<Byte> byteArrayList;
         private ArrayDeque<Command> undoDeque;
@@ -751,7 +772,7 @@ public class DecoderSegment extends JPanel {
         }
 
         String getDisplayString() {
-            return UTF8StringEncoder.newUTF8String(getByteArray());
+            return Utils.newUTF8String(getByteArray());
         }
 
         byte[] getByteArray() {
@@ -807,7 +828,7 @@ public class DecoderSegment extends JPanel {
                     break;
                 }
             }
-            int characterCount = UTF8StringEncoder.newUTF8String(Utils.convertByteArrayListToByteArray(buf)).length();
+            int characterCount = Utils.newUTF8String(Utils.convertByteArrayListToByteArray(buf)).length();
             return byteCount - characterCount + 1;
         }
 
@@ -860,15 +881,15 @@ public class DecoderSegment extends JPanel {
         }
 
         boolean canUndo() {
-            return undoDeque.size() > 0;
+            return !hasError && !undoDeque.isEmpty();
         }
 
         boolean canRedo() {
-            return redoDeque.size() > 0;
+            return !hasError && !redoDeque.isEmpty();
         }
 
         void undo() {
-            if (!undoDeque.isEmpty()) {
+            if (canUndo()) {
                 Command undoCommand = undoDeque.removeLast();
                 switch (undoCommand.action) {
                     case INSERT:
@@ -891,7 +912,7 @@ public class DecoderSegment extends JPanel {
         }
 
         void redo() {
-            if (!redoDeque.isEmpty()) {
+            if (canRedo()) {
                 Command redoCommand = redoDeque.removeLast();
                 switch (redoCommand.action) {
                     case INSERT:
@@ -919,18 +940,6 @@ public class DecoderSegment extends JPanel {
             }
             while (redoDeque.size() > REDO_LIMIT) {
                 redoDeque.removeFirst();
-            }
-        }
-
-        private static class Command {
-            Action action;
-            byte[] diff;
-            int offset;
-
-            Command(Action action, byte[] diff, int offset) {
-                this.action = action;
-                this.diff = diff; // Making use of the original array, assuming that it's not used by any other functions
-                this.offset = offset;
             }
         }
     }

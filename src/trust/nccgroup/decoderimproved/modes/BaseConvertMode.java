@@ -78,7 +78,7 @@ public class BaseConvertMode extends AbstractModificationMode {
     }
 
     public byte[] modifyBytes(byte[] input) throws ModificationException {
-        String numericString = UTF8StringEncoder.newUTF8String(input);
+        String numericString = Utils.newUTF8String(input);
         try {
             BigInteger convertedNumber = new BigInteger(numericString, fromBaseComboBox.getSelectedIndex() + 2);
             String convertedNumberString = convertedNumber.toString(toBaseComboBox.getSelectedIndex() + 2);

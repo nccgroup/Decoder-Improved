@@ -1,7 +1,11 @@
 package trust.nccgroup.decoderimproved;
 
 import java.awt.*;
-import java.util.ArrayList;
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CodingErrorAction;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
@@ -15,6 +19,21 @@ import javax.swing.*;
  */
 
 public class Utils {
+    // Replacement Char: UTF-8 EFBFBD (U+FFFD)
+    private final static CharsetDecoder UTF8_DECODER = StandardCharsets.UTF_8
+            .newDecoder()
+            .replaceWith("�")
+            .onMalformedInput(CodingErrorAction.REPLACE)
+            .onUnmappableCharacter(CodingErrorAction.REPLACE);
+
+    public static String newUTF8String(byte[] input) {
+        try {
+            return UTF8_DECODER.decode(ByteBuffer.wrap(input)).toString();
+        } catch (CharacterCodingException e) {
+            Logger.printErrorFromException(e);
+            return "";
+        }
+    }
 
     public static String convertByteArrayToHexString (byte[] data) {
         StringBuilder sb = new StringBuilder();

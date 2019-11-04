@@ -101,12 +101,12 @@ public class FindAndReplaceMode extends AbstractModificationMode {
         }*/
         if ((replaceComboBox.getSelectedItem()).equals("Replace First")) {
             //String inputString = new String(input, "UTF-8");
-            String inputString = UTF8StringEncoder.newUTF8String(input);
+            String inputString = Utils.newUTF8String(input);
             inputString = inputString.replaceFirst(regexText, replaceTextField.getText());
             return inputString.getBytes(StandardCharsets.UTF_8);
         } else if ((replaceComboBox.getSelectedItem()).equals("Replace All")) {
             //String inputString = new String(input, "UTF-8");
-            String inputString = UTF8StringEncoder.newUTF8String(input);
+            String inputString = Utils.newUTF8String(input);
             inputString = inputString.replaceAll(regexText, replaceTextField.getText());
             return inputString.getBytes(StandardCharsets.UTF_8);
         }

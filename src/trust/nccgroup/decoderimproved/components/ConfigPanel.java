@@ -1,4 +1,7 @@
-package trust.nccgroup.decoderimproved;
+package trust.nccgroup.decoderimproved.components;
+
+import trust.nccgroup.decoderimproved.ExtensionRoot;
+import trust.nccgroup.decoderimproved.Logger;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,7 +14,7 @@ class ConfigPanel extends JPanel {
     private JButton loadButton;
     private JToggleButton clearButton;
 
-    public ConfigPanel(ExtensionRoot extensionRoot) {
+    ConfigPanel(ExtensionRoot extensionRoot) {
         this.setLayout(new FlowLayout(FlowLayout.LEFT));
         exportButton = new JButton("Export all tabs to file");
         loadButton = new JButton("Load tabs from file");

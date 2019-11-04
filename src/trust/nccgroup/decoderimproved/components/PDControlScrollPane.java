@@ -1,4 +1,4 @@
-package trust.nccgroup.decoderimproved;
+package trust.nccgroup.decoderimproved.components;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,9 +11,9 @@ import java.awt.event.MouseWheelListener;
  * A JScrollPane that will bubble a mouse wheel scroll event to the parent
  * JScrollPane if one exists when this scrollpane either tops out or bottoms out.
  */
-public class PDControlScrollPane extends JScrollPane {
+class PDControlScrollPane extends JScrollPane {
 
-    public PDControlScrollPane() {
+    PDControlScrollPane() {
         super();
 
         addMouseWheelListener(new PDMouseWheelListener());

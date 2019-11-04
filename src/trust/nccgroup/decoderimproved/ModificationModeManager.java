@@ -10,7 +10,7 @@ import java.util.ArrayList;
 /**
  * Created by j on 12/6/16.
  */
-class ModificationModeManager {
+public class ModificationModeManager {
     private ArrayList<AbstractModificationMode> modes;
     private JPanel ui;
     private JPanel modeUI;

@@ -14,7 +14,7 @@ import javax.swing.KeyStroke;
 /**
  * Basic encoding selection dialog.
  */
-class EncodingSelectionDialog extends javax.swing.JDialog {
+public class EncodingSelectionDialog extends javax.swing.JDialog {
 
     /**
      * A return status code - returned if Cancel button has been pressed

@@ -1,6 +1,7 @@
 package trust.nccgroup.decoderimproved;
 
 import burp.*;
+import trust.nccgroup.decoderimproved.components.MultiDecoderTab;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;

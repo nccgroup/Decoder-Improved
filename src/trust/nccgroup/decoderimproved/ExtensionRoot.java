@@ -1,6 +1,7 @@
 package trust.nccgroup.decoderimproved;
 
 import burp.*;
+import trust.nccgroup.decoderimproved.components.MultiDecoderTab;
 
 import java.lang.reflect.Field;
 import java.nio.charset.Charset;
@@ -10,7 +11,7 @@ public class ExtensionRoot implements IBurpExtender {
     private IBurpExtenderCallbacks callbacks;
     private IExtensionHelpers helpers;
 
-    MultiDecoderTab multiDecoderTab;
+    public MultiDecoderTab multiDecoderTab;
 
     public void registerExtenderCallbacks(IBurpExtenderCallbacks _callbacks) {
 

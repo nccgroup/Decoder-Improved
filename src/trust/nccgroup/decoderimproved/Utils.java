@@ -99,52 +99,6 @@ public class Utils {
         }
     }
 
-    // Calculate byte offset based on UTF-8 multibyte definition, to support more multibyte characters.
-    public static int calculateByteOffset(byte[] bytes, int stringOffset) {
-        int offset = 0;
-        for (int i = 0; i < stringOffset; i++) {
-            int cur = offset;
-            if (cur >= bytes.length)
-                break;
-            byte b = bytes[cur];
-            int expectedLength = multibyteExpectLength(b);
-            switch (expectedLength) {
-                case 1: // single-byte char, in 00000000 - 01111111
-                    if (b == 13 && cur + 1 < bytes.length && bytes[cur + 1] == 10) { // CRLF \x0d\x0a case
-                        offset += 2;
-                    } else {
-                        offset += 1;
-                    }
-                    break;
-                case 2: // two-byte char, first byte in 11000000 - 11011111
-                case 3: // three-byte char, first byte in 11100000 - 11101111
-                case 4: // four-byte char, first byte in 11110000 - 11110111
-                    offset += multibyteOffset(bytes, cur, expectedLength);
-                    break;
-                default:
-                    offset += 1;
-                    break;
-            }
-        }
-        return offset;
-    }
-
-    private static int multibyteOffset(byte[] bytes, int currentOffset, int maxLength) {
-        int byteCount = 0;
-        List<Byte> buf = new ArrayList<>();
-        for (int i = 0; i < maxLength; i++) {
-            // the second (or third and fourth) byte should be in 10000000 - 10111111
-            if (currentOffset + i < bytes.length && (i == 0 || bytes[currentOffset + i] <= -65)) {
-                byteCount += 1;
-                buf.add(bytes[currentOffset + i]);
-            } else {
-                break;
-            }
-        }
-        int characterCount = UTF8StringEncoder.newUTF8String(Utils.convertByteArrayListToByteArray(buf)).length();
-        return byteCount - characterCount + 1;
-    }
-
     // Taken from http://stackoverflow.com/questions/28890907/implement-a-function-to-check-if-a-string-byte-array-follows-utf-8-format
     public static int multibyteExpectLength(byte b) {
         int expectedLength = -1;

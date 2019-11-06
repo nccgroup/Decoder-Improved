@@ -1,23 +1,23 @@
 package trust.nccgroup.decoderimproved;
 
 import burp.*;
+import trust.nccgroup.decoderimproved.components.MainTab;
 
 import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 
-public class ExtensionRoot implements IBurpExtender {
-
+public class ExtensionRoot {
     private IBurpExtenderCallbacks callbacks;
     private IExtensionHelpers helpers;
 
-    MultiDecoderTab multiDecoderTab;
+    public MainTab mainTab;
 
-    public void registerExtenderCallbacks(IBurpExtenderCallbacks _callbacks) {
+    public ExtensionRoot(IBurpExtenderCallbacks _callbacks) {
 
         callbacks = _callbacks;
         helpers = callbacks.getHelpers();
 
-        Logger.registerExtenderCallbacks(callbacks);
+        Logger.loadExtenderCallbacks(callbacks);
 
         callbacks.setExtensionName("Decoder Improved");
 
@@ -35,25 +35,25 @@ public class ExtensionRoot implements IBurpExtender {
             Logger.printErrorFromException(e);
         }
 
-        multiDecoderTab = new MultiDecoderTab(this);
-        //callbacks.customizeUiComponent(multiDecoderTab);
-        callbacks.addSuiteTab(multiDecoderTab);
-        callbacks.registerContextMenuFactory(new SendToDecoderImprovedContextMenuFactory(multiDecoderTab));
+        mainTab = new MainTab(this);
+        //callbacks.customizeUiComponent(mainTab);
+        callbacks.addSuiteTab(mainTab);
+        callbacks.registerContextMenuFactory(new SendToDecoderImprovedContextMenuFactory(mainTab));
 
-        String savedSettings = callbacks.loadExtensionSetting(multiDecoderTab.getTabCaption());
-        // null state will be handled in MultiDecoderTab
-        multiDecoderTab.setState(savedSettings, true);
+        String savedSettings = callbacks.loadExtensionSetting(mainTab.getTabCaption());
+        // null state will be handled in MainTab
+        mainTab.setState(savedSettings, true);
 
         setSaveFullState();
     }
 
     public void setSaveFullState() {
         callbacks.getExtensionStateListeners().forEach((x) -> callbacks.removeExtensionStateListener(x));
-        callbacks.registerExtensionStateListener(() -> callbacks.saveExtensionSetting(multiDecoderTab.getTabCaption(), multiDecoderTab.getState()));
+        callbacks.registerExtensionStateListener(() -> callbacks.saveExtensionSetting(mainTab.getTabCaption(), mainTab.getState()));
     }
 
     public void setClearState() {
         callbacks.getExtensionStateListeners().forEach((x) -> callbacks.removeExtensionStateListener(x));
-        callbacks.registerExtensionStateListener(() -> callbacks.saveExtensionSetting(multiDecoderTab.getTabCaption(), null));
+        callbacks.registerExtensionStateListener(() -> callbacks.saveExtensionSetting(mainTab.getTabCaption(), null));
     }
 }

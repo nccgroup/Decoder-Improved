@@ -1,18 +1,39 @@
 package trust.nccgroup.decoderimproved;
 
 import java.awt.*;
-import java.util.ArrayList;
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CodingErrorAction;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 
 import org.exbin.utils.binary_data.BinaryData;
 
 import javax.swing.*;
 
+
 /**
  * Created by j on 10/26/16.
  */
 
 public class Utils {
+    // Replacement Char: UTF-8 EFBFBD (U+FFFD)
+    private final static CharsetDecoder UTF8_DECODER = StandardCharsets.UTF_8
+            .newDecoder()
+            .replaceWith("�")
+            .onMalformedInput(CodingErrorAction.REPLACE)
+            .onUnmappableCharacter(CodingErrorAction.REPLACE);
+
+    public static String newUTF8String(byte[] input) {
+        try {
+            return UTF8_DECODER.decode(ByteBuffer.wrap(input)).toString();
+        } catch (CharacterCodingException e) {
+            Logger.printErrorFromException(e);
+            return "";
+        }
+    }
 
     public static String convertByteArrayToHexString (byte[] data) {
         StringBuilder sb = new StringBuilder();
@@ -27,7 +48,9 @@ public class Utils {
         byte[] output = new byte[dataLength];
         try {
             data.getDataInputStream().read(output);
-        } catch (Exception e) { }
+        } catch (Exception e) {
+            Logger.printErrorFromException(e);
+        }
         return output;
     }
 
@@ -58,10 +81,8 @@ public class Utils {
         if (length > 0) {
             return new byte[0];
         }
-        byte[] output = new byte[input.length+length];
-        for (int i = 0; i < input.length; i ++) {
-            output [i] = input[i];
-        }
+        byte[] output = new byte[input.length + length];
+        System.arraycopy(input, 0, output, 0, input.length);
         return output;
     }
     
@@ -70,84 +91,18 @@ public class Utils {
     // "_" (0x5F) -> "/" (0x2F)
     // Because we just want to two simple replaces we can just iterate over the byte array
     public static byte[] convertUrlBase64ToStandard(byte[] input) {
-        for (int i = 0; i < input.length ; i ++) {
-            if (input[i] == 0x2D) {
+        byte[] output = Arrays.copyOf(input, input.length);
+        for (int i = 0; i < output.length ; i ++) {
+            if (output[i] == 0x2D) {
                 // this just looks cooler than a simple replacement
                 // input[i] = input[i] - 0x02 
-                input[i] = 0x2B;
-            } else if (input[i] == 0x5F) {
+                output[i] = 0x2B;
+            } else if (output[i] == 0x5F) {
                 // input[i] = input[i] - 0x30
-                input[i] = 0x2F;
+                output[i] = 0x2F;
             }
         }
-        return input;
-    }
-
-    public static void highlightParentTab(JTabbedPane parentTabbedPane, Component childComponent) {
-        if (parentTabbedPane != null) {
-            for (int i = 0; i < parentTabbedPane.getTabCount(); i++) {
-                if (parentTabbedPane.getComponentAt(i).equals(childComponent)) {
-                    parentTabbedPane.setBackgroundAt(i, new Color(0xE58900));
-                    Timer timer = new Timer(3000, e -> {
-                        for (int j = 0; j < parentTabbedPane.getTabCount(); j++) {
-                            if (parentTabbedPane.getComponentAt(j).equals(childComponent)) {
-                                parentTabbedPane.setBackgroundAt(j, Color.BLACK);
-                                break;
-                            }
-                        }
-                    });
-                    timer.setRepeats(false);
-                    timer.start();
-                    break;
-                }
-            }
-        }
-    }
-
-    // Calculate byte offset based on UTF-8 multibyte definition, to support more multibyte characters.
-    public static int calculateByteOffset(byte[] bytes, int stringOffset) {
-        int offset = 0;
-        for (int i = 0; i < stringOffset; i++) {
-            int cur = offset;
-            if (cur >= bytes.length)
-                break;
-            byte b = bytes[cur];
-            int expectedLength = multibyteExpectLength(b);
-            switch (expectedLength) {
-                case 1: // single-byte char, in 00000000 - 01111111
-                    if (b == 13 && cur + 1 < bytes.length && bytes[cur + 1] == 10) { // CRLF \x0d\x0a case
-                        offset += 2;
-                    } else {
-                        offset += 1;
-                    }
-                    break;
-                case 2: // two-byte char, first byte in 11000000 - 11011111
-                case 3: // three-byte char, first byte in 11100000 - 11101111
-                case 4: // four-byte char, first byte in 11110000 - 11110111
-                    offset += multibyteOffset(bytes, cur, expectedLength);
-                    break;
-                default:
-                    offset += 1;
-                    break;
-            }
-        }
-        return offset;
-    }
-
-    private static int multibyteOffset(byte[] bytes, int currentOffset, int maxLength) {
-        int byteCount = 0;
-        List<Byte> buf = new ArrayList<>();
-        for (int i = 0; i < maxLength; i++) {
-            // the second (or third and fourth) byte should be in 10000000 - 10111111
-            if (currentOffset + i < bytes.length && (i == 0 || bytes[currentOffset + i] <= -65)) {
-                byteCount += 1;
-                buf.add(bytes[currentOffset + i]);
-            } else {
-                break;
-            }
-        }
-        int characterCount = UTF8StringEncoder.newUTF8String(Utils.convertByteArrayListToByteArray(buf)).length();
-        return byteCount - characterCount + 1;
+        return output;
     }
 
     // Taken from http://stackoverflow.com/questions/28890907/implement-a-function-to-check-if-a-string-byte-array-follows-utf-8-format

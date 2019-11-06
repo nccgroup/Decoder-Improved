@@ -50,7 +50,7 @@ public class EncodeMode extends AbstractModificationMode {
 
         // Populate the combobox with values
         for (ByteModifier modifier : encoders) {
-            encoderComboBox.addItem(modifier.getName());
+            encoderComboBox.addItem(modifier.getModifierName());
         }
 
         // Show all items
@@ -72,7 +72,7 @@ public class EncodeMode extends AbstractModificationMode {
     private ByteModifier getSelectedMode() {
 		// Returns the selected encoder object
         for (ByteModifier modifier : encoders) {
-            if (modifier.getName() == encoderComboBox.getSelectedItem()) {
+            if (modifier.getModifierName() == encoderComboBox.getSelectedItem()) {
                 return modifier;
             }
         }
@@ -81,18 +81,26 @@ public class EncodeMode extends AbstractModificationMode {
     }
 
 	//modifyByes is called whenever text is updated within Decoder Improved
+    @Override
     public byte[] modifyBytes(byte[] input) throws ModificationException {
 		// ModificationException propgates up from modifyBytes called from the ByteModifier exceptions.
 		// Get the selected encoder and returns the encoded text.
         return getSelectedMode().modifyBytes(input);
     }
 
+    @Override
+    public String getModifierName() {
+        return getSelectedMode().getModifierName();
+    }
+
+    @Override
     public JsonObject toJSON(){
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("e", (String) encoderComboBox.getSelectedItem());
         return jsonObject;
     }
 
+    @Override
     public void setFromJSON(JsonObject jsonObject){
         try {
             encoderComboBox.setSelectedItem(jsonObject.get("e").getAsString());

@@ -27,7 +27,7 @@ public class PrettifyMode extends AbstractModificationMode {
         prettifierComboBox.setMinimumSize(CONSTANTS.COMBO_BOX_DIMENSION);
         prettifierComboBox.setPreferredSize(CONSTANTS.COMBO_BOX_DIMENSION);
         for (ByteModifier modifier : prettifiers) {
-            prettifierComboBox.addItem(modifier.getName());
+            prettifierComboBox.addItem(modifier.getModifierName());
         }
         prettifierComboBox.setMaximumRowCount(prettifiers.size());
         comboBoxPanel = new JPanel();
@@ -41,23 +41,31 @@ public class PrettifyMode extends AbstractModificationMode {
 
     private ByteModifier getSelectedMode() {
         for (ByteModifier modifier : prettifiers) {
-            if (modifier.getName() == prettifierComboBox.getSelectedItem()) {
+            if (modifier.getModifierName() == prettifierComboBox.getSelectedItem()) {
                 return modifier;
             }
         }
         return prettifiers.get(0);
     }
 
+    @Override
     public byte[] modifyBytes(byte[] input) throws ModificationException {
         return getSelectedMode().modifyBytes(input);
     }
 
+    @Override
+    public String getModifierName() {
+        return getSelectedMode().getModifierName();
+    }
+
+    @Override
     public JsonObject toJSON() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("p", (String) prettifierComboBox.getSelectedItem());
         return jsonObject;
     }
 
+    @Override
     public void setFromJSON(JsonObject jsonObject) {
         try {
             prettifierComboBox.setSelectedItem(jsonObject.get("p").getAsString());

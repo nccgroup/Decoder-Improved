@@ -11,11 +11,13 @@ import java.util.Base64;
  */
 
 public class Base64Decoder implements ByteModifier {
-    public String getName() {
+    @Override
+    public String getModifierName() {
         return "Base64";
     }
 
     // Base64 Encode the bytes
+    @Override
     public byte[] modifyBytes(byte[] input) throws ModificationException {
 
         // Convert from Url safe

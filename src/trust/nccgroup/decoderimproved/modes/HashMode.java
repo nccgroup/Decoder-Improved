@@ -87,6 +87,7 @@ public class HashMode extends AbstractModificationMode {
         ui.add(comboBoxPanel);
     }
 
+    @Override
     public byte[] modifyBytes(byte[] input) {
         // Get the selected ByteModifier and use the modifyBytes method from their to update input.
         Digest digest = null;
@@ -145,6 +146,12 @@ public class HashMode extends AbstractModificationMode {
         return output;
     }
 
+    @Override
+    public String getModifierName() {
+        return null;
+    }
+
+    @Override
     public JsonObject toJSON(){
         JsonObject jsonObject = new JsonObject();
         try {
@@ -169,6 +176,7 @@ public class HashMode extends AbstractModificationMode {
         return jsonObject;
     }
 
+    @Override
     public void setFromJSON(JsonObject jsonObject){
         try {
             String algoName = jsonObject.get("a").getAsString();

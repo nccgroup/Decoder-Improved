@@ -13,10 +13,12 @@ import java.util.zip.ZipException;
  * Created by webpentest on 05/2018.
  */
 public class ZlibDecoder implements ByteModifier {
-    public String getName() {
+    @Override
+    public String getModifierName() {
         return "Zlib";
     }
 
+    @Override
     public byte[] modifyBytes(byte[] input) throws ModificationException {
         try {
             ByteArrayInputStream bais = new ByteArrayInputStream(input);

@@ -10,10 +10,12 @@ import javax.xml.bind.DatatypeConverter;
  * Created by j on 4/7/17.
  */
 public class ASCIIHexDecoder implements ByteModifier {
-    public String getName() {
+    @Override
+    public String getModifierName() {
         return "ASCII Hex";
     }
 
+    @Override
     public byte[] modifyBytes(byte[] input) throws ModificationException {
         String inputString;
         inputString = new String(input, StandardCharsets.UTF_8);

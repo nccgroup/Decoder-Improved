@@ -14,12 +14,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class FuzzyBase64Decoder implements ByteModifier {
-    public String getName() {
+    @Override
+    public String getModifierName() {
         return "Fuzzy Base64";
     }
 
     // This function uses a regex to extract base64 encoded strings out of the input and decode them.
     // Useful for jwts
+    @Override
     public byte[] modifyBytes(byte[] input) {
 
         // Convert from Url safe

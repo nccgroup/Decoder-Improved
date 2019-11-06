@@ -40,6 +40,7 @@ class PDControlScrollPane extends JScrollPane {
             bar = PDControlScrollPane.this.getVerticalScrollBar();
         }
 
+        @Override
         public void mouseWheelMoved(MouseWheelEvent e) {
             JScrollPane parent = getParentScrollPane();
             if (parent != null) {

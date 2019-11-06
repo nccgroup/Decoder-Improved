@@ -41,7 +41,7 @@ public class DecodeMode extends AbstractModificationMode {
 
         // Populate the combobox with values
         for (ByteModifier modifier : decoders) {
-            decoderComboBox.addItem(modifier.getName());
+            decoderComboBox.addItem(modifier.getModifierName());
         }
 
         comboBoxPanel = new JPanel();
@@ -56,7 +56,7 @@ public class DecodeMode extends AbstractModificationMode {
 
     private ByteModifier getSelectedMode() {
         for (ByteModifier modifier : decoders) {
-            if (modifier.getName() == decoderComboBox.getSelectedItem()) {
+            if (modifier.getModifierName() == decoderComboBox.getSelectedItem()) {
                 return modifier;
             }
         }
@@ -64,16 +64,24 @@ public class DecodeMode extends AbstractModificationMode {
         return decoders.get(0);
     }
 
+    @Override
     public byte[] modifyBytes(byte[] input) throws ModificationException {
         return getSelectedMode().modifyBytes(input);
     }
 
+    @Override
+    public String getModifierName() {
+        return getSelectedMode().getModifierName();
+    }
+
+    @Override
     public JsonObject toJSON() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("d", (String) decoderComboBox.getSelectedItem());
         return jsonObject;
     }
 
+    @Override
     public void setFromJSON(JsonObject jsonObject) {
         try {
             decoderComboBox.setSelectedItem(jsonObject.get("d").getAsString());

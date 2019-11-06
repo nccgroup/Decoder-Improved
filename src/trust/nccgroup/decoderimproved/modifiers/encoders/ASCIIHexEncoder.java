@@ -8,10 +8,12 @@ import java.nio.charset.StandardCharsets;
  * Created by j on 12/6/16.
  */
 public class ASCIIHexEncoder implements ByteModifier {
-    public String getName() {
+    @Override
+    public String getModifierName() {
         return "ASCII Hex";
     }
 
+    @Override
     public byte[] modifyBytes(byte[] input) {
         StringBuilder output = new StringBuilder();
         for (byte b : input) {

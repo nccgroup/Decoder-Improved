@@ -77,6 +77,7 @@ public class BaseConvertMode extends AbstractModificationMode {
         ui.add(comboBoxPanel);
     }
 
+    @Override
     public byte[] modifyBytes(byte[] input) throws ModificationException {
         String numericString = Utils.newUTF8String(input);
         try {
@@ -88,6 +89,12 @@ public class BaseConvertMode extends AbstractModificationMode {
         }
     }
 
+    @Override
+    public String getModifierName() {
+        return null;
+    }
+
+    @Override
     public JsonObject toJSON() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("f", (String) fromBaseComboBox.getSelectedItem());
@@ -95,6 +102,7 @@ public class BaseConvertMode extends AbstractModificationMode {
         return jsonObject;
     }
 
+    @Override
     public void setFromJSON(JsonObject jsonObject) {
         try {
             fromBaseComboBox.setSelectedItem(jsonObject.get("f").getAsString());

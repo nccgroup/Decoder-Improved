@@ -15,7 +15,8 @@ public class HTMLSpecialCharEncoder implements ByteModifier {
     private String HTML_ENCODED_FORMAT_STRING = "&#%d;";
     private char[] SPECIAL_CHARS = {'"', '\'', '&', '<', '>'};
 
-    public String getName() {
+    @Override
+    public String getModifierName() {
         return "HTML Special Characters";
     }
 
@@ -28,6 +29,7 @@ public class HTMLSpecialCharEncoder implements ByteModifier {
         return false;
     }
 
+    @Override
     public byte[] modifyBytes(byte[] input) {
         List<Byte> output = new ArrayList<>(input.length);
         for (byte b : input) {

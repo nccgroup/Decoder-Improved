@@ -146,9 +146,9 @@ public class MultiDecoderTab extends JPanel implements ITab {
                 JsonObject segmentStateObject = new JsonObject();
                 // Whether hex editor is selected
                 segmentStateObject.addProperty("h", decoderSegment.hexRadio.isSelected());
-                AbstractModificationMode mode = decoderSegment.modes.getSelectedMode();
+                AbstractModificationMode mode = decoderSegment.modeManager.getSelectedMode();
                 // Mode name
-                segmentStateObject.addProperty("m", mode.getName());
+                segmentStateObject.addProperty("m", mode.getModeName());
                 // Mode configurations
                 segmentStateObject.add("c", mode.toJSON());
                 // Add each segment state object to the segment state array
@@ -211,8 +211,8 @@ public class MultiDecoderTab extends JPanel implements ITab {
                     JsonObject config = segmentStateObject.get("c").getAsJsonObject();
                     // If encoded as plain, do not "select" the item as it will create a new segment under the last one
                     if (!(modeName.equals(EncodeMode.NAME) && config.get("e").getAsString().equals(PlaintextEncoder.NAME))) {
-                        ds.modes.setSelectedMode(modeName);
-                        ds.modes.getSelectedMode().setFromJSON(config);
+                        ds.modeManager.setSelectedMode(modeName);
+                        ds.modeManager.getSelectedMode().setFromJSON(config);
                     }
                     // Editor must be set at last to "force" the selection
                     if (segmentStateObject.get("h").getAsBoolean()) {

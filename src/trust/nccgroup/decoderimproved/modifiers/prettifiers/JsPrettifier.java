@@ -14,7 +14,8 @@ import java.nio.charset.StandardCharsets;
 public class JsPrettifier implements ByteModifier {
     //https://stackoverflow.com/a/48857894
 
-    public String getName() {
+    @Override
+    public String getModifierName() {
         return "JS(ON)";
     }
 
@@ -32,6 +33,7 @@ public class JsPrettifier implements ByteModifier {
         }
     }
 
+    @Override
     public byte[] modifyBytes(byte[] input) throws ModificationException {
         try {
             String pretty =  (String) ((Invocable) engine).invokeFunction(BEAUTIFY_METHOD_NAME, new String(input, StandardCharsets.UTF_8));

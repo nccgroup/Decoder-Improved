@@ -9,11 +9,13 @@ import java.nio.charset.StandardCharsets;
  * Created by j on 12/6/16.
  */
 public class URLSpecialCharEncoder implements ByteModifier {
-    public String getName() {
+    @Override
+    public String getModifierName() {
         return "URL Special Characters";
     }
 
     // URL Encode the bytes
+    @Override
     public byte[] modifyBytes(byte[] input) {
         String letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
         String numbers = "0123456789";

@@ -15,10 +15,12 @@ import java.util.List;
 public class HTMLEncoder implements ByteModifier {
     private String HTML_ENCODED_FORMAT_STRING = "&#%d;";
 
-    public String getName() {
+    @Override
+    public String getModifierName() {
         return "HTML";
     }
 
+    @Override
     public byte[] modifyBytes(byte[] input) {
         List<Byte> output = new ArrayList<>(input.length);
         for (int i = 0; i < input.length; i++) {

@@ -52,7 +52,7 @@ public class DecoderSegment extends JPanel {
 
 
     // This handles all the modes
-    public ModificationModeManager modes;
+    public ModificationModeManager modeManager;
 
     // These are the different types of tex box MODEs
     JComboBox<String> modeSelector;
@@ -168,7 +168,7 @@ public class DecoderSegment extends JPanel {
         masterEditorPanel = new JPanel(cardManager);
         // This manages the different UIs for each mode selected in the dropdown
 
-        modes = new ModificationModeManager();
+        modeManager = new ModificationModeManager();
 
         // Everything I initialize below this line is probably going to get removed
         textHexGroup = new ButtonGroup();
@@ -249,7 +249,7 @@ public class DecoderSegment extends JPanel {
         controlPanel.add(radioPanel);
 
         // Modes
-        controlPanel.add(modes.getUI());
+        controlPanel.add(modeManager.getUI());
 
         // Export combo box
         exportComboBox.setMaximumSize(CONSTANTS.COMBO_BOX_DIMENSION);
@@ -314,8 +314,8 @@ public class DecoderSegment extends JPanel {
         });
 
         // add action listeners
-        addActionListeners(modes.getUI());
-        for (AbstractModificationMode mode : modes.getModes()) {
+        addActionListeners(modeManager.getUI());
+        for (AbstractModificationMode mode : modeManager.getModes()) {
             addActionListeners(mode.getUI());
         }
 

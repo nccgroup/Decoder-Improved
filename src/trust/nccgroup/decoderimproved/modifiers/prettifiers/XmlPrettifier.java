@@ -11,10 +11,12 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 public class XmlPrettifier implements ByteModifier {
-    public String getName() {
+    @Override
+    public String getModifierName() {
         return "XML";
     }
 
+    @Override
     public byte[] modifyBytes(byte[] input) throws ModificationException {
         // @See https://stackoverflow.com/a/1264912
         try {

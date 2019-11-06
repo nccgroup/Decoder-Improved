@@ -6,10 +6,12 @@ import trust.nccgroup.decoderimproved.modifiers.ByteModifier;
  * Created by j on 12/6/16.
  */
 public class PlaintextDecoder implements ByteModifier {
-    public String getName() {
+    @Override
+    public String getModifierName() {
         return "Plain";
     }
 
+    @Override
     public byte[] modifyBytes(byte[] input) {
         return input;
     }

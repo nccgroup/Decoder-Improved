@@ -70,6 +70,7 @@ public class EncodingSelectionDialog extends javax.swing.JDialog {
         setTitle("Choose Encoding");
         setLocationByPlatform(true);
         addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 closeDialog(evt);
             }
@@ -77,6 +78,7 @@ public class EncodingSelectionDialog extends javax.swing.JDialog {
 
         okButton.setText("OK");
         okButton.addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 okButtonActionPerformed(evt);
             }
@@ -84,6 +86,7 @@ public class EncodingSelectionDialog extends javax.swing.JDialog {
 
         cancelButton.setText("Cancel");
         cancelButton.addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cancelButtonActionPerformed(evt);
             }

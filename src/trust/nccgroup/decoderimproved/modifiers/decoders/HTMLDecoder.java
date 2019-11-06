@@ -16,10 +16,12 @@ import trust.nccgroup.decoderimproved.Utils;
 public class HTMLDecoder implements ByteModifier {
     private final Pattern HTML_ENTITY_REGEX = Pattern.compile("&([a-zA-Z]+|#([xX][a-fA-F0-9]+|[0-9]+));");
 
-    public String getName() {
+    @Override
+    public String getModifierName() {
         return "HTML";
     }
 
+    @Override
     public byte[] modifyBytes(byte[] input) throws ModificationException {
         List<Byte> byteArray = new ArrayList<>(input.length);
         int i = 0;

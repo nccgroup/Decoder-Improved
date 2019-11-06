@@ -7,10 +7,12 @@ import java.io.IOException;
 import java.util.zip.DeflaterOutputStream;
 
 public class ZlibEncoder implements ByteModifier {
-    public String getName() {
+    @Override
+    public String getModifierName() {
         return "Zlib";
     }
 
+    @Override
     public byte[] modifyBytes(byte[] input) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream(input.length);

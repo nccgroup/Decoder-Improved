@@ -8,10 +8,12 @@ import trust.nccgroup.decoderimproved.modifiers.ByteModifier;
 public class PlaintextEncoder implements ByteModifier {
     public final static String NAME = "Plain";
 
-    public String getName() {
+    @Override
+    public String getModifierName() {
         return NAME;
     }
 
+    @Override
     public byte[] modifyBytes(byte[] input) {
         return input;
     }

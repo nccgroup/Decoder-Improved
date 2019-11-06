@@ -11,10 +11,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class URLDecoder implements ByteModifier {
-    public String getName() {
+    @Override
+    public String getModifierName() {
         return "URL";
     }
 
+    @Override
     public byte[] modifyBytes(byte[] input) {
         ArrayList<Byte> output = new ArrayList<>();
         for (int i = 0; i < input.length; i++ ) {

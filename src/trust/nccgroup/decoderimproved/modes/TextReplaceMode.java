@@ -48,15 +48,23 @@ public class TextReplaceMode extends AbstractModificationMode {
         ui.add(comboBoxPanel);
     }
 
+    @Override
     public byte[] modifyBytes(byte[] input) {
         return replaceTextField.getText().getBytes();
     }
 
+    @Override
+    public String getModifierName() {
+        return null;
+    }
+
+    @Override
     public JsonObject toJSON() {
         Logger.printError("TextReplaceMode not in use. Not implemented!");
         return null;
     }
 
+    @Override
     public void setFromJSON(JsonObject jsonObject) {
         Logger.printError("TextReplaceMode not in use. Not implemented!");
     }

@@ -33,7 +33,7 @@ public abstract class AbstractModificationMode implements ByteModifier {
         return ui;
     }
 
-    public String getName() {
+    public String getModeName() {
         return name;
     }
 }

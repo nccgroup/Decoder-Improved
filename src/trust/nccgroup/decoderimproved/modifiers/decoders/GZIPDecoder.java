@@ -13,11 +13,13 @@ import java.util.zip.GZIPInputStream;
  * Created by j on 12/7/16.
  */
 public class GZIPDecoder implements ByteModifier {
-    public String getName() {
+    @Override
+    public String getModifierName() {
         return "GZIP";
     }
 
     // GZIP Encode the bytes
+    @Override
     public byte[] modifyBytes(byte[] input) throws ModificationException {
         try {
             ByteArrayInputStream bais = new ByteArrayInputStream(input);

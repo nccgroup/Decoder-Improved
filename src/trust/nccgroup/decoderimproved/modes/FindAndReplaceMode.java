@@ -77,6 +77,7 @@ public class FindAndReplaceMode extends AbstractModificationMode {
     }
 
     // There's a limitation here. Invalid UTF-8 bytes will be replaced by the replacement char in the result.
+    @Override
     public byte[] modifyBytes(byte[] input) throws ModificationException {
         String regexText = regexTextField.getText();
         if (regexText == null || regexText.isEmpty()) {
@@ -113,6 +114,12 @@ public class FindAndReplaceMode extends AbstractModificationMode {
         return new byte[0];
     }
 
+    @Override
+    public String getModifierName() {
+        return null;
+    }
+
+    @Override
     public JsonObject toJSON() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("c", (String) replaceComboBox.getSelectedItem());
@@ -121,6 +128,7 @@ public class FindAndReplaceMode extends AbstractModificationMode {
         return jsonObject;
     }
 
+    @Override
     public void setFromJSON(JsonObject jsonObject) {
         try {
             replaceComboBox.setSelectedItem(jsonObject.get("c").getAsString());

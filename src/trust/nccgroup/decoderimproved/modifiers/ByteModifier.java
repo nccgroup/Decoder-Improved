@@ -7,5 +7,5 @@ import trust.nccgroup.decoderimproved.ModificationException;
  */
 public interface ByteModifier {
     byte[] modifyBytes(byte[] input) throws ModificationException;
-    String getName();
+    String getModifierName();
 }

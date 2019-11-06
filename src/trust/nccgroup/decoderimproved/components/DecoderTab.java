@@ -1,6 +1,5 @@
 package trust.nccgroup.decoderimproved.components;
 
-import trust.nccgroup.decoderimproved.Logger;
 import trust.nccgroup.decoderimproved.ModificationException;
 
 import javax.swing.*;
@@ -176,7 +175,7 @@ public class DecoderTab extends JPanel {
 
         //This code does all the byte modification
         try {
-            nextDecoderSegment.dsState.setByteArrayList(activeDecoderSegment.modes.modifyBytes(activeDecoderSegment.dsState.getByteArray()));
+            nextDecoderSegment.dsState.setByteArrayList(activeDecoderSegment.modeManager.modifyBytes(activeDecoderSegment.dsState.getByteArray()));
             nextDecoderSegment.updateEditors(nextDecoderSegment.dsState);
             nextDecoderSegment.hasError = false;
             try {

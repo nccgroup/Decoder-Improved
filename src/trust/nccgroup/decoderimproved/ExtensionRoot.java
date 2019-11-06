@@ -13,6 +13,7 @@ public class ExtensionRoot implements IBurpExtender {
 
     public MultiDecoderTab multiDecoderTab;
 
+    @Override
     public void registerExtenderCallbacks(IBurpExtenderCallbacks _callbacks) {
 
         callbacks = _callbacks;

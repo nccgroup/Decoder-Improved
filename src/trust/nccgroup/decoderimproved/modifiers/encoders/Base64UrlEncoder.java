@@ -9,10 +9,12 @@ import java.util.Base64;
  * We could also use the base64 encoder and substitute the output
  */
 public class Base64UrlEncoder implements ByteModifier {
-    public String getName() {
+    @Override
+    public String getModifierName() {
         return "Base64 URL Safe";
     }
 
+    @Override
     public byte[] modifyBytes(byte[] input) {
         Base64.Encoder encoder = Base64.getUrlEncoder();
         return encoder.encode(input);

@@ -54,13 +54,13 @@ public class ModificationModeManager {
 
     private void addMode(AbstractModificationMode mode) {
         modes.add(mode);
-        modeComboBox.addItem(mode.getName());
-        modeUI.add(mode.getUI(), mode.getName());
+        modeComboBox.addItem(mode.getModeName());
+        modeUI.add(mode.getUI(), mode.getModeName());
         // System.out.print("getName = ");
         // System.out.println(mode.getName());
         // Show the default mode
         if (modes.size() == 1) {
-            layoutManager.show(modeUI, mode.getName());
+            layoutManager.show(modeUI, mode.getModeName());
         }
     }
 
@@ -74,7 +74,7 @@ public class ModificationModeManager {
 
     public AbstractModificationMode getSelectedMode() {
         for (AbstractModificationMode mode : modes) {
-            if (mode.getName() == modeComboBox.getSelectedItem()) {
+            if (mode.getModeName() == modeComboBox.getSelectedItem()) {
                 return mode;
             }
         }

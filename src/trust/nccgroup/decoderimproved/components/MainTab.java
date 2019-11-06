@@ -13,9 +13,9 @@ import javax.swing.event.*;
 import java.awt.*;
 import java.util.Base64;
 
-public class MultiDecoderTab extends JPanel implements ITab {
+public class MainTab extends JPanel implements ITab {
 
-    private JTabbedPane main;
+    private JTabbedPane tabbedPane;
     private JPanel newTabButton;
 
     private ConfigPanel configPanel;
@@ -33,33 +33,33 @@ public class MultiDecoderTab extends JPanel implements ITab {
         this.tabChangeListenerLock = tabChangeListenerLock;
     }
 
-    public MultiDecoderTab(ExtensionRoot extensionRoot) {
+    public MainTab(ExtensionRoot extensionRoot) {
         // Set main tab layout
         setLayout(new BorderLayout());
         //initialize ui elements
-        main = new JTabbedPane();
+        tabbedPane = new JTabbedPane();
 
         // Add "new tab" tab
         newTabButton = new JPanel();
         newTabButton.setName("...");
-        main.add(newTabButton);
+        tabbedPane.add(newTabButton);
 
-        main.addChangeListener((ChangeEvent e) -> {
+        tabbedPane.addChangeListener((ChangeEvent e) -> {
             // If the '...' button is pressed, add a new tab
             if (!tabChangeListenerLock) {
-                if (main.getSelectedIndex() == main.getTabCount() - 1) {
+                if (tabbedPane.getSelectedIndex() == tabbedPane.getTabCount() - 1) {
                     addTab();
                 } else {
-                    DecoderTab dt = (DecoderTab) main.getSelectedComponent();
+                    DecoderTab dt = (DecoderTab) tabbedPane.getSelectedComponent();
                     dt.getDecoderSegments().get(0).getTextEditor().requestFocus();
                 }
             }
-            for (int i = 0; i < main.getTabCount() - 2; i++) {
-                DecoderTab.DecoderTabHandle dth = (DecoderTab.DecoderTabHandle) main.getTabComponentAt(i);
+            for (int i = 0; i < tabbedPane.getTabCount() - 2; i++) {
+                DecoderTab.DecoderTabHandle dth = (DecoderTab.DecoderTabHandle) tabbedPane.getTabComponentAt(i);
                 dth.tabName.setEditable(false);
             }
         });
-        add(main, BorderLayout.CENTER);
+        add(tabbedPane, BorderLayout.CENTER);
 
         configPanel = new ConfigPanel(extensionRoot);
         add(configPanel, BorderLayout.SOUTH);
@@ -71,23 +71,23 @@ public class MultiDecoderTab extends JPanel implements ITab {
         // Add a new tab
         overallCount += 1;
         DecoderTab mt2 = new DecoderTab(Integer.toString(overallCount, 10), this);
-        main.add(mt2);
-        main.setTabComponentAt(main.indexOfComponent(mt2), mt2.getTabHandleElement());
-        main.setSelectedComponent(mt2);
+        tabbedPane.add(mt2);
+        tabbedPane.setTabComponentAt(tabbedPane.indexOfComponent(mt2), mt2.getTabHandleElement());
+        tabbedPane.setSelectedComponent(mt2);
         //mt2.getDecoderSegments().get(0).getTextEditor().requestFocus();
 
         // This moves the '...' tab to the end of the tab list
-        main.remove(newTabButton);
-        main.add(newTabButton);
+        tabbedPane.remove(newTabButton);
+        tabbedPane.add(newTabButton);
 
         tabChangeListenerLock = false;
     }
 
     private int firstEmptyDecoder() {
-        if (main.getComponentAt(main.getTabCount() - 2) instanceof DecoderTab) {
-            DecoderTab dt = (DecoderTab) main.getComponentAt(main.getTabCount() - 2);
+        if (tabbedPane.getComponentAt(tabbedPane.getTabCount() - 2) instanceof DecoderTab) {
+            DecoderTab dt = (DecoderTab) tabbedPane.getComponentAt(tabbedPane.getTabCount() - 2);
             if (dt.getDecoderSegments().get(0).dsState.getByteSize() == 0) {
-                return main.getTabCount() - 2;
+                return tabbedPane.getTabCount() - 2;
             }
         }
         return -1;
@@ -98,14 +98,14 @@ public class MultiDecoderTab extends JPanel implements ITab {
         if (firstEmptyDecoder() == -1) {
             // Add a new tab
             addTab();
-            DecoderTab dt = (DecoderTab) main.getComponentAt(main.getTabCount() - 2);
+            DecoderTab dt = (DecoderTab) tabbedPane.getComponentAt(tabbedPane.getTabCount() - 2);
             dt.getDecoderSegments().get(0).dsState.setByteArrayList(selectedTextBytes);
             dt.updateDecoderSegments(0, false);
             for (DecoderSegment ds : dt.getDecoderSegments()) {
                 ds.updateEditors(dt.getDecoderSegments().get(0).dsState);
             }
         } else {
-            DecoderTab dt = (DecoderTab) main.getComponentAt(firstEmptyDecoder());
+            DecoderTab dt = (DecoderTab) tabbedPane.getComponentAt(firstEmptyDecoder());
             dt.getDecoderSegments().get(0).dsState.setByteArrayList(selectedTextBytes);
             dt.updateDecoderSegments(0, false);
             for (DecoderSegment ds : dt.getDecoderSegments()) {
@@ -124,8 +124,8 @@ public class MultiDecoderTab extends JPanel implements ITab {
         return this;
     }
 
-    JTabbedPane getMain() {
-        return main;
+    JTabbedPane getTabbedPane() {
+        return tabbedPane;
     }
 
     // Save the current state of extension to a JsonObject string
@@ -133,9 +133,9 @@ public class MultiDecoderTab extends JPanel implements ITab {
         JsonObject extensionStateObject = new JsonObject();
         JsonArray tabStateArray = new JsonArray();
         // Save all tabs except the last "..." one
-        for (int i = 0; i < main.getTabCount() - 1; i++) {
+        for (int i = 0; i < tabbedPane.getTabCount() - 1; i++) {
             JsonObject tabStateObject = new JsonObject();
-            DecoderTab.DecoderTabHandle tabHandle = (DecoderTab.DecoderTabHandle) main.getTabComponentAt(i);
+            DecoderTab.DecoderTabHandle tabHandle = (DecoderTab.DecoderTabHandle) tabbedPane.getTabComponentAt(i);
             // Tab name
             tabStateObject.addProperty("n", tabHandle.tabName.getText());
             // Bytes in first segment of each tab
@@ -159,7 +159,7 @@ public class MultiDecoderTab extends JPanel implements ITab {
             // Add each tab state object to the tab state array
             tabStateArray.add(tabStateObject);
         }
-        extensionStateObject.addProperty("i", main.getSelectedIndex());
+        extensionStateObject.addProperty("i", tabbedPane.getSelectedIndex());
         extensionStateObject.add("t", tabStateArray);
         return extensionStateObject.toString();
     }
@@ -169,21 +169,21 @@ public class MultiDecoderTab extends JPanel implements ITab {
         if (stateString == null || stateString.isEmpty()) {
             if (initial) {
                 addTab();
-                main.setSelectedIndex(0);
+                tabbedPane.setSelectedIndex(0);
                 return;
             } else {
                 throw new IllegalArgumentException("Error reading file or file is empty");
             }
         }
         try {
-            int originalIndex = initial ? 0 : main.getSelectedIndex();
-            int originalTabCount = main.getTabCount();
+            int originalIndex = initial ? 0 : tabbedPane.getSelectedIndex();
+            int originalTabCount = tabbedPane.getTabCount();
             JsonObject extensionStateObject = JsonParser.parseString(stateString).getAsJsonObject();
             JsonArray tabStateArray = extensionStateObject.get("t").getAsJsonArray();
             if (tabStateArray.size() == 0) {
                 if (initial) {
                     addTab();
-                    main.setSelectedIndex(0);
+                    tabbedPane.setSelectedIndex(0);
                 }
                 return;
             }
@@ -191,7 +191,7 @@ public class MultiDecoderTab extends JPanel implements ITab {
                 JsonObject tabStateObject = tabStateArray.get(i).getAsJsonObject();
                 // Build a new tab for each tab object
                 addTab();
-                DecoderTab dt = (DecoderTab) main.getComponentAt(originalTabCount + i - 1);
+                DecoderTab dt = (DecoderTab) tabbedPane.getComponentAt(originalTabCount + i - 1);
                 dt.decoderTabHandle.tabName.setText(tabStateObject.get("n").getAsString());
                 DecoderSegment.DecoderSegmentState dsState = dt.getDecoderSegments().get(0).dsState;
                 dsState.setByteArrayList(Base64.getDecoder().decode(tabStateObject.get("b").getAsString()));
@@ -222,11 +222,11 @@ public class MultiDecoderTab extends JPanel implements ITab {
                     }
                 }
             }
-            main.setSelectedIndex(initial ? extensionStateObject.get("i").getAsInt() : originalIndex);
+            tabbedPane.setSelectedIndex(initial ? extensionStateObject.get("i").getAsInt() : originalIndex);
         } catch (Exception e) {
             if (initial) {
                 addTab();
-                main.setSelectedIndex(0);
+                tabbedPane.setSelectedIndex(0);
                 Logger.printErrorFromException(e);
             } else {
                 throw e;

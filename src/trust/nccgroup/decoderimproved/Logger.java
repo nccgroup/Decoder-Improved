@@ -12,7 +12,7 @@ public class Logger {
 
     private static IBurpExtenderCallbacks callbacks = null;
 
-    public static void registerExtenderCallbacks(IBurpExtenderCallbacks _callbacks){
+    public static void loadExtenderCallbacks(IBurpExtenderCallbacks _callbacks){
         callbacks = _callbacks;
     }
 

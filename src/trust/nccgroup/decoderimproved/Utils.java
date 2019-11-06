@@ -105,19 +105,6 @@ public class Utils {
         return output;
     }
 
-    public static void highlightParentTab(Component tabComponent) {
-        if (tabComponent != null) {
-            JTabbedPane parentTabbedPane = (JTabbedPane) tabComponent.getParent();
-            int index = parentTabbedPane.indexOfComponent(tabComponent);
-            parentTabbedPane.setBackgroundAt(index, new Color(0xE58900));
-            Timer timer = new Timer(3000, e -> {
-                parentTabbedPane.setBackgroundAt(index, Color.BLACK);
-            });
-            timer.setRepeats(false);
-            timer.start();
-        }
-    }
-
     // Taken from http://stackoverflow.com/questions/28890907/implement-a-function-to-check-if-a-string-byte-array-follows-utf-8-format
     public static int multibyteExpectLength(byte b) {
         int expectedLength = -1;

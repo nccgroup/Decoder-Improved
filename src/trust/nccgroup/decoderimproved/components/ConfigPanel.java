@@ -34,10 +34,10 @@ class ConfigPanel extends JPanel {
                 fileChooser.addHierarchyListener((_event) -> {
                     grabFocus();
                 });
-                if (fileChooser.showSaveDialog(extensionRoot.multiDecoderTab) == JFileChooser.APPROVE_OPTION) {
+                if (fileChooser.showSaveDialog(extensionRoot.mainTab) == JFileChooser.APPROVE_OPTION) {
                     FileOutputStream fileOutputStream = new FileOutputStream(fileChooser.getSelectedFile());
                     // Get state and write to file
-                    fileOutputStream.write(extensionRoot.multiDecoderTab.getState().getBytes());
+                    fileOutputStream.write(extensionRoot.mainTab.getState().getBytes());
                     fileOutputStream.close();
                 }
             } catch (Exception ee) {
@@ -53,18 +53,18 @@ class ConfigPanel extends JPanel {
                 fileChooser.addHierarchyListener((_event) -> {
                     grabFocus();
                 });
-                if (fileChooser.showOpenDialog(extensionRoot.multiDecoderTab) == JFileChooser.APPROVE_OPTION) {
+                if (fileChooser.showOpenDialog(extensionRoot.mainTab) == JFileChooser.APPROVE_OPTION) {
                     // Read file content
                     File selectedFile = fileChooser.getSelectedFile();
                     FileInputStream fileInputStream = new FileInputStream(selectedFile);
                     byte[] fileContent = new byte[(int) selectedFile.length()];
                     fileInputStream.read(fileContent);
                     fileInputStream.close();
-                    extensionRoot.multiDecoderTab.setState(new String(fileContent), false);
+                    extensionRoot.mainTab.setState(new String(fileContent), false);
                 }
             } catch (Exception ee) {
                 Logger.printErrorFromException(ee);
-                JOptionPane.showMessageDialog(extensionRoot.multiDecoderTab, ee.getClass().getName() + ", please check extension errors for details", "Error loading file", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(extensionRoot.mainTab, ee.getClass().getName() + ", please check extension errors for details", "Error loading file", JOptionPane.ERROR_MESSAGE);
             }
         });
 

@@ -19,7 +19,7 @@ public class DecoderTab extends JPanel {
 
     private JScrollPane scrollingBodyHolder;
 
-    DecoderTab(String _title, MultiDecoderTab _parent) {
+    DecoderTab(String _title, MainTab _parent) {
         decoderTabHandle = new DecoderTabHandle(_title, _parent, this);
         setupComponents();
     }
@@ -37,94 +37,6 @@ public class DecoderTab extends JPanel {
 
     ArrayList<DecoderSegment> getDecoderSegments() {
         return new ArrayList<>(decoderSegments);
-    }
-
-    static class DecoderTabHandle extends JPanel {
-
-        private JTabbedPane parentTabbedPane;
-        DecoderTab decoderTab;
-        JTextField tabName;
-
-        private DecoderTabHandle(String title, MultiDecoderTab multiDecoderTab, DecoderTab decoderTab) {
-            this.decoderTab = decoderTab;
-            this.parentTabbedPane = multiDecoderTab.getMain();
-            this.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-            this.setOpaque(false);
-            JLabel label = new JLabel(title);
-            label.setBorder(BorderFactory.createEmptyBorder(1, 2, 1, 2));
-            tabName = new JTextField(title);
-            tabName.setOpaque(false);
-            tabName.setBorder(null);
-            tabName.setBackground(new Color(0, 0, 0, 0));
-            tabName.setEditable(false);
-            tabName.setCaretColor(Color.BLACK);
-
-            this.add(tabName);
-            JButton closeButton = new JButton("✕");
-            closeButton.setFont(new Font("monospaced", Font.PLAIN, 10));
-            closeButton.setBorder(BorderFactory.createEmptyBorder(1, 2, 1, 2));
-            closeButton.setForeground(Color.GRAY);
-
-            closeButton.setBorderPainted(false);
-            closeButton.setContentAreaFilled(false);
-            closeButton.setOpaque(false);
-
-            tabName.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mousePressed(MouseEvent e) {
-                    if (!parentTabbedPane.getSelectedComponent().equals(decoderTab)) {
-                        parentTabbedPane.setSelectedComponent(decoderTab);
-                        for (int i = 0; i < parentTabbedPane.getTabCount()-1; i++) {
-                            if (!parentTabbedPane.getComponentAt(i).equals(decoderTab)) {
-                                DecoderTabHandle dth = (DecoderTabHandle) parentTabbedPane.getTabComponentAt(i);
-                                dth.tabName.setEditable(false);
-                            }
-                        }
-                    } else {
-                        tabName.setEditable(true);
-                    }
-                }
-
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    if (!parentTabbedPane.getSelectedComponent().equals(decoderTab)) {
-                        parentTabbedPane.setSelectedComponent(decoderTab);
-                        for (int i = 0; i < parentTabbedPane.getTabCount()-1; i++) {
-                            if (!parentTabbedPane.getComponentAt(i).equals(decoderTab)) {
-                                DecoderTabHandle dth = (DecoderTabHandle) parentTabbedPane.getTabComponentAt(i);
-                                dth.tabName.setEditable(false);
-                            }
-                        }
-                    } else {
-                        tabName.setEditable(true);
-                    }
-                }
-            });
-
-            closeButton.addActionListener(e -> {
-                multiDecoderTab.setTabChangeListenerLock(true);
-                if (parentTabbedPane.getSelectedComponent().equals(decoderTab)) {
-                    if (parentTabbedPane.getTabCount() == 2) {
-                        parentTabbedPane.remove(decoderTab);
-                        //autoRepeaters.remove(autoRepeater);
-                        multiDecoderTab.addTab();
-                        multiDecoderTab.setTabChangeListenerLock(true);
-                    } else if (parentTabbedPane.getTabCount() > 2) {
-                        parentTabbedPane.remove(decoderTab);
-                        //autoRepeaters.remove(autoRepeater);
-                    }
-                    decoderTab.clear();
-                    if (parentTabbedPane.getSelectedIndex() == parentTabbedPane.getTabCount() - 1) {
-                        parentTabbedPane.setSelectedIndex(parentTabbedPane.getTabCount() - 2);
-                    }
-                } else {
-                    parentTabbedPane.setSelectedComponent(decoderTab);
-                }
-                multiDecoderTab.setTabChangeListenerLock(false);
-            });
-
-            this.add(closeButton);
-        }
     }
 
     private void setupComponents() {
@@ -204,6 +116,93 @@ public class DecoderTab extends JPanel {
             }
         } catch (ModificationException e) {
             nextDecoderSegment.showError(e.getMessage());
+        }
+    }
+
+    static class DecoderTabHandle extends JPanel {
+        private JTabbedPane parentTabbedPane;
+        DecoderTab decoderTab;
+        JTextField tabName;
+
+        private DecoderTabHandle(String title, MainTab mainTab, DecoderTab decoderTab) {
+            this.decoderTab = decoderTab;
+            this.parentTabbedPane = mainTab.getTabbedPane();
+            this.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+            this.setOpaque(false);
+            JLabel label = new JLabel(title);
+            label.setBorder(BorderFactory.createEmptyBorder(1, 2, 1, 2));
+            tabName = new JTextField(title);
+            tabName.setOpaque(false);
+            tabName.setBorder(null);
+            tabName.setBackground(new Color(0, 0, 0, 0));
+            tabName.setEditable(false);
+            tabName.setCaretColor(Color.BLACK);
+
+            this.add(tabName);
+            JButton closeButton = new JButton("✕");
+            closeButton.setFont(new Font("monospaced", Font.PLAIN, 10));
+            closeButton.setBorder(BorderFactory.createEmptyBorder(1, 2, 1, 2));
+            closeButton.setForeground(Color.GRAY);
+
+            closeButton.setBorderPainted(false);
+            closeButton.setContentAreaFilled(false);
+            closeButton.setOpaque(false);
+
+            tabName.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    if (!parentTabbedPane.getSelectedComponent().equals(decoderTab)) {
+                        parentTabbedPane.setSelectedComponent(decoderTab);
+                        for (int i = 0; i < parentTabbedPane.getTabCount()-1; i++) {
+                            if (!parentTabbedPane.getComponentAt(i).equals(decoderTab)) {
+                                DecoderTabHandle dth = (DecoderTabHandle) parentTabbedPane.getTabComponentAt(i);
+                                dth.tabName.setEditable(false);
+                            }
+                        }
+                    } else {
+                        tabName.setEditable(true);
+                    }
+                }
+
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    if (!parentTabbedPane.getSelectedComponent().equals(decoderTab)) {
+                        parentTabbedPane.setSelectedComponent(decoderTab);
+                        for (int i = 0; i < parentTabbedPane.getTabCount()-1; i++) {
+                            if (!parentTabbedPane.getComponentAt(i).equals(decoderTab)) {
+                                DecoderTabHandle dth = (DecoderTabHandle) parentTabbedPane.getTabComponentAt(i);
+                                dth.tabName.setEditable(false);
+                            }
+                        }
+                    } else {
+                        tabName.setEditable(true);
+                    }
+                }
+            });
+
+            closeButton.addActionListener(e -> {
+                mainTab.setTabChangeListenerLock(true);
+                if (parentTabbedPane.getSelectedComponent().equals(decoderTab)) {
+                    if (parentTabbedPane.getTabCount() == 2) {
+                        parentTabbedPane.remove(decoderTab);
+                        //autoRepeaters.remove(autoRepeater);
+                        mainTab.addTab();
+                        mainTab.setTabChangeListenerLock(true);
+                    } else if (parentTabbedPane.getTabCount() > 2) {
+                        parentTabbedPane.remove(decoderTab);
+                        //autoRepeaters.remove(autoRepeater);
+                    }
+                    decoderTab.clear();
+                    if (parentTabbedPane.getSelectedIndex() == parentTabbedPane.getTabCount() - 1) {
+                        parentTabbedPane.setSelectedIndex(parentTabbedPane.getTabCount() - 2);
+                    }
+                } else {
+                    parentTabbedPane.setSelectedComponent(decoderTab);
+                }
+                mainTab.setTabChangeListenerLock(false);
+            });
+
+            this.add(closeButton);
         }
     }
 }

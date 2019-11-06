@@ -143,15 +143,28 @@ public class DecoderTab extends JPanel {
         this.add(scrollingBodyHolder, BorderLayout.CENTER);
     }
 
-    void updateDecoderSegments(int activeDecoderSegmentIndex) {
+    void addDecoderSegment() {
+        DecoderSegment ds = new DecoderSegment(this);
+        decoderTabBody.add(Box.createRigidArea(new Dimension(0, 10)));
+        decoderSegments.add(ds);
+        decoderTabBody.add(ds);
+
+        // Update last segment (based on second last segment)
+        updateNextDecoderSegment(decoderSegments.size() - 2);
+    }
+
+    void updateDecoderSegments(int activeDecoderSegmentIndex, boolean addSegment) {
+        if (addSegment && activeDecoderSegmentIndex == decoderSegments.size() - 1) {
+            addDecoderSegment();
+        }
         // This goes through the entire list of decoder segments and updates all the ones
         // past the current one.
         for (int i = activeDecoderSegmentIndex; i < decoderSegments.size(); i++) {
-            updateDecoderSegment(i);
+            updateNextDecoderSegment(i);
         }
     }
 
-    void updateDecoderSegment(int activeDecoderSegmentIndex) {
+    private void updateNextDecoderSegment(int activeDecoderSegmentIndex) {
         // If the item is at the end of the list there isn't anything to update
         // i.e. this prevents an array out of bounds error
         if (activeDecoderSegmentIndex >= decoderSegments.size() - 1) {

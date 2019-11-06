@@ -100,14 +100,14 @@ public class MultiDecoderTab extends JPanel implements ITab {
             addTab();
             DecoderTab dt = (DecoderTab) main.getComponentAt(main.getTabCount() - 2);
             dt.getDecoderSegments().get(0).dsState.setByteArrayList(selectedTextBytes);
-            dt.updateDecoderSegments(0);
+            dt.updateDecoderSegments(0, false);
             for (DecoderSegment ds : dt.getDecoderSegments()) {
                 ds.updateEditors(dt.getDecoderSegments().get(0).dsState);
             }
         } else {
             DecoderTab dt = (DecoderTab) main.getComponentAt(firstEmptyDecoder());
             dt.getDecoderSegments().get(0).dsState.setByteArrayList(selectedTextBytes);
-            dt.updateDecoderSegments(0);
+            dt.updateDecoderSegments(0, false);
             for (DecoderSegment ds : dt.getDecoderSegments()) {
                 ds.updateEditors(dt.getDecoderSegments().get(0).dsState);
             }
@@ -198,7 +198,7 @@ public class MultiDecoderTab extends JPanel implements ITab {
                 JsonArray segmentStateArray = tabStateObject.getAsJsonArray("s");
                 // Create (n - 1) new segments and update state for the 1..n-1 segments
                 for (int j = 0; j < segmentStateArray.size() - 1; j++) {
-                    dt.decoderSegments.get(j).addDecoderSegment();
+                    dt.addDecoderSegment();
                 }
                 // Update state for all segments
                 for (int j = 0; j < dt.decoderSegments.size(); j++) {

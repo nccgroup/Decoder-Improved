@@ -4,7 +4,10 @@ import org.exbin.deltahex.CodeType;
 import org.exbin.deltahex.DataChangedListener;
 import org.exbin.deltahex.swing.CodeArea;
 import org.exbin.utils.binary_data.ByteArrayEditableData;
-import trust.nccgroup.decoderimproved.*;
+import trust.nccgroup.decoderimproved.CONSTANTS;
+import trust.nccgroup.decoderimproved.Logger;
+import trust.nccgroup.decoderimproved.ModificationModeManager;
+import trust.nccgroup.decoderimproved.Utils;
 import trust.nccgroup.decoderimproved.modes.AbstractModificationMode;
 
 import javax.swing.*;
@@ -68,19 +71,6 @@ public class DecoderSegment extends JPanel {
         setupComponents();
     }
 
-    void addDecoderSegment() {
-        int lastDsIndex = this.parent.decoderSegments.size();
-        if (this.equals(this.parent.decoderSegments.get(lastDsIndex - 1))) {
-            DecoderSegment ds = new DecoderSegment(parent);
-            parent.decoderTabBody.add(Box.createRigidArea(new Dimension(0, 10)));
-            parent.decoderSegments.add(ds);
-            parent.decoderTabBody.add(ds);
-
-            int thisIndex = parent.decoderSegments.indexOf(this);
-            parent.updateDecoderSegment(thisIndex);
-        }
-    }
-
     JTextPane getTextEditor() {
         return textEditor;
     }
@@ -125,13 +115,10 @@ public class DecoderSegment extends JPanel {
     }
 
     void addActionListeners(JPanel panel) {
-        DecoderSegment outsideThis = this;
         for (Component c : panel.getComponents()) {
             if (c instanceof JComboBox) {
                 ((JComboBox) c).addActionListener((ActionEvent e) -> {
-                    int thisIndex = parent.decoderSegments.indexOf(this);
-                    addDecoderSegment();
-                    parent.updateDecoderSegments(thisIndex);
+                    parent.updateDecoderSegments(getSegmentIndex(), true);
                 });
             } else if (c instanceof JPanel) {
                 addActionListeners((JPanel) c);
@@ -139,16 +126,12 @@ public class DecoderSegment extends JPanel {
                 ((JTextField) c).getDocument().addDocumentListener(new DocumentListener() {
                     @Override
                     public void insertUpdate(DocumentEvent e) {
-                        int thisIndex = parent.decoderSegments.indexOf(outsideThis);
-                        addDecoderSegment();
-                        parent.updateDecoderSegments(thisIndex);
+                        parent.updateDecoderSegments(getSegmentIndex(), true);
                     }
 
                     @Override
                     public void removeUpdate(DocumentEvent e) {
-                        int thisIndex = parent.decoderSegments.indexOf(outsideThis);
-                        addDecoderSegment();
-                        parent.updateDecoderSegments(thisIndex);
+                        parent.updateDecoderSegments(getSegmentIndex(), true);
                     }
 
                     // This doesn't do anything
@@ -320,7 +303,7 @@ public class DecoderSegment extends JPanel {
         }
 
         // This is where all the encoding and decoding happens
-        DecoderSegment outsideThis = this;
+        DecoderSegment thisSegment = this;
 
         //update dsstate whenever the hexeditor is updated.
         hexEditor.addDataChangedListener(new DataChangedListener() {
@@ -328,8 +311,7 @@ public class DecoderSegment extends JPanel {
             public void dataChanged() {
                 if (!lockDocumentEvents) {
                     dsState.setByteArrayList(Utils.convertHexDataToByteArray(hexEditor.getData()));
-                    int thisIndex = parent.decoderSegments.indexOf(outsideThis);
-                    parent.updateDecoderSegments(thisIndex);
+                    parent.updateDecoderSegments(getSegmentIndex(), false);
                 }
             }
         });
@@ -344,8 +326,7 @@ public class DecoderSegment extends JPanel {
 
                     // Utils.printByteArray(dsState.getByteArray());
 
-                    int thisIndex = parent.decoderSegments.indexOf(outsideThis);
-                    parent.updateDecoderSegments(thisIndex);
+                    parent.updateDecoderSegments(getSegmentIndex(), false);
 
                     SwingUtilities.invokeLater(() -> {
                         int caretPos = textEditor.getCaretPosition();
@@ -363,8 +344,7 @@ public class DecoderSegment extends JPanel {
                     dsState.removeUpdateFromByteArrayList(e.getOffset(), e.getLength());
                     // Utils.printByteArray(dsState.getByteArray());
 
-                    int thisIndex = parent.decoderSegments.indexOf(outsideThis);
-                    parent.updateDecoderSegments(thisIndex);
+                    parent.updateDecoderSegments(getSegmentIndex(), false);
 
                     SwingUtilities.invokeLater(() -> {
                         int caretPos = textEditor.getCaretPosition();
@@ -383,6 +363,9 @@ public class DecoderSegment extends JPanel {
         });
     }
 
+    private int getSegmentIndex() {
+        return parent.decoderSegments.indexOf(this);
+    }
 
     private static class MenuHandler {
 
@@ -408,8 +391,7 @@ public class DecoderSegment extends JPanel {
                     if (decoderSegment.dsState.canUndo()) {
                         decoderSegment.dsState.undo();
                         SwingUtilities.invokeLater(() -> {
-                            int thisIndex = decoderSegment.parent.decoderSegments.indexOf(decoderSegment);
-                            decoderSegment.parent.updateDecoderSegments(thisIndex);
+                            decoderSegment.parent.updateDecoderSegments(decoderSegment.getSegmentIndex(), false);
                             decoderSegment.updateEditors(decoderSegment.dsState);
                         });
                     }
@@ -428,8 +410,7 @@ public class DecoderSegment extends JPanel {
                     if (decoderSegment.dsState.canRedo()) {
                         decoderSegment.dsState.redo();
                         SwingUtilities.invokeLater(() -> {
-                            int thisIndex = decoderSegment.parent.decoderSegments.indexOf(decoderSegment);
-                            decoderSegment.parent.updateDecoderSegments(thisIndex);
+                            decoderSegment.parent.updateDecoderSegments(decoderSegment.getSegmentIndex(), false);
                             decoderSegment.updateEditors(decoderSegment.dsState);
                         });
                     }
@@ -565,13 +546,10 @@ public class DecoderSegment extends JPanel {
             changeEncoding.setAction(new AbstractAction("Change Encoding...") {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    Window windowAncestor = SwingUtilities.getWindowAncestor(codeArea);
-                    JFrame frame = windowAncestor instanceof JFrame ? (JFrame) windowAncestor : null;
-                    EncodingSelectionDialog encodingSelectionDialog = new EncodingSelectionDialog(frame, true);
-                    encodingSelectionDialog.setEncoding(codeArea.getCharset().name());
-                    encodingSelectionDialog.setVisible(true);
-                    if (encodingSelectionDialog.getReturnStatus() == EncodingSelectionDialog.RET_OK) {
-                        codeArea.setCharset(Charset.forName(encodingSelectionDialog.getEncoding()));
+                    Object[] charsetOptions = Charset.availableCharsets().keySet().toArray();
+                    String charsetSelection = (String)JOptionPane.showInputDialog(decoderSegment,null, "Select encoding", JOptionPane.PLAIN_MESSAGE,null, charsetOptions, codeArea.getCharset().name());
+                    if (charsetSelection != null && !charsetSelection.isEmpty()) {
+                        codeArea.setCharset(Charset.forName(charsetSelection));
                     }
                 }
             });
@@ -635,8 +613,7 @@ public class DecoderSegment extends JPanel {
                     if (decoderSegment.dsState.canUndo()) {
                         decoderSegment.dsState.undo();
                         SwingUtilities.invokeLater(() -> {
-                            int thisIndex = decoderSegment.parent.decoderSegments.indexOf(decoderSegment);
-                            decoderSegment.parent.updateDecoderSegments(thisIndex);
+                            decoderSegment.parent.updateDecoderSegments(decoderSegment.getSegmentIndex(), false);
                             decoderSegment.updateEditors(decoderSegment.dsState);
                         });
                     }
@@ -655,8 +632,7 @@ public class DecoderSegment extends JPanel {
                     if (decoderSegment.dsState.canRedo()) {
                         decoderSegment.dsState.redo();
                         SwingUtilities.invokeLater(() -> {
-                            int thisIndex = decoderSegment.parent.decoderSegments.indexOf(decoderSegment);
-                            decoderSegment.parent.updateDecoderSegments(thisIndex);
+                            decoderSegment.parent.updateDecoderSegments(decoderSegment.getSegmentIndex(), false);
                             decoderSegment.updateEditors(decoderSegment.dsState);
                         });
                     }

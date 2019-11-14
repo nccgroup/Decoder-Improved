@@ -94,6 +94,9 @@ public class MainTab extends JPanel implements ITab {
     }
 
     public void receiveTextFromMenu(byte[] selectedTextBytes) {
+        if (selectedTextBytes == null || selectedTextBytes.length == 0) {
+            return;
+        }
         // TODO: Add checks to see if the decoder segment is populated.
         if (firstEmptyDecoder() == -1) {
             // Add a new tab

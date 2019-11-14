@@ -26,7 +26,7 @@ public class FuzzyBase64Decoder implements ByteModifier {
 
         // Convert from Url safe
         String inputString = new String(Utils.convertUrlBase64ToStandard(input), StandardCharsets.UTF_8);
-        Pattern p = Pattern.compile("(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})");
+        Pattern p = Pattern.compile("(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2,4})");
         Matcher m = p.matcher(inputString);
         ArrayList<Byte> output = new ArrayList<>();
 

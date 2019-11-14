@@ -76,16 +76,6 @@ public class Utils {
         return false;
     }
 
-    public static byte[] extendByteArray(byte[] input, int length) {
-        // I'm only using this function in like one spot, this should never happen.
-        if (length > 0) {
-            return new byte[0];
-        }
-        byte[] output = new byte[input.length + length];
-        System.arraycopy(input, 0, output, 0, input.length);
-        return output;
-    }
-    
     // Converts Url byte[] to normal byte[] by replacing the chars
     // "-" (0x2D) -> "+" (0x2B)
     // "_" (0x5F) -> "/" (0x2F)

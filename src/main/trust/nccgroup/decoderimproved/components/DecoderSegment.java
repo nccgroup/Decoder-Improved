@@ -748,7 +748,7 @@ public class DecoderSegment extends JPanel {
         }
 
         String getDisplayString() {
-            return Utils.newUTF8String(getByteArray());
+            return Utils.replaceBrokenNonCharacters(Utils.newUTF8String(getByteArray()));
         }
 
         byte[] getByteArray() {

@@ -20,9 +20,13 @@ import javax.swing.*;
 
 public class Utils {
     // Replacement Char: UTF-8 EFBFBD (U+FFFD)
+    private final static String REPLACEMENT_CHAR_STRING = new String(Character.toChars(0xFFFD));
+    // Currently only U+FFFF has been identified that breaks Java Swing (in JTextPane)
+    private final static String BROKEN_NON_CHARACTER_REGEX = "[\uFFFF]";
+
     private final static CharsetDecoder UTF8_DECODER = StandardCharsets.UTF_8
             .newDecoder()
-            .replaceWith("�")
+            .replaceWith(REPLACEMENT_CHAR_STRING)
             .onMalformedInput(CodingErrorAction.REPLACE)
             .onUnmappableCharacter(CodingErrorAction.REPLACE);
 
@@ -33,6 +37,14 @@ public class Utils {
             Logger.printErrorFromException(e);
             return "";
         }
+    }
+
+    // UTF-8 non-characters (at least U+FFFF) are not supported by Java Swing, which should be replaced with the replacement char
+    // https://en.wikipedia.org/wiki/Specials_(Unicode_block)
+    // https://stackoverflow.com/a/16619933
+    // NOTE: NOT ALL non-characters are replaced, but only those broken in Java Swing
+    public static String replaceBrokenNonCharacters(String input) {
+        return input.replaceAll(BROKEN_NON_CHARACTER_REGEX, REPLACEMENT_CHAR_STRING);
     }
 
     public static String convertByteArrayToHexString (byte[] data) {

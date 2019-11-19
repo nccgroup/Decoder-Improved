@@ -17,6 +17,7 @@ public class MainTab extends JPanel implements ITab {
 
     private JTabbedPane tabbedPane;
     private JPanel newTabButton;
+    private DecoderTab lastClosedDecoderTab;
 
     private ConfigPanel configPanel;
 
@@ -54,10 +55,6 @@ public class MainTab extends JPanel implements ITab {
                     dt.getDecoderSegments().get(0).getTextEditor().requestFocus();
                 }
             }
-            for (int i = 0; i < tabbedPane.getTabCount() - 2; i++) {
-                DecoderTab.DecoderTabHandle dth = (DecoderTab.DecoderTabHandle) tabbedPane.getTabComponentAt(i);
-                dth.tabName.setEditable(false);
-            }
         });
         add(tabbedPane, BorderLayout.CENTER);
 
@@ -66,20 +63,45 @@ public class MainTab extends JPanel implements ITab {
     }
 
     // Logic for adding new tabs
-    void addTab() {
+    private void addTab() {
         tabChangeListenerLock = true;
         // Add a new tab
         overallCount += 1;
-        DecoderTab mt2 = new DecoderTab(Integer.toString(overallCount, 10), this);
-        tabbedPane.add(mt2);
-        tabbedPane.setTabComponentAt(tabbedPane.indexOfComponent(mt2), mt2.getTabHandleElement());
-        tabbedPane.setSelectedComponent(mt2);
+        DecoderTab newDecoderTab = new DecoderTab(Integer.toString(overallCount, 10), this);
+        tabbedPane.add(newDecoderTab);
+        tabbedPane.setTabComponentAt(tabbedPane.indexOfComponent(newDecoderTab), newDecoderTab.getTabHandleElement());
+        tabbedPane.setSelectedComponent(newDecoderTab);
         //mt2.getDecoderSegments().get(0).getTextEditor().requestFocus();
 
         // This moves the '...' tab to the end of the tab list
         tabbedPane.remove(newTabButton);
         tabbedPane.add(newTabButton);
 
+        newDecoderTab.getDecoderSegments().get(0).getTextEditor().requestFocus();
+
+        tabChangeListenerLock = false;
+    }
+
+    void closeTab(DecoderTab decoderTab) {
+        tabChangeListenerLock = true;
+        if (tabbedPane.getSelectedComponent().equals(decoderTab)) {
+            if (tabbedPane.getTabCount() == 2) {
+                tabbedPane.remove(decoderTab);
+                addTab();
+                tabChangeListenerLock = true;
+            } else if (tabbedPane.getTabCount() > 2) {
+                tabbedPane.remove(decoderTab);
+            }
+            if (lastClosedDecoderTab != null) {
+                lastClosedDecoderTab.clear();
+            }
+            lastClosedDecoderTab = decoderTab;
+            if (tabbedPane.getSelectedIndex() == tabbedPane.getTabCount() - 1) {
+                tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 2);
+            }
+        } else {
+            tabbedPane.setSelectedComponent(decoderTab);
+        }
         tabChangeListenerLock = false;
     }
 
@@ -140,7 +162,7 @@ public class MainTab extends JPanel implements ITab {
             JsonObject tabStateObject = new JsonObject();
             DecoderTab.DecoderTabHandle tabHandle = (DecoderTab.DecoderTabHandle) tabbedPane.getTabComponentAt(i);
             // Tab name
-            tabStateObject.addProperty("n", tabHandle.tabName.getText());
+            tabStateObject.addProperty("n", tabHandle.tabNameField.getText());
             // Bytes in first segment of each tab
             tabStateObject.addProperty("b", Base64.getEncoder().encodeToString(tabHandle.decoderTab.getDecoderSegments().get(0).dsState.getByteArray()));
             // Save panel states of all segments
@@ -195,7 +217,7 @@ public class MainTab extends JPanel implements ITab {
                 // Build a new tab for each tab object
                 addTab();
                 DecoderTab dt = (DecoderTab) tabbedPane.getComponentAt(originalTabCount + i - 1);
-                dt.decoderTabHandle.tabName.setText(tabStateObject.get("n").getAsString());
+                dt.decoderTabHandle.tabNameField.setText(tabStateObject.get("n").getAsString());
                 DecoderSegment.DecoderSegmentState dsState = dt.getDecoderSegments().get(0).dsState;
                 dsState.setByteArrayList(Base64.getDecoder().decode(tabStateObject.get("b").getAsString()));
                 JsonArray segmentStateArray = tabStateObject.getAsJsonArray("s");

@@ -1,6 +1,5 @@
 package trust.nccgroup.decoderimproved;
 
-import java.awt.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
@@ -10,8 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.exbin.utils.binary_data.BinaryData;
-
-import javax.swing.*;
 
 
 /**

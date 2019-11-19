@@ -11,17 +11,20 @@ import trust.nccgroup.decoderimproved.modes.EncodeMode;
 import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Base64;
 
 public class MainTab extends JPanel implements ITab {
 
     private JTabbedPane tabbedPane;
     private JPanel newTabButton;
-    private DecoderTab lastClosedDecoderTab;
+    private DecoderTab lastClosedDecoderTab = null;
 
     private ConfigPanel configPanel;
 
     private boolean tabChangeListenerLock = false;
+    private JPopupMenu tabMenu;
 
     //Plugin starts with one decoder tab open and the "new tab" tab
     private int overallCount = 0;
@@ -56,10 +59,21 @@ public class MainTab extends JPanel implements ITab {
                 }
             }
         });
+        tabbedPane.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    tabMenu.show(e.getComponent(), e.getX(), e.getY());
+                }
+            }
+        });
+
         add(tabbedPane, BorderLayout.CENTER);
 
         configPanel = new ConfigPanel(extensionRoot);
         add(configPanel, BorderLayout.SOUTH);
+
+        tabMenu = new TabMenu();
     }
 
     // Logic for adding new tabs
@@ -71,14 +85,22 @@ public class MainTab extends JPanel implements ITab {
         tabbedPane.add(newDecoderTab);
         tabbedPane.setTabComponentAt(tabbedPane.indexOfComponent(newDecoderTab), newDecoderTab.getTabHandleElement());
         tabbedPane.setSelectedComponent(newDecoderTab);
-        //mt2.getDecoderSegments().get(0).getTextEditor().requestFocus();
-
         // This moves the '...' tab to the end of the tab list
         tabbedPane.remove(newTabButton);
         tabbedPane.add(newTabButton);
-
         newDecoderTab.getDecoderSegments().get(0).getTextEditor().requestFocus();
+        tabChangeListenerLock = false;
+    }
 
+    private void addTab(DecoderTab tab) {
+        tabChangeListenerLock = true;
+        tabbedPane.add(tab);
+        tabbedPane.setTabComponentAt(tabbedPane.indexOfComponent(tab), tab.getTabHandleElement());
+        tabbedPane.setSelectedComponent(tab);
+        // This moves the '...' tab to the end of the tab list
+        tabbedPane.remove(newTabButton);
+        tabbedPane.add(newTabButton);
+        tab.getDecoderSegments().get(0).getTextEditor().requestFocus();
         tabChangeListenerLock = false;
     }
 
@@ -92,6 +114,7 @@ public class MainTab extends JPanel implements ITab {
             } else if (tabbedPane.getTabCount() > 2) {
                 tabbedPane.remove(decoderTab);
             }
+            // Update last closed tab
             if (lastClosedDecoderTab != null) {
                 lastClosedDecoderTab.clear();
             }
@@ -256,6 +279,48 @@ public class MainTab extends JPanel implements ITab {
             } else {
                 throw e;
             }
+        }
+    }
+
+    private class TabMenu extends JPopupMenu {
+        JMenuItem closeTabItem;
+        JMenuItem reopenClosedTabItem;
+        TabMenu() {
+            closeTabItem = new JMenuItem("Close tab");
+            reopenClosedTabItem = new JMenuItem("Reopen closed tab");
+            add(closeTabItem);
+            add(reopenClosedTabItem);
+
+            closeTabItem.addActionListener((e) -> {
+                try {
+                    closeTab((DecoderTab) tabbedPane.getSelectedComponent());
+                } catch (Exception ee) {
+                    Logger.printErrorFromException(ee);
+                }
+            });
+            reopenClosedTabItem.addActionListener((e) -> {
+                if (lastClosedDecoderTab != null) {
+                    addTab(lastClosedDecoderTab);
+                    lastClosedDecoderTab = null;
+                }
+            });
+
+            addPopupMenuListener(new PopupMenuListener() {
+                @Override
+                public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                    reopenClosedTabItem.setEnabled(lastClosedDecoderTab != null);
+                }
+
+                @Override
+                public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+
+                }
+
+                @Override
+                public void popupMenuCanceled(PopupMenuEvent e) {
+
+                }
+            });
         }
     }
 }

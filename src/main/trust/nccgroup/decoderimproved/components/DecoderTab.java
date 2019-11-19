@@ -125,6 +125,7 @@ public class DecoderTab extends JPanel {
         private JTabbedPane parentTabbedPane;
         DecoderTab decoderTab;
         JTextField tabNameField;
+        JButton closeButton;
 
         private DecoderTabHandle(String title, MainTab mainTab, DecoderTab decoderTab) {
             this.decoderTab = decoderTab;
@@ -141,7 +142,7 @@ public class DecoderTab extends JPanel {
             tabNameField.setCaretColor(Color.BLACK);
 
             this.add(tabNameField);
-            JButton closeButton = new JButton("✕");
+            closeButton = new JButton("✕");
             closeButton.setFont(new Font("monospaced", Font.PLAIN, 10));
             closeButton.setBorder(BorderFactory.createEmptyBorder(1, 2, 1, 2));
             closeButton.setForeground(Color.GRAY);
@@ -152,11 +153,11 @@ public class DecoderTab extends JPanel {
 
             tabNameField.addMouseListener(new MouseAdapter() {
                 @Override
-                public void mousePressed(MouseEvent e) {
+                public void mouseClicked(MouseEvent e) {
                     parentTabbedPane.setSelectedComponent(decoderTab);
                     if (SwingUtilities.isRightMouseButton(e)) {
-                        // TODO: Add reopen closed menu function
-                    } else if (SwingUtilities.isMiddleMouseButton(e)){
+                        parentTabbedPane.dispatchEvent(e);
+                    } else if (SwingUtilities.isMiddleMouseButton(e)) {
                         mainTab.closeTab(decoderTab);
                     } else if (e.getClickCount() >= 2) {
                         tabNameField.setEditable(true);
@@ -172,7 +173,18 @@ public class DecoderTab extends JPanel {
                 }
             });
 
-            closeButton.addActionListener(e -> mainTab.closeTab(decoderTab));
+            //closeButton.addActionListener(e -> mainTab.closeTab(decoderTab));
+            closeButton.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    if (SwingUtilities.isRightMouseButton(e)) {
+                        parentTabbedPane.setSelectedComponent(decoderTab);
+                        parentTabbedPane.dispatchEvent(e);
+                    } else {
+                        mainTab.closeTab(decoderTab);
+                    }
+                }
+            });
 
             this.add(closeButton);
         }

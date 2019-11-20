@@ -15,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class DecoderTab extends JPanel {
+    MainTab mainTab;
     DecoderTabHandle decoderTabHandle;
     JPanel decoderTabBody;
     ArrayList<DecoderSegment> decoderSegments;
@@ -22,6 +23,7 @@ public class DecoderTab extends JPanel {
     private JScrollPane scrollingBodyHolder;
 
     DecoderTab(String _title, MainTab _parent) {
+        mainTab = _parent;
         decoderTabHandle = new DecoderTabHandle(_title, _parent, this);
         setupComponents();
     }
@@ -169,6 +171,10 @@ public class DecoderTab extends JPanel {
                 @Override
                 public void focusLost(FocusEvent e) {
                     tabNameField.setEditable(false);
+                    // Add a single space to an empty name to keep it selectable for editing
+                    if (tabNameField.getText().isEmpty()) {
+                        tabNameField.setText(" ");
+                    }
                     super.focusLost(e);
                 }
             });

@@ -53,10 +53,10 @@ public class Utils {
     }
 
     public static byte[] convertHexDataToByteArray(BinaryData data) {
-        int dataLength = (int)data.getDataSize();
+        int dataLength = (int) data.getDataSize();
         byte[] output = new byte[dataLength];
         try {
-            data.getDataInputStream().read(output);
+            data.copyToArray(0, output, 0, output.length);
         } catch (Exception e) {
             Logger.printErrorFromException(e);
         }

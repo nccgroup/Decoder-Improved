@@ -82,24 +82,18 @@ public class MainTab extends JPanel implements ITab {
         // Add a new tab
         overallCount += 1;
         DecoderTab newDecoderTab = new DecoderTab(Integer.toString(overallCount, 10), this);
-        tabbedPane.add(newDecoderTab);
+        tabbedPane.add(newDecoderTab, tabbedPane.getTabCount() - 1);
         tabbedPane.setTabComponentAt(tabbedPane.indexOfComponent(newDecoderTab), newDecoderTab.getTabHandleElement());
         tabbedPane.setSelectedComponent(newDecoderTab);
-        // This moves the '...' tab to the end of the tab list
-        tabbedPane.remove(newTabButton);
-        tabbedPane.add(newTabButton);
         newDecoderTab.getDecoderSegments().get(0).getTextEditor().requestFocus();
         tabChangeListenerLock = false;
     }
 
     private void addTab(DecoderTab tab) {
         tabChangeListenerLock = true;
-        tabbedPane.add(tab);
+        tabbedPane.add(tab, tabbedPane.getTabCount() - 1);
         tabbedPane.setTabComponentAt(tabbedPane.indexOfComponent(tab), tab.getTabHandleElement());
         tabbedPane.setSelectedComponent(tab);
-        // This moves the '...' tab to the end of the tab list
-        tabbedPane.remove(newTabButton);
-        tabbedPane.add(newTabButton);
         tab.getDecoderSegments().get(0).getTextEditor().requestFocus();
         tabChangeListenerLock = false;
     }

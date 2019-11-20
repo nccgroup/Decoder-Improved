@@ -2,7 +2,9 @@ package trust.nccgroup.decoderimproved.components;
 
 import org.exbin.deltahex.CodeType;
 import org.exbin.deltahex.DataChangedListener;
+import org.exbin.deltahex.SelectionRange;
 import org.exbin.deltahex.swing.CodeArea;
+import org.exbin.utils.binary_data.BinaryData;
 import org.exbin.utils.binary_data.ByteArrayEditableData;
 import trust.nccgroup.decoderimproved.CONSTANTS;
 import trust.nccgroup.decoderimproved.Logger;
@@ -28,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DecoderSegment extends JPanel {
-    private DecoderTab parent;
+    private DecoderTab decoderTab;
 
     public DecoderSegmentState dsState;
 
@@ -67,7 +69,7 @@ public class DecoderSegment extends JPanel {
     private boolean lockDocumentEvents;
 
     DecoderSegment(DecoderTab _parent) {
-        parent = _parent;
+        decoderTab = _parent;
         setupComponents();
     }
 
@@ -118,7 +120,7 @@ public class DecoderSegment extends JPanel {
         for (Component c : panel.getComponents()) {
             if (c instanceof JComboBox) {
                 ((JComboBox) c).addActionListener((ActionEvent e) -> {
-                    parent.updateDecoderSegments(getSegmentIndex(), true);
+                    decoderTab.updateDecoderSegments(getSegmentIndex(), true);
                 });
             } else if (c instanceof JPanel) {
                 addActionListeners((JPanel) c);
@@ -126,12 +128,12 @@ public class DecoderSegment extends JPanel {
                 ((JTextField) c).getDocument().addDocumentListener(new DocumentListener() {
                     @Override
                     public void insertUpdate(DocumentEvent e) {
-                        parent.updateDecoderSegments(getSegmentIndex(), true);
+                        decoderTab.updateDecoderSegments(getSegmentIndex(), true);
                     }
 
                     @Override
                     public void removeUpdate(DocumentEvent e) {
-                        parent.updateDecoderSegments(getSegmentIndex(), true);
+                        decoderTab.updateDecoderSegments(getSegmentIndex(), true);
                     }
 
                     // This doesn't do anything
@@ -311,7 +313,7 @@ public class DecoderSegment extends JPanel {
             public void dataChanged() {
                 if (!lockDocumentEvents) {
                     dsState.setByteArrayList(Utils.convertHexDataToByteArray(hexEditor.getData()));
-                    parent.updateDecoderSegments(getSegmentIndex(), false);
+                    decoderTab.updateDecoderSegments(getSegmentIndex(), false);
                 }
             }
         });
@@ -326,7 +328,7 @@ public class DecoderSegment extends JPanel {
 
                     // Utils.printByteArray(dsState.getByteArray());
 
-                    parent.updateDecoderSegments(getSegmentIndex(), false);
+                    decoderTab.updateDecoderSegments(getSegmentIndex(), false);
 
                     SwingUtilities.invokeLater(() -> {
                         int caretPos = textEditor.getCaretPosition();
@@ -344,7 +346,7 @@ public class DecoderSegment extends JPanel {
                     dsState.removeUpdateFromByteArrayList(e.getOffset(), e.getLength());
                     // Utils.printByteArray(dsState.getByteArray());
 
-                    parent.updateDecoderSegments(getSegmentIndex(), false);
+                    decoderTab.updateDecoderSegments(getSegmentIndex(), false);
 
                     SwingUtilities.invokeLater(() -> {
                         int caretPos = textEditor.getCaretPosition();
@@ -364,7 +366,7 @@ public class DecoderSegment extends JPanel {
     }
 
     private int getSegmentIndex() {
-        return parent.decoderSegments.indexOf(this);
+        return decoderTab.decoderSegments.indexOf(this);
     }
 
     private static class MenuHandler {
@@ -380,6 +382,8 @@ public class DecoderSegment extends JPanel {
         private static final String DELETE_ACTION_NAME = "Delete";
         private static final String SELECT_ALL_ACTION_NAME = "Select All";
 
+        private static final String NEW_TAB_ACTION_NAME = "Send to new tab";
+
         private static JPopupMenu createHexEditorPopupMenu(final CodeArea codeArea, final DecoderSegment decoderSegment) {
             JPopupMenu popupMenu = new JPopupMenu();
 
@@ -391,7 +395,7 @@ public class DecoderSegment extends JPanel {
                     if (decoderSegment.dsState.canUndo()) {
                         decoderSegment.dsState.undo();
                         SwingUtilities.invokeLater(() -> {
-                            decoderSegment.parent.updateDecoderSegments(decoderSegment.getSegmentIndex(), false);
+                            decoderSegment.decoderTab.updateDecoderSegments(decoderSegment.getSegmentIndex(), false);
                             decoderSegment.updateEditors(decoderSegment.dsState);
                         });
                     }
@@ -410,7 +414,7 @@ public class DecoderSegment extends JPanel {
                     if (decoderSegment.dsState.canRedo()) {
                         decoderSegment.dsState.redo();
                         SwingUtilities.invokeLater(() -> {
-                            decoderSegment.parent.updateDecoderSegments(decoderSegment.getSegmentIndex(), false);
+                            decoderSegment.decoderTab.updateDecoderSegments(decoderSegment.getSegmentIndex(), false);
                             decoderSegment.updateEditors(decoderSegment.dsState);
                         });
                     }
@@ -492,54 +496,75 @@ public class DecoderSegment extends JPanel {
             popupMenu.addSeparator();
 
             final JMenuItem editCutPopupMenuItem = new JMenuItem();
-            AbstractAction cutAction = new AbstractAction(CUT_ACTION_NAME) {
+            editCutPopupMenuItem.setAction(new AbstractAction(CUT_ACTION_NAME) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     codeArea.cut();
                 }
-            };
-            editCutPopupMenuItem.setAction(cutAction);
+            });
             popupMenu.add(editCutPopupMenuItem);
 
             final JMenuItem editCopyPopupMenuItem = new JMenuItem();
-            AbstractAction copyAction = new AbstractAction(COPY_ACTION_NAME) {
+            editCopyPopupMenuItem.setAction(new AbstractAction(COPY_ACTION_NAME) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     codeArea.copy();
                 }
-            };
-            editCopyPopupMenuItem.setAction(copyAction);
+            });
             popupMenu.add(editCopyPopupMenuItem);
 
             final JMenuItem editPastePopupMenuItem = new JMenuItem();
-            AbstractAction pasteAction = new AbstractAction(PASTE_ACTION_NAME) {
+            editPastePopupMenuItem.setAction(new AbstractAction(PASTE_ACTION_NAME) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     codeArea.paste();
                 }
-            };
-            editPastePopupMenuItem.setAction(pasteAction);
+            });
             popupMenu.add(editPastePopupMenuItem);
 
             final JMenuItem editDeletePopupMenuItem = new JMenuItem();
-            AbstractAction deleteAction = new AbstractAction(DELETE_ACTION_NAME) {
+            editDeletePopupMenuItem.setAction(new AbstractAction(DELETE_ACTION_NAME) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     codeArea.delete();
                 }
-            };
-            editDeletePopupMenuItem.setAction(deleteAction);
+            });
             popupMenu.add(editDeletePopupMenuItem);
 
             final JMenuItem selectAllPopupMenuItem = new JMenuItem();
-            AbstractAction selectAllAction = new AbstractAction(SELECT_ALL_ACTION_NAME) {
+            selectAllPopupMenuItem.setAction(new AbstractAction(SELECT_ALL_ACTION_NAME) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     codeArea.selectAll();
                 }
-            };
-            selectAllPopupMenuItem.setAction(selectAllAction);
+            });
             popupMenu.add(selectAllPopupMenuItem);
+
+            popupMenu.addSeparator();
+
+            final JMenuItem newTabPopUpMenuItem = new JMenuItem();
+            newTabPopUpMenuItem.setAction(new AbstractAction(NEW_TAB_ACTION_NAME) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    byte[] selectedData;
+                    if (codeArea.hasSelection()) {
+                        SelectionRange selectionRange = codeArea.getSelection();
+                        // org.exbin.deltahex.SelectionRange has different length for forward and backward selections
+                        if (selectionRange.getStart() > selectionRange.getLast()) {
+                            selectedData = Utils.convertHexDataToByteArray(codeArea.getData().copy(selectionRange.getFirst(), selectionRange.getLength()));
+                        } else {
+                            selectedData = Utils.convertHexDataToByteArray(codeArea.getData().copy(selectionRange.getFirst(), selectionRange.getLength() + 1));
+                        }
+                    } else {
+                        selectedData = Utils.convertHexDataToByteArray(codeArea.getData());
+                    }
+                    if (selectedData.length > 0) {
+                        decoderSegment.decoderTab.mainTab.receiveTextFromMenu(selectedData);
+                    }
+                }
+            });
+            popupMenu.add(newTabPopUpMenuItem);
+
             popupMenu.addSeparator();
 
             JMenuItem changeEncoding = new JMenuItem();
@@ -613,7 +638,7 @@ public class DecoderSegment extends JPanel {
                     if (decoderSegment.dsState.canUndo()) {
                         decoderSegment.dsState.undo();
                         SwingUtilities.invokeLater(() -> {
-                            decoderSegment.parent.updateDecoderSegments(decoderSegment.getSegmentIndex(), false);
+                            decoderSegment.decoderTab.updateDecoderSegments(decoderSegment.getSegmentIndex(), false);
                             decoderSegment.updateEditors(decoderSegment.dsState);
                         });
                     }
@@ -632,7 +657,7 @@ public class DecoderSegment extends JPanel {
                     if (decoderSegment.dsState.canRedo()) {
                         decoderSegment.dsState.redo();
                         SwingUtilities.invokeLater(() -> {
-                            decoderSegment.parent.updateDecoderSegments(decoderSegment.getSegmentIndex(), false);
+                            decoderSegment.decoderTab.updateDecoderSegments(decoderSegment.getSegmentIndex(), false);
                             decoderSegment.updateEditors(decoderSegment.dsState);
                         });
                     }
@@ -647,34 +672,48 @@ public class DecoderSegment extends JPanel {
             popupMenu.addSeparator();
 
             final JMenuItem editCutPopupMenuItem = new JMenuItem();
-            AbstractAction cutAction = new AbstractAction(CUT_ACTION_NAME) {
+            editCutPopupMenuItem.setAction(new AbstractAction(CUT_ACTION_NAME) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     textEditor.cut();
                 }
-            };
-            editCutPopupMenuItem.setAction(cutAction);
+            });
             popupMenu.add(editCutPopupMenuItem);
 
             final JMenuItem editCopyPopupMenuItem = new JMenuItem();
-            AbstractAction copyAction = new AbstractAction(COPY_ACTION_NAME) {
+            editCopyPopupMenuItem.setAction(new AbstractAction(COPY_ACTION_NAME) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     textEditor.copy();
                 }
-            };
-            editCopyPopupMenuItem.setAction(copyAction);
+            });
             popupMenu.add(editCopyPopupMenuItem);
 
             final JMenuItem editPastePopupMenuItem = new JMenuItem();
-            AbstractAction pasteAction = new AbstractAction(PASTE_ACTION_NAME) {
+            editPastePopupMenuItem.setAction(new AbstractAction(PASTE_ACTION_NAME) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     textEditor.paste();
                 }
-            };
-            editPastePopupMenuItem.setAction(pasteAction);
+            });
             popupMenu.add(editPastePopupMenuItem);
+
+            popupMenu.addSeparator();
+
+            final JMenuItem newTabPopUpMenuItem = new JMenuItem();
+            newTabPopUpMenuItem.setAction(new AbstractAction(NEW_TAB_ACTION_NAME) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String selectedText = textEditor.getSelectedText();
+                    if (selectedText == null || selectedText.isEmpty()) {
+                        selectedText = textEditor.getText();
+                    }
+                    if (selectedText != null && !selectedText.isEmpty()) {
+                        decoderSegment.decoderTab.mainTab.receiveTextFromMenu(selectedText.getBytes(StandardCharsets.UTF_8));
+                    }
+                }
+            });
+            popupMenu.add(newTabPopUpMenuItem);
 
             popupMenu.addPopupMenuListener(new PopupMenuListener() {
                 @Override

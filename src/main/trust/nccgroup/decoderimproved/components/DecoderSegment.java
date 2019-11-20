@@ -370,9 +370,6 @@ public class DecoderSegment extends JPanel {
     }
 
     private static class MenuHandler {
-
-        private static final int META_MASK = java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-
         private static final String UNDO_ACTION_NAME = "Undo";
         private static final String REDO_ACTION_NAME = "Redo";
 
@@ -401,7 +398,7 @@ public class DecoderSegment extends JPanel {
                     }
                 }
             };
-            codeArea.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, META_MASK), "undo");
+            codeArea.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, CONSTANTS.META_MASK), "undo");
             codeArea.getActionMap().put("undo", undoAction);
             undoPopupMenuItem.setAction(undoAction);
             popupMenu.add(undoPopupMenuItem);
@@ -420,7 +417,7 @@ public class DecoderSegment extends JPanel {
                     }
                 }
             };
-            codeArea.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, META_MASK | InputEvent.SHIFT_DOWN_MASK), "redo");
+            codeArea.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, CONSTANTS.META_MASK | InputEvent.SHIFT_DOWN_MASK), "redo");
             codeArea.getActionMap().put("redo", redoAction);
             redoPopupMenuItem.setAction(redoAction);
             popupMenu.add(redoPopupMenuItem);
@@ -644,7 +641,7 @@ public class DecoderSegment extends JPanel {
                     }
                 }
             };
-            textEditor.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, META_MASK), "undo");
+            textEditor.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, CONSTANTS.META_MASK), "undo");
             textEditor.getActionMap().put("undo", undoAction);
             undoPopupMenuItem.setAction(undoAction);
             popupMenu.add(undoPopupMenuItem);
@@ -663,8 +660,8 @@ public class DecoderSegment extends JPanel {
                     }
                 }
             };
-            textEditor.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, META_MASK | InputEvent.SHIFT_DOWN_MASK), "redo");
-            textEditor.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Y, META_MASK), "redo");
+            textEditor.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, CONSTANTS.META_MASK | InputEvent.SHIFT_DOWN_MASK), "redo");
+            textEditor.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Y, CONSTANTS.META_MASK), "redo");
             textEditor.getActionMap().put("redo", redoAction);
             redoPopupMenuItem.setAction(redoAction);
             popupMenu.add(redoPopupMenuItem);

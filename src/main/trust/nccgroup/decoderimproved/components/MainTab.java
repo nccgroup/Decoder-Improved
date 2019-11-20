@@ -2,6 +2,7 @@ package trust.nccgroup.decoderimproved.components;
 
 import burp.ITab;
 import com.google.gson.*;
+import trust.nccgroup.decoderimproved.CONSTANTS;
 import trust.nccgroup.decoderimproved.ExtensionRoot;
 import trust.nccgroup.decoderimproved.Logger;
 import trust.nccgroup.decoderimproved.modes.AbstractModificationMode;
@@ -11,8 +12,7 @@ import trust.nccgroup.decoderimproved.modes.EncodeMode;
 import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.Base64;
 
 public class MainTab extends JPanel implements ITab {
@@ -74,6 +74,32 @@ public class MainTab extends JPanel implements ITab {
         add(configPanel, BorderLayout.SOUTH);
 
         tabMenu = new TabMenu();
+
+        // Register hotkeys under the main tab
+        // Ctrl + w to close the current tab
+        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_W, CONSTANTS.META_MASK), "close_tab");
+        getActionMap().put("close_tab", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                closeTab((DecoderTab)tabbedPane.getSelectedComponent());
+            }
+        });
+        // Ctrl + t to create a new tab
+        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_T, CONSTANTS.META_MASK), "new_tab");
+        getActionMap().put("new_tab", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addTab();
+            }
+        });
+        // Ctrl + shift + t to create a new tab
+        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_T, CONSTANTS.META_MASK | InputEvent.SHIFT_DOWN_MASK), "reopen_tab");
+        getActionMap().put("reopen_tab", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                reopenLastTab();
+            }
+        });
     }
 
     // Logic for adding new tabs
@@ -120,6 +146,13 @@ public class MainTab extends JPanel implements ITab {
             tabbedPane.setSelectedComponent(decoderTab);
         }
         tabChangeListenerLock = false;
+    }
+
+    private void reopenLastTab() {
+        if (lastClosedDecoderTab != null) {
+            addTab(lastClosedDecoderTab);
+            lastClosedDecoderTab = null;
+        }
     }
 
     private int firstEmptyDecoder() {
@@ -277,26 +310,24 @@ public class MainTab extends JPanel implements ITab {
     }
 
     private class TabMenu extends JPopupMenu {
-        JMenuItem closeTabItem;
+        //JMenuItem closeTabItem;
         JMenuItem reopenClosedTabItem;
         TabMenu() {
-            closeTabItem = new JMenuItem("Close tab");
+            //closeTabItem = new JMenuItem("Close tab");
             reopenClosedTabItem = new JMenuItem("Reopen closed tab");
-            add(closeTabItem);
+            //add(closeTabItem);
             add(reopenClosedTabItem);
 
+            /*
             closeTabItem.addActionListener((e) -> {
                 try {
                     closeTab((DecoderTab) tabbedPane.getSelectedComponent());
                 } catch (Exception ee) {
                     Logger.printErrorFromException(ee);
                 }
-            });
+            });*/
             reopenClosedTabItem.addActionListener((e) -> {
-                if (lastClosedDecoderTab != null) {
-                    addTab(lastClosedDecoderTab);
-                    lastClosedDecoderTab = null;
-                }
+
             });
 
             addPopupMenuListener(new PopupMenuListener() {
@@ -307,7 +338,7 @@ public class MainTab extends JPanel implements ITab {
 
                 @Override
                 public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-
+                    reopenLastTab();
                 }
 
                 @Override

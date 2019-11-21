@@ -77,7 +77,7 @@ public class MainTab extends JPanel implements ITab {
 
         // Register hotkeys under the main tab
         // Ctrl + w to close the current tab
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_W, CONSTANTS.META_MASK), "close_tab");
+        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_W, CONSTANTS.META_MASK, true), "close_tab");
         getActionMap().put("close_tab", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -85,15 +85,15 @@ public class MainTab extends JPanel implements ITab {
             }
         });
         // Ctrl + t to create a new tab
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_T, CONSTANTS.META_MASK), "new_tab");
+        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_T, CONSTANTS.META_MASK, true), "new_tab");
         getActionMap().put("new_tab", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 addTab();
             }
         });
-        // Ctrl + shift + t to create a new tab
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_T, CONSTANTS.META_MASK | InputEvent.SHIFT_DOWN_MASK), "reopen_tab");
+        // Ctrl + shift + t to reopen the last closed tab
+        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_T, CONSTANTS.META_MASK | InputEvent.SHIFT_DOWN_MASK, true), "reopen_tab");
         getActionMap().put("reopen_tab", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -327,7 +327,7 @@ public class MainTab extends JPanel implements ITab {
                 }
             });*/
             reopenClosedTabItem.addActionListener((e) -> {
-
+                reopenLastTab();
             });
 
             addPopupMenuListener(new PopupMenuListener() {
@@ -338,7 +338,7 @@ public class MainTab extends JPanel implements ITab {
 
                 @Override
                 public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-                    reopenLastTab();
+
                 }
 
                 @Override

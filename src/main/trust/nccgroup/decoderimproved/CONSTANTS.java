@@ -13,4 +13,6 @@ public class CONSTANTS {
     public static final int PANEL_HEIGHT = 180;
 
     public static Dimension COMBO_BOX_DIMENSION = new Dimension(CONSTANTS.COMBO_BOX_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT);
+
+    public static final int META_MASK = java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 }

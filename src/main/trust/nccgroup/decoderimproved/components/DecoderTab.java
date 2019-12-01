@@ -4,6 +4,8 @@ import trust.nccgroup.decoderimproved.ModificationException;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.nio.ByteBuffer;
@@ -13,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class DecoderTab extends JPanel {
+    MainTab mainTab;
     DecoderTabHandle decoderTabHandle;
     JPanel decoderTabBody;
     ArrayList<DecoderSegment> decoderSegments;
@@ -20,11 +23,12 @@ public class DecoderTab extends JPanel {
     private JScrollPane scrollingBodyHolder;
 
     DecoderTab(String _title, MainTab _parent) {
+        mainTab = _parent;
         decoderTabHandle = new DecoderTabHandle(_title, _parent, this);
         setupComponents();
     }
 
-    private void clear() {
+    void clear() {
         decoderSegments.forEach(x -> {
             x.dsState.clear();
         });
@@ -122,7 +126,8 @@ public class DecoderTab extends JPanel {
     static class DecoderTabHandle extends JPanel {
         private JTabbedPane parentTabbedPane;
         DecoderTab decoderTab;
-        JTextField tabName;
+        JTextField tabNameField;
+        JButton closeButton;
 
         private DecoderTabHandle(String title, MainTab mainTab, DecoderTab decoderTab) {
             this.decoderTab = decoderTab;
@@ -131,15 +136,15 @@ public class DecoderTab extends JPanel {
             this.setOpaque(false);
             JLabel label = new JLabel(title);
             label.setBorder(BorderFactory.createEmptyBorder(1, 2, 1, 2));
-            tabName = new JTextField(title);
-            tabName.setOpaque(false);
-            tabName.setBorder(null);
-            tabName.setBackground(new Color(0, 0, 0, 0));
-            tabName.setEditable(false);
-            tabName.setCaretColor(Color.BLACK);
+            tabNameField = new JTextField(title);
+            tabNameField.setOpaque(false);
+            tabNameField.setBorder(null);
+            tabNameField.setBackground(new Color(0, 0, 0, 0));
+            tabNameField.setEditable(false);
+            tabNameField.setCaretColor(Color.BLACK);
 
-            this.add(tabName);
-            JButton closeButton = new JButton("✕");
+            this.add(tabNameField);
+            closeButton = new JButton("✕");
             closeButton.setFont(new Font("monospaced", Font.PLAIN, 10));
             closeButton.setBorder(BorderFactory.createEmptyBorder(1, 2, 1, 2));
             closeButton.setForeground(Color.GRAY);
@@ -148,58 +153,43 @@ public class DecoderTab extends JPanel {
             closeButton.setContentAreaFilled(false);
             closeButton.setOpaque(false);
 
-            tabName.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mousePressed(MouseEvent e) {
-                    if (!parentTabbedPane.getSelectedComponent().equals(decoderTab)) {
-                        parentTabbedPane.setSelectedComponent(decoderTab);
-                        for (int i = 0; i < parentTabbedPane.getTabCount()-1; i++) {
-                            if (!parentTabbedPane.getComponentAt(i).equals(decoderTab)) {
-                                DecoderTabHandle dth = (DecoderTabHandle) parentTabbedPane.getTabComponentAt(i);
-                                dth.tabName.setEditable(false);
-                            }
-                        }
-                    } else {
-                        tabName.setEditable(true);
-                    }
-                }
-
+            tabNameField.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    if (!parentTabbedPane.getSelectedComponent().equals(decoderTab)) {
-                        parentTabbedPane.setSelectedComponent(decoderTab);
-                        for (int i = 0; i < parentTabbedPane.getTabCount()-1; i++) {
-                            if (!parentTabbedPane.getComponentAt(i).equals(decoderTab)) {
-                                DecoderTabHandle dth = (DecoderTabHandle) parentTabbedPane.getTabComponentAt(i);
-                                dth.tabName.setEditable(false);
-                            }
-                        }
-                    } else {
-                        tabName.setEditable(true);
+                    parentTabbedPane.setSelectedComponent(decoderTab);
+                    if (SwingUtilities.isRightMouseButton(e)) {
+                        parentTabbedPane.dispatchEvent(e);
+                    } else if (SwingUtilities.isMiddleMouseButton(e)) {
+                        mainTab.closeTab(decoderTab);
+                    } else if (e.getClickCount() >= 2) {
+                        tabNameField.setEditable(true);
                     }
                 }
             });
 
-            closeButton.addActionListener(e -> {
-                mainTab.setTabChangeListenerLock(true);
-                if (parentTabbedPane.getSelectedComponent().equals(decoderTab)) {
-                    if (parentTabbedPane.getTabCount() == 2) {
-                        parentTabbedPane.remove(decoderTab);
-                        //autoRepeaters.remove(autoRepeater);
-                        mainTab.addTab();
-                        mainTab.setTabChangeListenerLock(true);
-                    } else if (parentTabbedPane.getTabCount() > 2) {
-                        parentTabbedPane.remove(decoderTab);
-                        //autoRepeaters.remove(autoRepeater);
+            tabNameField.addFocusListener(new FocusAdapter() {
+                @Override
+                public void focusLost(FocusEvent e) {
+                    tabNameField.setEditable(false);
+                    // Add a single space to an empty name to keep it selectable for editing
+                    if (tabNameField.getText().isEmpty()) {
+                        tabNameField.setText(" ");
                     }
-                    decoderTab.clear();
-                    if (parentTabbedPane.getSelectedIndex() == parentTabbedPane.getTabCount() - 1) {
-                        parentTabbedPane.setSelectedIndex(parentTabbedPane.getTabCount() - 2);
-                    }
-                } else {
-                    parentTabbedPane.setSelectedComponent(decoderTab);
+                    super.focusLost(e);
                 }
-                mainTab.setTabChangeListenerLock(false);
+            });
+
+            //closeButton.addActionListener(e -> mainTab.closeTab(decoderTab));
+            closeButton.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    if (SwingUtilities.isRightMouseButton(e)) {
+                        parentTabbedPane.setSelectedComponent(decoderTab);
+                        parentTabbedPane.dispatchEvent(e);
+                    } else {
+                        mainTab.closeTab(decoderTab);
+                    }
+                }
             });
 
             this.add(closeButton);

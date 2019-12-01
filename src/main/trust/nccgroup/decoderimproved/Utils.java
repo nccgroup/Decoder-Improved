@@ -1,6 +1,5 @@
 package trust.nccgroup.decoderimproved;
 
-import java.awt.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
@@ -11,8 +10,6 @@ import java.util.List;
 
 import org.exbin.utils.binary_data.BinaryData;
 
-import javax.swing.*;
-
 
 /**
  * Created by j on 10/26/16.
@@ -20,9 +17,13 @@ import javax.swing.*;
 
 public class Utils {
     // Replacement Char: UTF-8 EFBFBD (U+FFFD)
+    private final static String REPLACEMENT_CHAR_STRING = new String(Character.toChars(0xFFFD));
+    // Currently only U+FFFF has been identified that breaks Java Swing (in JTextPane)
+    private final static String BROKEN_NON_CHARACTER_REGEX = "[\uFFFF]";
+
     private final static CharsetDecoder UTF8_DECODER = StandardCharsets.UTF_8
             .newDecoder()
-            .replaceWith("�")
+            .replaceWith(REPLACEMENT_CHAR_STRING)
             .onMalformedInput(CodingErrorAction.REPLACE)
             .onUnmappableCharacter(CodingErrorAction.REPLACE);
 
@@ -35,6 +36,14 @@ public class Utils {
         }
     }
 
+    // UTF-8 non-characters (at least U+FFFF) are not supported by Java Swing, which should be replaced with the replacement char
+    // https://en.wikipedia.org/wiki/Specials_(Unicode_block)
+    // https://stackoverflow.com/a/16619933
+    // NOTE: NOT ALL non-characters are replaced, but only those broken in Java Swing
+    public static String replaceBrokenNonCharacters(String input) {
+        return input.replaceAll(BROKEN_NON_CHARACTER_REGEX, REPLACEMENT_CHAR_STRING);
+    }
+
     public static String convertByteArrayToHexString (byte[] data) {
         StringBuilder sb = new StringBuilder();
         for (byte b : data) {
@@ -44,10 +53,10 @@ public class Utils {
     }
 
     public static byte[] convertHexDataToByteArray(BinaryData data) {
-        int dataLength = (int)data.getDataSize();
+        int dataLength = (int) data.getDataSize();
         byte[] output = new byte[dataLength];
         try {
-            data.getDataInputStream().read(output);
+            data.copyToArray(0, output, 0, output.length);
         } catch (Exception e) {
             Logger.printErrorFromException(e);
         }
@@ -76,16 +85,6 @@ public class Utils {
         return false;
     }
 
-    public static byte[] extendByteArray(byte[] input, int length) {
-        // I'm only using this function in like one spot, this should never happen.
-        if (length > 0) {
-            return new byte[0];
-        }
-        byte[] output = new byte[input.length + length];
-        System.arraycopy(input, 0, output, 0, input.length);
-        return output;
-    }
-    
     // Converts Url byte[] to normal byte[] by replacing the chars
     // "-" (0x2D) -> "+" (0x2B)
     // "_" (0x5F) -> "/" (0x2F)

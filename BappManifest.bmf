@@ -6,7 +6,7 @@ ScreenVersion: 1.2
 SerialVersion: 3
 MinPlatformVersion: 0
 ProOnly: False
-Author: Justin Moore
+Author: Justin Moore; Zehuan Li (current maintainer)
 ShortDescription: A replacement for Burp decoder with tabs, an improved hex editor, and extensibiity.
 EntryPoint: Decoder-Improved.jar
 BuildCommand: ./gradlew jar

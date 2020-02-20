@@ -3,10 +3,10 @@ ExtensionType: 1
 Name: Decoder Improved
 RepoName: decoder-improved
 ScreenVersion: 1.2.3
-SerialVersion: 4
+SerialVersion: 8
 MinPlatformVersion: 0
 ProOnly: False
 Author: Justin Moore; Zehuan Li (current maintainer)
 ShortDescription: A replacement for Burp decoder with tabs, an improved hex editor, and extensibiity.
-EntryPoint: Decoder-Improved.jar
-BuildCommand: ./gradlew jar
+EntryPoint: build/libs/decoder-improved-all.jar
+BuildCommand: ./gradlew shadow jar wrapper --gradle-version=5.6.2 --distribution-type=bin

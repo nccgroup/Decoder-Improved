@@ -16,7 +16,6 @@ apply plugin: 'com.github.johnrengelman.shadow'
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
-
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
@@ -42,24 +41,36 @@ dependencies {
     //compile group: 'org.brotli', name: 'parent', version: '0.1.2'
     compile 'net.portswigger.burp.extender:burp-extender-api:2.1'
     implementation 'com.google.code.gson:gson:2.8.6'
+
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.5.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.5.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.5.2")
 }
 
 //noinspection GroovyAssignabilityCheck
 sourceSets {
     main {
         java {
-            srcDirs = ["src"]
+            srcDirs = ['src/main']
         }
-
         resources {
             srcDirs = ['res']
         }
     }
+    test {
+        java {
+            srcDirs = ['src/test']
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
 }
 
 defaultTasks 'shadowJar'
 
-
+/*
 //noinspection GroovyAssignabilityCheck
 jar {
     manifest {
@@ -68,3 +79,4 @@ jar {
         )
     }
 }
+*/

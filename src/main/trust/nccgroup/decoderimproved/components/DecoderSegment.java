@@ -4,7 +4,6 @@ import org.exbin.deltahex.CodeType;
 import org.exbin.deltahex.DataChangedListener;
 import org.exbin.deltahex.SelectionRange;
 import org.exbin.deltahex.swing.CodeArea;
-import org.exbin.utils.binary_data.BinaryData;
 import org.exbin.utils.binary_data.ByteArrayEditableData;
 import trust.nccgroup.decoderimproved.CONSTANTS;
 import trust.nccgroup.decoderimproved.Logger;
@@ -18,10 +17,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.io.FileOutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -40,6 +36,9 @@ public class DecoderSegment extends JPanel {
     private ButtonGroup textHexGroup;
     private JRadioButton textRadio;
     public JRadioButton hexRadio;
+    private JPanel textControlPanel;
+    private JLabel textInfoLabel;
+    private JCheckBox textWrapCheckBox;
     private JComboBox<String> exportComboBox;
 
     // These manage the editor views
@@ -52,7 +51,7 @@ public class DecoderSegment extends JPanel {
     private JPanel controlPanel;
     private JScrollPane editorPanel;
     private JScrollPane hexPanel;
-    private JTextPane textEditor;
+    private JTextArea textEditor;
     private CodeArea hexEditor;
 
 
@@ -73,7 +72,11 @@ public class DecoderSegment extends JPanel {
         setupComponents();
     }
 
-    JTextPane getTextEditor() {
+    void setTextInfo(String info) {
+        textInfoLabel.setText(info);
+    }
+
+    JTextArea getTextEditor() {
         return textEditor;
     }
 
@@ -107,9 +110,8 @@ public class DecoderSegment extends JPanel {
         });
     }
 
-    void showError(String _errorMessage) {
+    void showError(String errorMessage) {
         hasError = true;
-        errorMessage = _errorMessage;
         textEditor.setText(errorMessage);
         textEditor.setForeground(Color.RED);
         textEditor.setEditable(false);
@@ -157,13 +159,16 @@ public class DecoderSegment extends JPanel {
 
         // Everything I initialize below this line is probably going to get removed
         textHexGroup = new ButtonGroup();
+        textEditor = new JTextArea();
         editorPanel = new PDControlScrollPane();
         hexPanel = new JScrollPane();
-        textEditor = new JTextPane();
         controlPanel = new JPanel();
         radioPanel = new JPanel();
         textRadio = new JRadioButton();
         hexRadio = new JRadioButton();
+        textControlPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        textInfoLabel = new JLabel();
+        textWrapCheckBox = new JCheckBox();
         exportComboBox = new JComboBox<>();
 
         modeSelector = new JComboBox<>();
@@ -186,9 +191,6 @@ public class DecoderSegment extends JPanel {
         // hexEditor has its own vertical scrollbar
         hexPanel.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 
-        textEditor.setMinimumSize(new Dimension(50, CONSTANTS.PANEL_HEIGHT));
-        textEditor.setPreferredSize(new Dimension(100, CONSTANTS.PANEL_HEIGHT));
-        textEditor.setContentType("text/plain");
         textEditor.setComponentPopupMenu(MenuHandler.createTextEditorPopupMenu(textEditor, this));
 
         hexEditor.setMinimumSize(new Dimension(50, CONSTANTS.PANEL_HEIGHT));
@@ -245,6 +247,26 @@ public class DecoderSegment extends JPanel {
         exportComboBox.addItem("Hex");
         exportComboBox.addItem("UTF-8 String");
 
+        textControlPanel.setMaximumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        textControlPanel.setMinimumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        textControlPanel.setPreferredSize(CONSTANTS.COMBO_BOX_DIMENSION);
+
+        textInfoLabel.setMaximumSize(new Dimension(CONSTANTS.COMBO_BOX_SHORT_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
+        textInfoLabel.setMinimumSize(new Dimension(CONSTANTS.COMBO_BOX_SHORT_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
+        textInfoLabel.setPreferredSize(new Dimension(CONSTANTS.COMBO_BOX_SHORT_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
+
+        textInfoLabel.setFont(CONSTANTS.SMALLER_FONT);
+
+        textWrapCheckBox.setMaximumSize(new Dimension(CONSTANTS.COMBO_BOX_SHORT_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
+        textWrapCheckBox.setMinimumSize(new Dimension(CONSTANTS.COMBO_BOX_SHORT_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
+        textWrapCheckBox.setPreferredSize(new Dimension(CONSTANTS.COMBO_BOX_SHORT_WIDTH, CONSTANTS.COMBO_BOX_HEIGHT));
+        textWrapCheckBox.setText("Wrap line");
+        textWrapCheckBox.setFont(CONSTANTS.SMALLER_FONT);
+
+        textControlPanel.add(textInfoLabel);
+        textControlPanel.add(textWrapCheckBox);
+
+        controlPanel.add(textControlPanel);
         controlPanel.add(exportComboBox);
 
         GridBagConstraints controlPanelConstraints = new GridBagConstraints();
@@ -362,6 +384,19 @@ public class DecoderSegment extends JPanel {
             // It only fires when the text mode of the document changes which never happens
             @Override
             public void changedUpdate(DocumentEvent e) { }
+        });
+
+        textWrapCheckBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    textEditor.setWrapStyleWord(true);
+                    textEditor.setLineWrap(true);
+                } else {
+                    textEditor.setWrapStyleWord(false);
+                    textEditor.setLineWrap(false);
+                }
+            }
         });
     }
 
@@ -624,7 +659,7 @@ public class DecoderSegment extends JPanel {
             return popupMenu;
         }
 
-        private static JPopupMenu createTextEditorPopupMenu(final JTextPane textEditor, final DecoderSegment decoderSegment) {
+        private static JPopupMenu createTextEditorPopupMenu(final JTextArea textEditor, final DecoderSegment decoderSegment) {
             JPopupMenu popupMenu = new JPopupMenu();
 
             // Undo popup menu item

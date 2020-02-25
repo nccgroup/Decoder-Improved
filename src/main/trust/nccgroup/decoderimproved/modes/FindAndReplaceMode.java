@@ -31,9 +31,9 @@ public class FindAndReplaceMode extends AbstractModificationMode {
 
         REPLACE_LABELS = new String[]{"Replace First", "Replace All"};
         replaceComboBox = new JComboBox<>(REPLACE_LABELS);
-        replaceComboBox.setMaximumSize(inputComboBoxDimension);
-        replaceComboBox.setMinimumSize(inputComboBoxDimension);
-        replaceComboBox.setPreferredSize(inputComboBoxDimension);
+        replaceComboBox.setMaximumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        replaceComboBox.setMinimumSize(CONSTANTS.COMBO_BOX_DIMENSION);
+        replaceComboBox.setPreferredSize(CONSTANTS.COMBO_BOX_DIMENSION);
 
         regexBoxPanel = new JPanel();
         regexBoxPanel.setLayout(new BoxLayout(regexBoxPanel, BoxLayout.LINE_AXIS));
@@ -45,11 +45,9 @@ public class FindAndReplaceMode extends AbstractModificationMode {
         regexLabel = new JLabel("Regex: ");
         replaceLabel = new JLabel("Replace: ");
 
-        float labelFontSize = (float)regexLabel.getFont().getSize() * 3 / 4;
-
-        regexLabel.setFont(regexLabel.getFont().deriveFont(labelFontSize));
+        regexLabel.setFont(CONSTANTS.SMALLER_FONT);
         regexTextField = new JTextField();
-        replaceLabel.setFont(replaceLabel.getFont().deriveFont(labelFontSize));
+        replaceLabel.setFont(CONSTANTS.SMALLER_FONT);
         replaceTextField = new JTextField();
 
         regexBoxPanel.add(regexLabel);

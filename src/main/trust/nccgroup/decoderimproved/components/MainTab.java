@@ -13,6 +13,8 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Base64;
 
 public class MainTab extends JPanel implements ITab {
@@ -26,8 +28,8 @@ public class MainTab extends JPanel implements ITab {
     private boolean tabChangeListenerLock = false;
     private JPopupMenu tabMenu;
 
-    //Plugin starts with one decoder tab open and the "new tab" tab
     private int overallCount = 0;
+    private List<Integer> loadedTabNameIntList = new ArrayList<>();
 
     public boolean isTabChangeListenerLock() {
         return tabChangeListenerLock;
@@ -102,12 +104,19 @@ public class MainTab extends JPanel implements ITab {
         });
     }
 
-    // Logic for adding new tabs
+    // Add an unnamed tab
     private void addTab() {
+        do {
+            overallCount += 1;
+        } while (loadedTabNameIntList.contains(overallCount));
+        addTab(Integer.toString(overallCount, 10));
+    }
+
+    // Logic for adding new tabs
+    private void addTab(String tabName) {
         tabChangeListenerLock = true;
         // Add a new tab
-        overallCount += 1;
-        DecoderTab newDecoderTab = new DecoderTab(Integer.toString(overallCount, 10), this);
+        DecoderTab newDecoderTab = new DecoderTab(tabName, this);
         tabbedPane.add(newDecoderTab, tabbedPane.getTabCount() - 1);
         tabbedPane.setTabComponentAt(tabbedPane.indexOfComponent(newDecoderTab), newDecoderTab.getTabHandleElement());
         tabbedPane.setSelectedComponent(newDecoderTab);
@@ -265,9 +274,17 @@ public class MainTab extends JPanel implements ITab {
             for (int i = 0; i < tabStateArray.size(); i++) {
                 JsonObject tabStateObject = tabStateArray.get(i).getAsJsonObject();
                 // Build a new tab for each tab object
-                addTab();
+                String tabName = tabStateObject.get("n").getAsString();
+                addTab(tabName);
+                // If a tab is loaded from config and contains numeric name, add its name to the "blacklist" of tab names
+                try {
+                    int tabNameInt = Integer.parseInt(tabName);
+                    if (tabNameInt > 0) {
+                        loadedTabNameIntList.add(tabNameInt);
+                    }
+                } catch (NumberFormatException ignored) {
+                }
                 DecoderTab dt = (DecoderTab) tabbedPane.getComponentAt(originalTabCount + i - 1);
-                dt.decoderTabHandle.tabNameField.setText(tabStateObject.get("n").getAsString());
                 DecoderSegment.DecoderSegmentState dsState = dt.getDecoderSegments().get(0).dsState;
                 dsState.setByteArrayList(Base64.getDecoder().decode(tabStateObject.get("b").getAsString()));
                 JsonArray segmentStateArray = tabStateObject.getAsJsonArray("s");

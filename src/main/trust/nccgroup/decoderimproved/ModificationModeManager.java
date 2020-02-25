@@ -19,8 +19,8 @@ public class ModificationModeManager {
 
     public ModificationModeManager() {
         layoutManager = new CardLayout();
-        this.modeUI = new JPanel(layoutManager);
-        this.ui = new JPanel();
+        modeUI = new JPanel(layoutManager);
+        ui = new JPanel();
         modes = new ArrayList<>();
         modeComboBox = new JComboBox<>();
 

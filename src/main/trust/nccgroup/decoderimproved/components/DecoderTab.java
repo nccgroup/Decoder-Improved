@@ -77,6 +77,14 @@ public class DecoderTab extends JPanel {
         // past the current one.
         for (int i = activeDecoderSegmentIndex; i < decoderSegments.size(); i++) {
             updateNextDecoderSegment(i);
+            int byteSize = decoderSegments.get(i).dsState.getByteSize();
+            if (byteSize <= 1000000) {
+                decoderSegments.get(i).setTextInfo(byteSize + " Bytes");
+            } else if (byteSize <= 1000000000) {
+                decoderSegments.get(i).setTextInfo(byteSize / 1000 + " KB");
+            } else {
+                decoderSegments.get(i).setTextInfo(byteSize / 1000000 + " MB");
+            }
         }
     }
 

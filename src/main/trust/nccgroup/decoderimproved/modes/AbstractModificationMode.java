@@ -21,7 +21,7 @@ public abstract class AbstractModificationMode implements ByteModifier {
     public AbstractModificationMode(String name) {
         this.name = name;
         layoutManager = new CardLayout();
-        this.ui = new JPanel(layoutManager);
+        ui = new JPanel(layoutManager);
 
         // Set the JPanel default sizes
         ui.setMaximumSize(CONSTANTS.COMBO_BOX_DIMENSION);

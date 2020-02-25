@@ -5,6 +5,7 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -44,7 +45,7 @@ public class Utils {
         return input.replaceAll(BROKEN_NON_CHARACTER_REGEX, REPLACEMENT_CHAR_STRING);
     }
 
-    public static String convertByteArrayToHexString (byte[] data) {
+    public static String convertByteArrayToHexString(byte[] data) {
         StringBuilder sb = new StringBuilder();
         for (byte b : data) {
             sb.append(String.format("%02X", b));
@@ -64,7 +65,7 @@ public class Utils {
     }
 
     public static boolean isHexDigit(char c) {
-       return ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'));
+        return ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'));
     }
 
     public static byte[] convertByteArrayListToByteArray(List<Byte> input) {
@@ -91,7 +92,7 @@ public class Utils {
     // Because we just want to two simple replaces we can just iterate over the byte array
     public static byte[] convertUrlBase64ToStandard(byte[] input) {
         byte[] output = Arrays.copyOf(input, input.length);
-        for (int i = 0; i < output.length ; i ++) {
+        for (int i = 0; i < output.length; i++) {
             if (output[i] == 0x2D) {
                 // this just looks cooler than a simple replacement
                 // input[i] = input[i] - 0x02 
@@ -102,6 +103,24 @@ public class Utils {
             }
         }
         return output;
+    }
+
+    public static byte[] removeLeadingAndTrailingWhitespace(byte[] input) {
+        int start = 0, end = input.length - 1;
+        // Find the first non-whitespace byte
+        while(start < input.length && (input[start] == 0x20 || input[start] == 0x09 || input[start] == 0x0D || input[start] == 0x0A)) {
+            start++;
+        }
+        // Find the last non-whitespace byte
+        while(end >= 0 && (input[end] == 0x20 || input[end] == 0x09 || input[end] == 0x0D || input[end] == 0x0A)) {
+            end--;
+        }
+        if (start <= end) {
+            return Arrays.copyOfRange(input, start, end + 1);
+        } else {
+            // return empty byte array if there's no whitespace byte
+            return new byte[0];
+        }
     }
 
     // Taken from http://stackoverflow.com/questions/28890907/implement-a-function-to-check-if-a-string-byte-array-follows-utf-8-format
@@ -127,7 +146,7 @@ public class Utils {
     // and multiple (0..n) byte in 10000000 - 10111111
     public static boolean isUTF8Char(byte[] bytes) {
         int count = multibyteExpectLength(bytes[0]);
-        if (bytes.length != count){
+        if (bytes.length != count) {
             return false;
         }
         for (int i = 1; i < bytes.length; i++) {

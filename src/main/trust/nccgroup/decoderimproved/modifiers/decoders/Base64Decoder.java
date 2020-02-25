@@ -1,5 +1,6 @@
 package trust.nccgroup.decoderimproved.modifiers.decoders;
 
+import trust.nccgroup.decoderimproved.Logger;
 import trust.nccgroup.decoderimproved.modifiers.ByteModifier;
 import trust.nccgroup.decoderimproved.ModificationException;
 import trust.nccgroup.decoderimproved.Utils;
@@ -21,8 +22,7 @@ public class Base64Decoder implements ByteModifier {
     public byte[] modifyBytes(byte[] input) throws ModificationException {
 
         // Convert from Url safe
-        input = Utils.convertUrlBase64ToStandard(input);
-
+        input = Utils.convertUrlBase64ToStandard(Utils.removeLeadingAndTrailingWhitespace(input));
         try {
             Base64.Decoder decoder = Base64.getDecoder();
             return decoder.decode(input);

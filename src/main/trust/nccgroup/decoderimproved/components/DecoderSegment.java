@@ -199,13 +199,19 @@ public class DecoderSegment extends JPanel {
 
         hexPanel.setViewportView(hexEditor);
         editorPanel.setViewportView(textEditor);
+        // Use TextLineNumber for line number display
+        TextLineNumber tln = new TextLineNumber(textEditor);
+        tln.setUpdateFont(true);
+        tln.setMinimumDisplayDigits(1);
+        editorPanel.setRowHeaderView(tln);
+
+        masterEditorPanel.add(editorPanel);
+        masterEditorPanel.add(hexPanel);
+
         GridBagConstraints editorPanelConstraints = new GridBagConstraints();
         editorPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
         editorPanelConstraints.anchor = GridBagConstraints.WEST;
         editorPanelConstraints.weightx = 1.0;
-
-        masterEditorPanel.add(editorPanel);
-        masterEditorPanel.add(hexPanel);
 
         this.add(masterEditorPanel, editorPanelConstraints);
         controlPanel.setMaximumSize(new Dimension(150, CONSTANTS.PANEL_HEIGHT));

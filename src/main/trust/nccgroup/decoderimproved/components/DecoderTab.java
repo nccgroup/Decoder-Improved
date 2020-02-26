@@ -61,12 +61,23 @@ public class DecoderTab extends JPanel {
 
     void addDecoderSegment() {
         DecoderSegment ds = new DecoderSegment(this);
-        decoderTabBody.add(Box.createRigidArea(new Dimension(0, 10)));
+        //decoderTabBody.add(Box.createRigidArea(new Dimension(0, 10)));
         decoderSegments.add(ds);
         decoderTabBody.add(ds);
 
         // Update last segment (based on second last segment)
         updateNextDecoderSegment(decoderSegments.size() - 2);
+    }
+
+    void removeDecoderSegment(DecoderSegment decoderSegment) {
+        decoderTabBody.remove(decoderSegment);
+        decoderSegments.remove(decoderSegment);
+        if (decoderSegments.size() == 0) {
+            addDecoderSegment();
+        }
+        mainTab.repaint();
+        updateDecoderSegments(0, false);
+        decoderSegment.dsState.clear();
     }
 
     void updateDecoderSegments(int activeDecoderSegmentIndex, boolean addSegment) {
@@ -91,7 +102,7 @@ public class DecoderTab extends JPanel {
     private void updateNextDecoderSegment(int activeDecoderSegmentIndex) {
         // If the item is at the end of the list there isn't anything to update
         // i.e. this prevents an array out of bounds error
-        if (activeDecoderSegmentIndex >= decoderSegments.size() - 1) {
+        if (activeDecoderSegmentIndex < 0 || activeDecoderSegmentIndex >= decoderSegments.size() - 1) {
             return;
         }
 

@@ -5,7 +5,7 @@ import java.awt.*;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
-//From http://stackoverflow.com/questions/1377887/jtextpane-prevents-scrolling-in-the-parent-jscrollpane/1379695#1379695
+// Originally from http://stackoverflow.com/questions/1377887/jtextpane-prevents-scrolling-in-the-parent-jscrollpane/1379695#1379695
 
 /**
  * A JScrollPane that will bubble a mouse wheel scroll event to the parent
@@ -21,8 +21,10 @@ class PDControlScrollPane extends JScrollPane {
 
     class PDMouseWheelListener implements MouseWheelListener {
 
-        private JScrollBar bar;
-        private int previousValue = 0;
+        private JScrollBar horizontalBar;
+        private JScrollBar verticalBar;
+        private int horizontalPreviousValue = 0;
+        private int verticalPreviousValue = 0;
         private JScrollPane parentScrollPane;
 
         private JScrollPane getParentScrollPane() {
@@ -37,7 +39,8 @@ class PDControlScrollPane extends JScrollPane {
         }
 
         PDMouseWheelListener() {
-            bar = PDControlScrollPane.this.getVerticalScrollBar();
+            horizontalBar = PDControlScrollPane.this.getHorizontalScrollBar();
+            verticalBar = PDControlScrollPane.this.getVerticalScrollBar();
         }
 
         @Override
@@ -48,15 +51,27 @@ class PDControlScrollPane extends JScrollPane {
                  * Only dispatch if we have reached top/bottom on previous scroll
                  */
                 if (e.getWheelRotation() < 0) {
-                    if (bar.getValue() == 0 && previousValue == 0) {
+                    // If vertical scroll bar exists
+                    if (getMax(verticalBar) > 0) {
+                        if (verticalBar.getValue() == 0 && verticalPreviousValue == 0) {
+                            parent.dispatchEvent(cloneEvent(e));
+                        }
+                    } else if (horizontalBar.getValue() == 0 && horizontalPreviousValue == 0) {
                         parent.dispatchEvent(cloneEvent(e));
                     }
+
                 } else {
-                    if (bar.getValue() == getMax() && previousValue == getMax()) {
+                    // If vertical scroll bar exists
+                    if (getMax(verticalBar) > 0) {
+                        if (verticalBar.getValue() == getMax(verticalBar) && verticalPreviousValue == getMax(verticalBar)) {
+                            parent.dispatchEvent(cloneEvent(e));
+                        }
+                    } else if (horizontalBar.getValue() == getMax(horizontalBar) && horizontalPreviousValue == getMax(horizontalBar)) {
                         parent.dispatchEvent(cloneEvent(e));
                     }
                 }
-                previousValue = bar.getValue();
+                horizontalPreviousValue = horizontalBar.getValue();
+                verticalPreviousValue = verticalBar.getValue();
             }
             /*
              * If parent scrollpane doesn't exist, remove this as a listener.
@@ -68,7 +83,7 @@ class PDControlScrollPane extends JScrollPane {
             }
         }
 
-        private int getMax() {
+        private int getMax(JScrollBar bar) {
             return bar.getMaximum() - bar.getVisibleAmount();
         }
 

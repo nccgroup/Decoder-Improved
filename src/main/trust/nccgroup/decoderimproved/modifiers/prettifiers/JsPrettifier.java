@@ -1,6 +1,7 @@
 package trust.nccgroup.decoderimproved.modifiers.prettifiers;
 
 import trust.nccgroup.decoderimproved.ModificationException;
+import trust.nccgroup.decoderimproved.Utils;
 import trust.nccgroup.decoderimproved.modifiers.ByteModifier;
 
 import javax.script.Invocable;
@@ -9,7 +10,6 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-//import org.graalvm.polyglot.*;
 
 public class JsPrettifier implements ByteModifier {
     //https://stackoverflow.com/a/48857894
@@ -24,7 +24,11 @@ public class JsPrettifier implements ByteModifier {
 
     private final ScriptEngine engine;
     public JsPrettifier() {
-        engine = new ScriptEngineManager().getEngineByName("nashorn");
+        if (Utils.getJavaVersion() <= 14) {
+            engine = new ScriptEngineManager().getEngineByName("nashorn");
+        } else {
+            engine = new org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory().getScriptEngine();
+        }
         try {
             engine.eval("var global = this;");
             engine.eval(new InputStreamReader(getClass().getClassLoader().getResourceAsStream(BEAUTIFY_JS_RESOURCE)));

@@ -43,7 +43,7 @@ dependencies {
     compile 'net.portswigger.burp.extender:burp-extender-api:2.1'
     implementation 'com.google.code.gson:gson:2.8.6'
 
-    compile group: 'org.openjdk.nashorn', name: 'nashorn-core', version: '15.1.1'
+    implementation group: 'org.mozilla', name: 'rhino', version: '1.7.13'
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.5.2")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.5.2")

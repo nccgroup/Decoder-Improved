@@ -88,7 +88,6 @@ public class DecoderSegment extends JPanel {
     void updateEditors(DecoderSegmentState dsState) {
         lockDocumentEvents = true;
         textEditor.setText(dsState.getDisplayString());
-        textEditor.setForeground(Color.BLACK);
         textEditor.setEditable(true);
         hexEditor.setData(new ByteArrayEditableData(dsState.getByteArray()));
         lockDocumentEvents = false;

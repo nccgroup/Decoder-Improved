@@ -1,13 +1,17 @@
 package trust.nccgroup.decoderimproved.components;
 
+import trust.nccgroup.decoderimproved.Logger;
 import trust.nccgroup.decoderimproved.ModificationException;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
@@ -158,9 +162,18 @@ public class DecoderTab extends JPanel {
             tabNameField = new JTextField(title);
             tabNameField.setOpaque(false);
             tabNameField.setBorder(null);
-            tabNameField.setBackground(new Color(0, 0, 0, 0));
             tabNameField.setEditable(false);
-            tabNameField.setCaretColor(Color.BLACK);
+            // This is to overwrite the change of the border of each tabNameField, which is triggered when the theme is changed in Burp
+            tabNameField.addPropertyChangeListener(new PropertyChangeListener() {
+                @Override
+                public void propertyChange(PropertyChangeEvent evt) {
+                    if (evt.getPropertyName().equals("border")) {
+                        tabNameField.removePropertyChangeListener(this);
+                        tabNameField.setBorder(null);
+                        tabNameField.addPropertyChangeListener(this);
+                    }
+                }
+            });
 
             this.add(tabNameField);
             closeButton = new JButton("✕");

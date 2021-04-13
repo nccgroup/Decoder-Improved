@@ -15,7 +15,6 @@ import java.util.List;
  */
 class SendToDecoderImprovedContextMenuFactory implements IContextMenuFactory {
     private final Color HIGHLIGHT_COLOR = new Color(0xE58900);
-    private final Color DEFAULT_COLOR = Color.BLACK;
 
     private MainTab mainTab;
 
@@ -114,9 +113,10 @@ class SendToDecoderImprovedContextMenuFactory implements IContextMenuFactory {
         if (tabComponent != null) {
             JTabbedPane parentTabbedPane = (JTabbedPane) tabComponent.getParent();
             int index = parentTabbedPane.indexOfComponent(tabComponent);
+            Color originalColor = parentTabbedPane.getForegroundAt(index);
             parentTabbedPane.setBackgroundAt(index, HIGHLIGHT_COLOR);
             Timer timer = new Timer(3000, e -> {
-                parentTabbedPane.setBackgroundAt(index, DEFAULT_COLOR);
+                parentTabbedPane.setBackgroundAt(index, originalColor);
             });
             timer.setRepeats(false);
             timer.start();

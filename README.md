@@ -4,7 +4,7 @@
 
 Within extender load `Decoder-Improved.jar` [latest release](https://github.com/nccgroup/Decoder-Improved/releases/latest)
 
-For a walkthrough on how to extend Decoder Improved visit our [blog post](https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2017/october/decoder-improved-burp-suite-plugin-release-part-2/).
+<s>For a walkthrough on how to extend Decoder Improved visit our [blog post](https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2017/october/decoder-improved-burp-suite-plugin-release-part-2/). </s> The link to the original description seems to be broken. While there's no up-to-date walkthrough about how to extend Decoder Improved at the moment, a little more details can be found [here](https://www.upbad.com/decoder-improved/). 
 
 ## Summary
 

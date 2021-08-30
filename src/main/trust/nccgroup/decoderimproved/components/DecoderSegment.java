@@ -1,10 +1,10 @@
 package trust.nccgroup.decoderimproved.components;
 
-import org.exbin.deltahex.CodeType;
-import org.exbin.deltahex.DataChangedListener;
-import org.exbin.deltahex.SelectionRange;
-import org.exbin.deltahex.swing.CodeArea;
-import org.exbin.utils.binary_data.ByteArrayEditableData;
+import org.exbin.bined.CodeType;
+import org.exbin.bined.DataChangedListener;
+import org.exbin.bined.SelectionRange;
+import org.exbin.bined.swing.extended.ExtCodeArea;
+import org.exbin.auxiliary.paged_data.ByteArrayEditableData;
 import trust.nccgroup.decoderimproved.CONSTANTS;
 import trust.nccgroup.decoderimproved.Logger;
 import trust.nccgroup.decoderimproved.ModificationModeManager;
@@ -25,6 +25,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import org.exbin.bined.RowWrappingMode;
+import org.exbin.bined.highlight.swing.extended.ExtendedHighlightNonAsciiCodeAreaPainter;
 
 public class DecoderSegment extends JPanel {
     private DecoderTab decoderTab;
@@ -54,7 +56,7 @@ public class DecoderSegment extends JPanel {
     private JScrollPane editorPanel;
     private JScrollPane hexPanel;
     private JTextArea textEditor;
-    private CodeArea hexEditor;
+    private ExtCodeArea hexEditor;
 
 
     // This handles all the modes
@@ -89,7 +91,7 @@ public class DecoderSegment extends JPanel {
         lockDocumentEvents = true;
         textEditor.setText(dsState.getDisplayString());
         textEditor.setEditable(true);
-        hexEditor.setData(new ByteArrayEditableData(dsState.getByteArray()));
+        hexEditor.setContentData(new ByteArrayEditableData(dsState.getByteArray()));
         lockDocumentEvents = false;
     }
 
@@ -177,7 +179,8 @@ public class DecoderSegment extends JPanel {
 
         // Theses are the drop down labels
 
-        hexEditor = new CodeArea();
+        hexEditor = new ExtCodeArea();
+        hexEditor.setPainter(new ExtendedHighlightNonAsciiCodeAreaPainter(hexEditor));
 
         // "this" is the decoder segment
         this.setMaximumSize(new Dimension(3000, CONSTANTS.SEGMENT_HEIGHT));
@@ -360,7 +363,7 @@ public class DecoderSegment extends JPanel {
             @Override
             public void dataChanged() {
                 if (!lockDocumentEvents) {
-                    dsState.setByteArrayList(Utils.convertHexDataToByteArray(hexEditor.getData()));
+                    dsState.setByteArrayList(Utils.convertHexDataToByteArray(hexEditor.getContentData()));
                     decoderTab.updateDecoderSegments(getSegmentIndex(), false);
                 }
             }
@@ -442,7 +445,7 @@ public class DecoderSegment extends JPanel {
 
         private static final String NEW_TAB_ACTION_NAME = "Send to new tab";
 
-        private static JPopupMenu createHexEditorPopupMenu(final CodeArea codeArea, final DecoderSegment decoderSegment) {
+        private static JPopupMenu createHexEditorPopupMenu(final ExtCodeArea codeArea, final DecoderSegment decoderSegment) {
             JPopupMenu popupMenu = new JPopupMenu();
 
             // Undo popup menu item
@@ -489,11 +492,21 @@ public class DecoderSegment extends JPanel {
 
             JMenu viewMenu = new JMenu("View");
 
+            final JCheckBoxMenuItem highlightNonAsciiMenuItem = new JCheckBoxMenuItem("Highlight Non-ASCII");
+            highlightNonAsciiMenuItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    ExtendedHighlightNonAsciiCodeAreaPainter painter = ((ExtendedHighlightNonAsciiCodeAreaPainter) codeArea.getPainter());
+                    painter.setNonAsciiHighlightingEnabled(!painter.isNonAsciiHighlightingEnabled());
+                }
+            });
+            viewMenu.add(highlightNonAsciiMenuItem);
+
             final JCheckBoxMenuItem showUnprintableMenuItem = new JCheckBoxMenuItem("Unprintable Characters");
             showUnprintableMenuItem.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    codeArea.setShowUnprintableCharacters(!codeArea.isShowUnprintableCharacters());
+                    codeArea.setShowUnprintables(!codeArea.isShowUnprintables());
                 }
             });
             viewMenu.add(showUnprintableMenuItem);
@@ -502,7 +515,13 @@ public class DecoderSegment extends JPanel {
             wrappingModeMenuItem.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    codeArea.setWrapMode(!codeArea.isWrapMode());
+                    if (codeArea.getRowWrapping() == RowWrappingMode.WRAPPING) {
+                        codeArea.setMaxBytesPerRow(16);
+                        codeArea.setRowWrapping(RowWrappingMode.NO_WRAPPING);
+                    } else {
+                        codeArea.setMaxBytesPerRow(0);
+                        codeArea.setRowWrapping(RowWrappingMode.WRAPPING);
+                    }
                 }
             });
             viewMenu.add(wrappingModeMenuItem);
@@ -609,12 +628,12 @@ public class DecoderSegment extends JPanel {
                         SelectionRange selectionRange = codeArea.getSelection();
                         // org.exbin.deltahex.SelectionRange has different length for forward and backward selections
                         if (selectionRange.getStart() > selectionRange.getLast()) {
-                            selectedData = Utils.convertHexDataToByteArray(codeArea.getData().copy(selectionRange.getFirst(), selectionRange.getLength()));
+                            selectedData = Utils.convertHexDataToByteArray(codeArea.getContentData().copy(selectionRange.getFirst(), selectionRange.getLength()));
                         } else {
-                            selectedData = Utils.convertHexDataToByteArray(codeArea.getData().copy(selectionRange.getFirst(), selectionRange.getLength() + 1));
+                            selectedData = Utils.convertHexDataToByteArray(codeArea.getContentData().copy(selectionRange.getFirst(), selectionRange.getLength() + 1));
                         }
                     } else {
-                        selectedData = Utils.convertHexDataToByteArray(codeArea.getData());
+                        selectedData = Utils.convertHexDataToByteArray(codeArea.getContentData());
                     }
                     if (selectedData.length > 0) {
                         decoderSegment.decoderTab.mainTab.receiveTextFromMenu(selectedData);
@@ -669,8 +688,9 @@ public class DecoderSegment extends JPanel {
                         }
                     }
 
-                    showUnprintableMenuItem.setSelected(codeArea.isShowUnprintableCharacters());
-                    wrappingModeMenuItem.setSelected(codeArea.isWrapMode());
+                    highlightNonAsciiMenuItem.setSelected(((ExtendedHighlightNonAsciiCodeAreaPainter) codeArea.getPainter()).isNonAsciiHighlightingEnabled());
+                    showUnprintableMenuItem.setSelected(codeArea.isShowUnprintables());
+                    wrappingModeMenuItem.setSelected(codeArea.getRowWrapping() == RowWrappingMode.WRAPPING);
                 }
 
                 @Override

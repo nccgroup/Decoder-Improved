@@ -31,9 +31,9 @@ repositories {
 }
 
 dependencies {
-    compile group: 'org.exbin.deltahex', name: 'deltahex-core', version: '0.1.3'
-    compile group: 'org.exbin.deltahex', name: 'deltahex-swing', version: '0.1.3'
-    compile group: 'org.exbin.utils', name: 'exbin-binary_data', version: '0.1.3-20171017.212506-7'
+    compile group: 'org.exbin.bined', name: 'bined-swing-extended', version: '0.2.0'
+    compile group: 'org.exbin.bined', name: 'bined-highlight-swing', version: '0.2.0'
+    compile group: 'org.exbin.auxiliary', name: 'paged_data', version: '0.2.0'
     compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.54'
     compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
     compile 'org.jsoup:jsoup:1.12.1'

@@ -626,7 +626,7 @@ public class DecoderSegment extends JPanel {
                     byte[] selectedData;
                     if (codeArea.hasSelection()) {
                         SelectionRange selectionRange = codeArea.getSelection();
-                        // org.exbin.deltahex.SelectionRange has different length for forward and backward selections
+                        // org.exbin.bined.SelectionRange has different length for forward and backward selections
                         if (selectionRange.getStart() > selectionRange.getLast()) {
                             selectedData = Utils.convertHexDataToByteArray(codeArea.getContentData().copy(selectionRange.getFirst(), selectionRange.getLength()));
                         } else {

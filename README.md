@@ -81,9 +81,9 @@ Decoder Improved.
 
 #### An Improved Hex Editor 
 
-Decoder Improved comes bundled with the Delta Hexadecimal Editor, a
-swing Hex Editor, developed by the [ExBin](http://www.exbin.org/)
-project. Delta provides an improved hex editing experience over the
+Decoder Improved comes bundled with the BinEd Hexadecimal Editor, a
+swing Hex Editor, developed by the [ExBin](http://bined.exbin.org/)
+project. BinEd provides an improved hex editing experience over the
 built-in decoder's hex editor by allowing easy insertion and removal,
 highlighting, and Unicode support.
 
